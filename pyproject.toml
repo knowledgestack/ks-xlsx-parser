@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "xlsx-parser"
+version = "0.1.0"
+description = "Production-grade Excel Workflow Parser for RAG + auditability systems"
+requires-python = ">=3.10"
+dependencies = [
+    "openpyxl>=3.1.0",
+    "pydantic>=2.0",
+    "lxml>=4.9.0",
+    "xxhash>=3.0.0",
+    "tiktoken>=0.5.0",
+]
+
+[project.optional-dependencies]
+api = [
+    "fastapi>=0.100.0",
+    "uvicorn[standard]>=0.20.0",
+    "python-multipart>=0.0.6",
+]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "pytest-xdist>=3.0",
+    "python-calamine>=0.2.0",
+    "requests>=2.28.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+markers = [
+    "crossval: cross-validation tests against calamine",
+    "invariant: structural invariant tests",
+    "corpus: external corpus tests (skipped by default)",
+    "slow: tests taking >10 seconds",
+]
+addopts = "-m 'not corpus'"
+
+[tool.setuptools.packages.find]
+where = ["src"]

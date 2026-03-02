@@ -1,0 +1,633 @@
+[
+  {
+    "level": 0,
+    "passed": true,
+    "source_file": "stress_level_0.xlsx",
+    "error_message": null,
+    "parse_errors": [],
+    "workbook_stats": {
+      "total_sheets": 1,
+      "total_cells": 2,
+      "total_formulas": 0,
+      "tables": 0,
+      "charts": 0,
+      "named_ranges": 0,
+      "errors_count": 0
+    },
+    "chunk_count": 1,
+    "validation_failures": [],
+    "documented_issues": []
+  },
+  {
+    "level": 1,
+    "passed": true,
+    "source_file": "stress_level_1.xlsx",
+    "error_message": null,
+    "parse_errors": [],
+    "workbook_stats": {
+      "total_sheets": 2,
+      "total_cells": 6,
+      "total_formulas": 2,
+      "tables": 0,
+      "charts": 0,
+      "named_ranges": 0,
+      "errors_count": 0
+    },
+    "chunk_count": 2,
+    "validation_failures": [],
+    "documented_issues": []
+  },
+  {
+    "level": 2,
+    "passed": true,
+    "source_file": "stress_level_2.xlsx",
+    "error_message": null,
+    "parse_errors": [],
+    "workbook_stats": {
+      "total_sheets": 2,
+      "total_cells": 21,
+      "total_formulas": 5,
+      "tables": 1,
+      "charts": 0,
+      "named_ranges": 0,
+      "errors_count": 0
+    },
+    "chunk_count": 3,
+    "validation_failures": [],
+    "documented_issues": []
+  },
+  {
+    "level": 3,
+    "passed": true,
+    "source_file": "stress_level_3.xlsx",
+    "error_message": null,
+    "parse_errors": [],
+    "workbook_stats": {
+      "total_sheets": 2,
+      "total_cells": 21,
+      "total_formulas": 5,
+      "tables": 1,
+      "charts": 1,
+      "named_ranges": 0,
+      "errors_count": 0
+    },
+    "chunk_count": 4,
+    "validation_failures": [],
+    "documented_issues": []
+  },
+  {
+    "level": 4,
+    "passed": true,
+    "source_file": "stress_level_4.xlsx",
+    "error_message": null,
+    "parse_errors": [],
+    "workbook_stats": {
+      "total_sheets": 2,
+      "total_cells": 22,
+      "total_formulas": 5,
+      "tables": 1,
+      "charts": 1,
+      "named_ranges": 1,
+      "errors_count": 0
+    },
+    "chunk_count": 4,
+    "validation_failures": [],
+    "documented_issues": []
+  },
+  {
+    "level": 5,
+    "passed": true,
+    "source_file": "stress_level_5.xlsx",
+    "error_message": null,
+    "parse_errors": [],
+    "workbook_stats": {
+      "total_sheets": 3,
+      "total_cells": 26,
+      "total_formulas": 7,
+      "tables": 1,
+      "charts": 1,
+      "named_ranges": 1,
+      "errors_count": 0
+    },
+    "chunk_count": 5,
+    "validation_failures": [],
+    "documented_issues": []
+  },
+  {
+    "level": 6,
+    "passed": true,
+    "source_file": "stress_level_6.xlsx",
+    "error_message": null,
+    "parse_errors": [],
+    "workbook_stats": {
+      "total_sheets": 3,
+      "total_cells": 32,
+      "total_formulas": 9,
+      "tables": 1,
+      "charts": 1,
+      "named_ranges": 1,
+      "errors_count": 0
+    },
+    "chunk_count": 7,
+    "validation_failures": [],
+    "documented_issues": []
+  },
+  {
+    "level": 7,
+    "passed": true,
+    "source_file": "stress_level_7.xlsx",
+    "error_message": null,
+    "parse_errors": [],
+    "workbook_stats": {
+      "total_sheets": 3,
+      "total_cells": 140,
+      "total_formulas": 9,
+      "tables": 2,
+      "charts": 2,
+      "named_ranges": 1,
+      "errors_count": 0
+    },
+    "chunk_count": 10,
+    "validation_failures": [],
+    "documented_issues": []
+  },
+  {
+    "level": 8,
+    "passed": true,
+    "source_file": "stress_level_8.xlsx",
+    "error_message": null,
+    "parse_errors": [],
+    "workbook_stats": {
+      "total_sheets": 3,
+      "total_cells": 140,
+      "total_formulas": 9,
+      "tables": 2,
+      "charts": 2,
+      "named_ranges": 1,
+      "errors_count": 0
+    },
+    "chunk_count": 10,
+    "validation_failures": [],
+    "documented_issues": []
+  },
+  {
+    "level": 9,
+    "passed": true,
+    "source_file": "stress_level_9.xlsx",
+    "error_message": null,
+    "parse_errors": [],
+    "workbook_stats": {
+      "total_sheets": 3,
+      "total_cells": 143,
+      "total_formulas": 9,
+      "tables": 2,
+      "charts": 2,
+      "named_ranges": 1,
+      "errors_count": 0
+    },
+    "chunk_count": 13,
+    "validation_failures": [],
+    "documented_issues": []
+  },
+  {
+    "level": 10,
+    "passed": true,
+    "source_file": "stress_level_10.xlsx",
+    "error_message": null,
+    "parse_errors": [],
+    "workbook_stats": {
+      "total_sheets": 5,
+      "total_cells": 145,
+      "total_formulas": 9,
+      "tables": 2,
+      "charts": 2,
+      "named_ranges": 1,
+      "errors_count": 0
+    },
+    "chunk_count": 15,
+    "validation_failures": [],
+    "documented_issues": []
+  },
+  {
+    "level": 11,
+    "passed": true,
+    "source_file": "stress_level_11.xlsx",
+    "error_message": null,
+    "parse_errors": [],
+    "workbook_stats": {
+      "total_sheets": 5,
+      "total_cells": 155,
+      "total_formulas": 9,
+      "tables": 2,
+      "charts": 2,
+      "named_ranges": 1,
+      "errors_count": 0
+    },
+    "chunk_count": 16,
+    "validation_failures": [],
+    "documented_issues": []
+  },
+  {
+    "level": 12,
+    "passed": true,
+    "source_file": "stress_level_12.xlsx",
+    "error_message": null,
+    "parse_errors": [],
+    "workbook_stats": {
+      "total_sheets": 5,
+      "total_cells": 157,
+      "total_formulas": 10,
+      "tables": 2,
+      "charts": 3,
+      "named_ranges": 1,
+      "errors_count": 0
+    },
+    "chunk_count": 18,
+    "validation_failures": [],
+    "documented_issues": []
+  },
+  {
+    "level": 13,
+    "passed": true,
+    "source_file": "stress_level_13.xlsx",
+    "error_message": null,
+    "parse_errors": [],
+    "workbook_stats": {
+      "total_sheets": 5,
+      "total_cells": 159,
+      "total_formulas": 12,
+      "tables": 2,
+      "charts": 3,
+      "named_ranges": 1,
+      "errors_count": 0
+    },
+    "chunk_count": 19,
+    "validation_failures": [],
+    "documented_issues": []
+  },
+  {
+    "level": 14,
+    "passed": true,
+    "source_file": "stress_level_14.xlsx",
+    "error_message": null,
+    "parse_errors": [],
+    "workbook_stats": {
+      "total_sheets": 6,
+      "total_cells": 160,
+      "total_formulas": 12,
+      "tables": 2,
+      "charts": 3,
+      "named_ranges": 1,
+      "errors_count": 0
+    },
+    "chunk_count": 20,
+    "validation_failures": [],
+    "documented_issues": []
+  },
+  {
+    "level": 15,
+    "passed": true,
+    "source_file": "stress_level_15.xlsx",
+    "error_message": null,
+    "parse_errors": [],
+    "workbook_stats": {
+      "total_sheets": 7,
+      "total_cells": 160,
+      "total_formulas": 12,
+      "tables": 2,
+      "charts": 3,
+      "named_ranges": 1,
+      "errors_count": 0
+    },
+    "chunk_count": 20,
+    "validation_failures": [],
+    "documented_issues": []
+  },
+  {
+    "level": 16,
+    "passed": true,
+    "source_file": "stress_level_16.xlsx",
+    "error_message": null,
+    "parse_errors": [],
+    "workbook_stats": {
+      "total_sheets": 8,
+      "total_cells": 166,
+      "total_formulas": 12,
+      "tables": 2,
+      "charts": 3,
+      "named_ranges": 1,
+      "errors_count": 0
+    },
+    "chunk_count": 21,
+    "validation_failures": [],
+    "documented_issues": []
+  },
+  {
+    "level": 17,
+    "passed": true,
+    "source_file": "stress_level_17.xlsx",
+    "error_message": null,
+    "parse_errors": [],
+    "workbook_stats": {
+      "total_sheets": 8,
+      "total_cells": 166,
+      "total_formulas": 12,
+      "tables": 2,
+      "charts": 3,
+      "named_ranges": 2,
+      "errors_count": 0
+    },
+    "chunk_count": 21,
+    "validation_failures": [],
+    "documented_issues": []
+  },
+  {
+    "level": 18,
+    "passed": true,
+    "source_file": "stress_level_18.xlsx",
+    "error_message": null,
+    "parse_errors": [],
+    "workbook_stats": {
+      "total_sheets": 8,
+      "total_cells": 167,
+      "total_formulas": 13,
+      "tables": 2,
+      "charts": 3,
+      "named_ranges": 2,
+      "errors_count": 0
+    },
+    "chunk_count": 22,
+    "validation_failures": [],
+    "documented_issues": []
+  },
+  {
+    "level": 19,
+    "passed": true,
+    "source_file": "stress_level_19.xlsx",
+    "error_message": null,
+    "parse_errors": [],
+    "workbook_stats": {
+      "total_sheets": 9,
+      "total_cells": 317,
+      "total_formulas": 13,
+      "tables": 2,
+      "charts": 3,
+      "named_ranges": 2,
+      "errors_count": 0
+    },
+    "chunk_count": 23,
+    "validation_failures": [],
+    "documented_issues": []
+  },
+  {
+    "level": 20,
+    "passed": true,
+    "source_file": "stress_level_20.xlsx",
+    "error_message": null,
+    "parse_errors": [],
+    "workbook_stats": {
+      "total_sheets": 10,
+      "total_cells": 319,
+      "total_formulas": 13,
+      "tables": 2,
+      "charts": 3,
+      "named_ranges": 2,
+      "errors_count": 0
+    },
+    "chunk_count": 24,
+    "validation_failures": [],
+    "documented_issues": [
+      {
+        "issue_id": "merge_empty_master",
+        "cell": "EmptyMaster!A1",
+        "reason": "Value was in non-master cell before merge; openpyxl MergedCell has no value, content is lost."
+      }
+    ]
+  },
+  {
+    "level": 21,
+    "passed": true,
+    "source_file": "stress_level_21.xlsx",
+    "error_message": null,
+    "parse_errors": [],
+    "workbook_stats": {
+      "total_sheets": 11,
+      "total_cells": 334,
+      "total_formulas": 13,
+      "tables": 3,
+      "charts": 3,
+      "named_ranges": 2,
+      "errors_count": 0
+    },
+    "chunk_count": 25,
+    "validation_failures": [],
+    "documented_issues": [
+      {
+        "issue_id": "merge_empty_master",
+        "cell": "EmptyMaster!A1",
+        "reason": "Value was in non-master cell before merge; openpyxl MergedCell has no value, content is lost."
+      }
+    ]
+  },
+  {
+    "level": 22,
+    "passed": true,
+    "source_file": "stress_level_22.xlsx",
+    "error_message": null,
+    "parse_errors": [],
+    "workbook_stats": {
+      "total_sheets": 12,
+      "total_cells": 734,
+      "total_formulas": 13,
+      "tables": 3,
+      "charts": 3,
+      "named_ranges": 2,
+      "errors_count": 0
+    },
+    "chunk_count": 26,
+    "validation_failures": [],
+    "documented_issues": [
+      {
+        "issue_id": "merge_empty_master",
+        "cell": "EmptyMaster!A1",
+        "reason": "Value was in non-master cell before merge; openpyxl MergedCell has no value, content is lost."
+      }
+    ]
+  },
+  {
+    "level": 23,
+    "passed": true,
+    "source_file": "stress_level_23.xlsx",
+    "error_message": null,
+    "parse_errors": [],
+    "workbook_stats": {
+      "total_sheets": 13,
+      "total_cells": 934,
+      "total_formulas": 13,
+      "tables": 3,
+      "charts": 3,
+      "named_ranges": 2,
+      "errors_count": 0
+    },
+    "chunk_count": 27,
+    "validation_failures": [],
+    "documented_issues": [
+      {
+        "issue_id": "merge_empty_master",
+        "cell": "EmptyMaster!A1",
+        "reason": "Value was in non-master cell before merge; openpyxl MergedCell has no value, content is lost."
+      }
+    ]
+  },
+  {
+    "level": 24,
+    "passed": true,
+    "source_file": "stress_level_24.xlsx",
+    "error_message": null,
+    "parse_errors": [],
+    "workbook_stats": {
+      "total_sheets": 14,
+      "total_cells": 984,
+      "total_formulas": 13,
+      "tables": 3,
+      "charts": 3,
+      "named_ranges": 2,
+      "errors_count": 0
+    },
+    "chunk_count": 37,
+    "validation_failures": [],
+    "documented_issues": [
+      {
+        "issue_id": "merge_empty_master",
+        "cell": "EmptyMaster!A1",
+        "reason": "Value was in non-master cell before merge; openpyxl MergedCell has no value, content is lost."
+      }
+    ]
+  },
+  {
+    "level": 25,
+    "passed": true,
+    "source_file": "stress_level_25.xlsx",
+    "error_message": null,
+    "parse_errors": [],
+    "workbook_stats": {
+      "total_sheets": 15,
+      "total_cells": 985,
+      "total_formulas": 13,
+      "tables": 3,
+      "charts": 3,
+      "named_ranges": 2,
+      "errors_count": 0
+    },
+    "chunk_count": 38,
+    "validation_failures": [],
+    "documented_issues": [
+      {
+        "issue_id": "merge_empty_master",
+        "cell": "EmptyMaster!A1",
+        "reason": "Value was in non-master cell before merge; openpyxl MergedCell has no value, content is lost."
+      }
+    ]
+  },
+  {
+    "level": 0,
+    "passed": true,
+    "source_file": "merge_stress_vertical.xlsx",
+    "error_message": null,
+    "parse_errors": [],
+    "workbook_stats": {
+      "total_sheets": 1,
+      "total_cells": 300,
+      "total_formulas": 0,
+      "tables": 0,
+      "charts": 0,
+      "named_ranges": 0,
+      "errors_count": 0
+    },
+    "chunk_count": 1,
+    "validation_failures": [],
+    "documented_issues": []
+  },
+  {
+    "level": 1,
+    "passed": true,
+    "source_file": "merge_stress_dense_grid.xlsx",
+    "error_message": null,
+    "parse_errors": [],
+    "workbook_stats": {
+      "total_sheets": 1,
+      "total_cells": 900,
+      "total_formulas": 0,
+      "tables": 0,
+      "charts": 0,
+      "named_ranges": 0,
+      "errors_count": 0
+    },
+    "chunk_count": 1,
+    "validation_failures": [],
+    "documented_issues": []
+  },
+  {
+    "level": 2,
+    "passed": true,
+    "source_file": "merge_stress_empty_master.xlsx",
+    "error_message": null,
+    "parse_errors": [],
+    "workbook_stats": {
+      "total_sheets": 1,
+      "total_cells": 2,
+      "total_formulas": 0,
+      "tables": 0,
+      "charts": 0,
+      "named_ranges": 0,
+      "errors_count": 0
+    },
+    "chunk_count": 1,
+    "validation_failures": [],
+    "documented_issues": [
+      {
+        "issue_id": "merge_empty_master",
+        "cell": "EmptyMaster!A1",
+        "reason": "Value was in non-master cell before merge; openpyxl MergedCell has no value, content is lost."
+      }
+    ]
+  },
+  {
+    "level": 3,
+    "passed": true,
+    "source_file": "merge_stress_table_header.xlsx",
+    "error_message": null,
+    "parse_errors": [],
+    "workbook_stats": {
+      "total_sheets": 1,
+      "total_cells": 33,
+      "total_formulas": 0,
+      "tables": 1,
+      "charts": 0,
+      "named_ranges": 0,
+      "errors_count": 0
+    },
+    "chunk_count": 1,
+    "validation_failures": [],
+    "documented_issues": []
+  },
+  {
+    "level": 4,
+    "passed": true,
+    "source_file": "merge_stress_across.xlsx",
+    "error_message": null,
+    "parse_errors": [],
+    "workbook_stats": {
+      "total_sheets": 1,
+      "total_cells": 320,
+      "total_formulas": 0,
+      "tables": 0,
+      "charts": 0,
+      "named_ranges": 0,
+      "errors_count": 0
+    },
+    "chunk_count": 1,
+    "validation_failures": [],
+    "documented_issues": []
+  }
+]

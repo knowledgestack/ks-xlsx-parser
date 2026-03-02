@@ -1,0 +1,35 @@
+{
+  "description": "Reference spec for stress-test Excel workbooks",
+  "openpyxl_merge_limitations": [
+    "merged_cells.ranges empty in read_only mode",
+    "Merge columns / merge-across: many horizontal 1-row merges stress iteration",
+    "Empty master: value in right cell then merge left — content lost (MergedCell has no value)",
+    "Table + merged header: Excel tables with merged header cells — openpyxl/Excel may behave oddly",
+    "Single-cell merge A1:A1: invalid; openpyxl allows it; bounds min==max",
+    "Borders/style loss on merged cells when load/save",
+    "delete_rows() corrupts merged ranges"
+  ],
+  "expected_features": {
+    "cells": "Non-empty cells extracted with values and formulas",
+    "formulas": "Formula strings preserved, references parsed",
+    "merged_cells": "Merge regions resolved, value in top-left",
+    "tables": "ListObject tables extracted with ref_range",
+    "charts": "Chart type, series, anchors extracted from OOXML",
+    "named_ranges": "Defined names with ref_string and scope",
+    "conditional_formatting": "Rules detected (openpyxl-dependent)",
+    "data_validation": "Dropdown lists and rules",
+    "comments": "Cell comments with author and text",
+    "formatting": "Font, fill, border, alignment",
+    "multiple_sheets": "All sheets parsed",
+    "hidden_sheets": "Hidden sheets included",
+    "cross_sheet_refs": "Formulas referencing other sheets",
+    "circular_refs": "Detected and flagged"
+  },
+  "validation_checks": [
+    "workbook.total_cells > 0",
+    "workbook.errors has no ERROR severity unless load failed",
+    "chunks produced for each block and chart",
+    "render_text non-empty for non-empty blocks",
+    "cell coordinates 1-indexed"
+  ]
+}

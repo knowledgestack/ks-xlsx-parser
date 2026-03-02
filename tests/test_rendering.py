@@ -1,0 +1,105 @@
+"""
+Tests for HTML and text rendering.
+
+Verifies correct rendering of merged cells, formatting,
+headers, and coordinate annotations.
+"""
+
+import pytest
+
+from xlsx_parser.chunking.segmenter import LayoutSegmenter
+from xlsx_parser.parsers import WorkbookParser
+from xlsx_parser.rendering.html_renderer import HtmlRenderer
+from xlsx_parser.rendering.text_renderer import TextRenderer
+
+
+class TestHtmlRendering:
+    """Test HTML table rendering."""
+
+    def test_basic_html_output(self, simple_workbook):
+        result = WorkbookParser(path=simple_workbook).parse()
+        sheet = result.sheets[0]
+        segmenter = LayoutSegmenter(sheet)
+        blocks = segmenter.segment()
+
+        renderer = HtmlRenderer(sheet)
+        html = renderer.render_block(blocks[0])
+
+        assert "<table" in html
+        assert "</table>" in html
+        assert "data-sheet=" in html
+
+    def test_merged_cell_rowspan_colspan(self, merged_cells_workbook):
+        result = WorkbookParser(path=merged_cells_workbook).parse()
+        sheet = result.sheets[0]
+        segmenter = LayoutSegmenter(sheet)
+        blocks = segmenter.segment()
+
+        renderer = HtmlRenderer(sheet)
+        html = renderer.render_block(blocks[0])
+
+        assert 'colspan="4"' in html or "colspan" in html
+
+    def test_bold_rendered_as_style(self, styled_workbook):
+        result = WorkbookParser(path=styled_workbook).parse()
+        sheet = result.sheets[0]
+        segmenter = LayoutSegmenter(sheet)
+        blocks = segmenter.segment()
+
+        renderer = HtmlRenderer(sheet)
+        html = renderer.render_block(blocks[0])
+
+        assert "font-weight:bold" in html
+
+    def test_data_ref_attributes(self, simple_workbook):
+        result = WorkbookParser(path=simple_workbook).parse()
+        sheet = result.sheets[0]
+        segmenter = LayoutSegmenter(sheet)
+        blocks = segmenter.segment()
+
+        renderer = HtmlRenderer(sheet)
+        html = renderer.render_block(blocks[0])
+
+        assert 'data-ref="A1"' in html
+
+
+class TestTextRendering:
+    """Test plain text / markdown rendering."""
+
+    def test_basic_text_output(self, simple_workbook):
+        result = WorkbookParser(path=simple_workbook).parse()
+        sheet = result.sheets[0]
+        segmenter = LayoutSegmenter(sheet)
+        blocks = segmenter.segment()
+
+        renderer = TextRenderer(sheet)
+        text = renderer.render_block(blocks[0])
+
+        assert "Sheet1" in text
+        assert "|" in text  # Table-like format
+
+    def test_formula_annotation(self, simple_workbook):
+        result = WorkbookParser(path=simple_workbook).parse()
+        sheet = result.sheets[0]
+        segmenter = LayoutSegmenter(sheet)
+        blocks = segmenter.segment()
+
+        renderer = TextRenderer(sheet)
+        text = renderer.render_block(blocks[0])
+
+        # Formula cells display the formula string (prefixed with =)
+        assert "=" in text
+        # The formula display value should appear in the rendered text
+        assert "B2" in text or "b2" in text.lower()
+
+    def test_text_includes_range(self, simple_workbook):
+        result = WorkbookParser(path=simple_workbook).parse()
+        sheet = result.sheets[0]
+        segmenter = LayoutSegmenter(sheet)
+        blocks = segmenter.segment()
+
+        renderer = TextRenderer(sheet)
+        text = renderer.render_block(blocks[0])
+
+        # Should include the A1-style range
+        assert "!" in text  # Sheet1!range format
