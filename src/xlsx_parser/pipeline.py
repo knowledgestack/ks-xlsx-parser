@@ -25,11 +25,13 @@ Usage:
 from __future__ import annotations
 
 import logging
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
 from .analysis.light_block_detector import LightBlockDetector
+from .models.common import CellCoord, CellRange, col_letter_to_number
 from .analysis.pattern_splitter import PatternSplitter
 from .analysis.table_assembler import TableAssembler
 from .analysis.table_grouper import TableGrouper
@@ -40,7 +42,7 @@ from .annotation.cell_annotator import CellAnnotator
 from .chunking.chunker import ChunkBuilder
 from .comparison.template_comparator import TemplateComparator
 from .export.model_exporter import ModelExporter
-from .models.block import BlockDTO, ChunkDTO
+from .models.block import ChunkDTO
 from .models.table_structure import TableStructure
 from .models.template import GeneralizedTemplate, TemplateNode
 from .models.tree import TreeNode
@@ -49,6 +51,72 @@ from .parsers.workbook_parser import WorkbookParser
 from .storage.serializer import WorkbookSerializer
 
 logger = logging.getLogger(__name__)
+
+_A1_RE = re.compile(r"^([A-Z]+)(\d+)$", re.IGNORECASE)
+
+
+def _parse_a1(a1: str) -> tuple[int, int] | None:
+    """Parse A1 reference to (row, col). Returns None if invalid."""
+    m = _A1_RE.match(a1.strip())
+    if not m:
+        return None
+    col = col_letter_to_number(m.group(1))
+    row = int(m.group(2))
+    return (row, col)
+
+
+def _chunk_cells(chunk: ChunkDTO, workbook: WorkbookDTO) -> list[dict[str, Any]]:
+    """Extract cells for a chunk with value and formula as separate keys."""
+    sheet = next((s for s in workbook.sheets if s.sheet_name == chunk.sheet_name), None)
+    if not sheet:
+        return []
+
+    rng = chunk.cell_range
+    if not rng:
+        # Fallback: parse top_left and bottom_right (e.g. chart chunks)
+        tl = _parse_a1(chunk.top_left_cell) if chunk.top_left_cell else None
+        br = _parse_a1(chunk.bottom_right_cell) if chunk.bottom_right_cell else None
+        if not tl or not br:
+            return []
+        rng = CellRange(
+            top_left=CellCoord(row=tl[0], col=tl[1]),
+            bottom_right=CellCoord(row=br[0], col=br[1]),
+        )
+    cells: list[dict[str, Any]] = []
+    for row in range(rng.top_left.row, rng.bottom_right.row + 1):
+        for col in range(rng.top_left.col, rng.bottom_right.col + 1):
+            cell = sheet.get_cell(row, col)
+            if not cell or cell.is_merged_slave:
+                continue
+            addr = CellCoord(row=row, col=col).to_a1()
+            # value: displayed/computed (what Excel shows)
+            val = cell.display_value
+            if val is None and cell.raw_value is not None:
+                val = str(cell.raw_value)
+            if val is None and cell.formula_value is not None:
+                val = str(cell.formula_value)
+            if val is None:
+                val = ""
+            else:
+                val = str(val)
+            # formula: raw formula string (separate key)
+            formula = f"={cell.formula}" if cell.formula else None
+            # colors: font and fill from style
+            font_color = None
+            fill_color = None
+            if cell.style:
+                if cell.style.font and cell.style.font.color:
+                    font_color = cell.style.font.color
+                if cell.style.fill and cell.style.fill.fg_color:
+                    fill_color = cell.style.fill.fg_color
+            cells.append({
+                "address": addr,
+                "value": val,
+                "formula": formula,
+                "font_color": font_color,
+                "fill_color": fill_color,
+            })
+    return cells
 
 
 @dataclass
@@ -89,8 +157,8 @@ class ParseResult:
                     "top_left": c.top_left_cell,
                     "bottom_right": c.bottom_right_cell,
                     "token_count": c.token_count,
-                    "content_hash": c.content_hash,
                     "render_text": c.render_text,
+                    "cells": _chunk_cells(c, self.workbook),
                 }
                 for c in self.chunks
             ],

@@ -17,7 +17,9 @@ from .common import (
     BoundingBox,
     CellCoord,
     CellRange,
+    FilterCriteria,
     ParseError,
+    SortKey,
     StableModel,
     compute_hash,
 )
@@ -118,6 +120,11 @@ class SheetDTO(StableModel):
     properties: SheetProperties = Field(default_factory=SheetProperties)
     conditional_format_rules: list[ConditionalFormatRule] = Field(default_factory=list)
     data_validations: list[DataValidationRule] = Field(default_factory=list)
+
+    # Filter and sort state
+    autofilter_range: CellRange | None = None
+    autofilter_criteria: list[FilterCriteria] = Field(default_factory=list)
+    sort_keys: list[SortKey] = Field(default_factory=list)
 
     # Errors collected during parsing
     errors: list[ParseError] = Field(default_factory=list)

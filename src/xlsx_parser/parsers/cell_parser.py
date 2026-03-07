@@ -10,6 +10,7 @@ data validations, and hyperlinks.
 from __future__ import annotations
 
 import logging
+import re
 from datetime import date, datetime, time
 from typing import Any
 
@@ -25,9 +26,17 @@ from ..models.cell import (
     FillStyle,
     FontStyle,
 )
-from ..models.common import CellCoord
+from ..models.common import CellCoord, RichTextRun
 
 logger = logging.getLogger(__name__)
+
+# Regex to extract cell and range references from formulas
+# Matches: A1, $A$1, Sheet1!A1, Sheet1!$A$1:$B$10, 'Sheet Name'!A1
+_REF_RE = re.compile(
+    r"(?:'[^']+'\!|[A-Za-z_]\w*\!)?"  # Optional sheet prefix
+    r"\$?[A-Z]{1,3}\$?\d+"            # Cell ref
+    r"(?::\$?[A-Z]{1,3}\$?\d+)?",     # Optional :end range
+)
 
 
 class CellParser:
@@ -81,7 +90,7 @@ class CellParser:
             raw_value = computed_value
             data_type = "f"
         elif cell.data_type == "f":
-            formula = str(raw_value) if raw_value else None
+            formula = self._extract_formula_text(raw_value)
             raw_value = computed_value
             data_type = "f"
 
@@ -106,6 +115,14 @@ class CellParser:
         if cell.hyperlink:
             hyperlink = cell.hyperlink.target
 
+        # Extract formula references
+        formula_references: list[str] = []
+        if formula:
+            formula_references = _REF_RE.findall(formula)
+
+        # Extract rich text runs
+        rich_text_runs = self._extract_rich_text(cell)
+
         return CellDTO(
             coord=coord,
             sheet_name=self._sheet_name,
@@ -114,11 +131,54 @@ class CellParser:
             data_type=data_type,
             formula=formula,
             formula_value=self._serialize_value(computed_value) if formula else None,
+            formula_references=formula_references,
+            rich_text_runs=rich_text_runs,
             style=style,
             comment_text=comment_text,
             comment_author=comment_author,
             hyperlink=hyperlink,
         )
+
+    @staticmethod
+    def _extract_formula_text(raw_value: Any) -> str | None:
+        """Extract formula string from openpyxl cell value (handles ArrayFormula etc.)."""
+        if raw_value is None:
+            return None
+        # ArrayFormula stores the formula in .text (includes leading '=')
+        if hasattr(raw_value, "text") and raw_value.text is not None:
+            text = str(raw_value.text).strip()
+            return text[1:] if text.startswith("=") else text
+        if isinstance(raw_value, str) and raw_value.startswith("="):
+            return raw_value[1:]
+        # Fallback: avoid str() on formula objects (produces <ArrayFormula ...>)
+        if type(raw_value).__name__ in ("ArrayFormula", "DataTableFormula"):
+            return None  # No readable formula text
+        return str(raw_value) if raw_value else None
+
+    @staticmethod
+    def _extract_rich_text(cell: OpenpyxlCell) -> list[RichTextRun]:
+        """Extract rich text runs if the cell contains mixed formatting."""
+        try:
+            from openpyxl.cell.rich_text import CellRichText
+            if isinstance(cell.value, CellRichText):
+                runs: list[RichTextRun] = []
+                for part in cell.value:
+                    if isinstance(part, str):
+                        runs.append(RichTextRun(text=part))
+                    elif hasattr(part, "text") and hasattr(part, "font"):
+                        font = part.font
+                        runs.append(RichTextRun(
+                            text=part.text or "",
+                            bold=bool(font.bold) if font and font.bold else False,
+                            italic=bool(font.italic) if font and font.italic else False,
+                            color=str(font.color.rgb)[2:] if font and font.color and font.color.rgb else None,
+                            font_name=font.name if font else None,
+                            font_size=font.size if font else None,
+                        ))
+                return runs
+        except (ImportError, Exception):
+            pass
+        return []
 
     def _serialize_value(self, value: Any) -> Any:
         """Convert Python values to JSON-serializable types."""

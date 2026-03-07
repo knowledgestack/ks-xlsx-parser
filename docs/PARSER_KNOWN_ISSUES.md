@@ -11,15 +11,21 @@ None. All stress-tested files parse without hard errors.
 
 ---
 
-## Documented Limitations (No Hard Fail)
+## Resolved Issues
 
-These files exhibit known openpyxl/parser quirks. The pipeline completes but output may be incomplete.
+### merge_empty_master — RESOLVED
 
-### merge_empty_master
+**Status**: Fixed via raw OOXML recovery fallback.
 
-**Why**: Value was in non-master cell before merge; openpyxl MergedCell has no value, content is lost.
+**Original problem**: Value was in non-master cell before merge; openpyxl
+`MergedCell` has no value, content was lost.
 
-**Affected files**:
+**Fix**: When a merged region's master cell has no value, the parser opens
+the `.xlsx` as a ZIP, parses the sheet XML with `lxml`, and recovers values
+from any `<c>` element within the merge range. The recovered value is
+promoted to the master cell.
+
+**Previously affected files**:
 - `stress_level_20.xlsx` — EmptyMaster!A1
 - `stress_level_21.xlsx` — EmptyMaster!A1
 - `stress_level_22.xlsx` — EmptyMaster!A1
@@ -30,8 +36,14 @@ These files exhibit known openpyxl/parser quirks. The pipeline completes but out
 
 ---
 
+## Documented Limitations (No Hard Fail)
+
+None at this time.
+
+---
+
 ## Quick Reference
 
-| Issue ID | Description |
-|----------|-------------|
-| `merge_empty_master` | Value was in right cell, merge created left→content lost in openpyxl |
+| Issue ID             | Status   | Description                                                                       |
+|----------------------|----------|-----------------------------------------------------------------------------------|
+| `merge_empty_master` | RESOLVED | Value was in right cell, merge created left — now recovered via OOXML XML fallback |

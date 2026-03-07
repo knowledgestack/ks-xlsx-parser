@@ -15,7 +15,18 @@ from typing import Any
 from pydantic import Field
 
 from .chart import ChartDTO
-from .common import CellRange, ParseError, StableModel, compute_hash
+from .common import (
+    CalculationMode,
+    CellRange,
+    DateSystem,
+    ParseError,
+    PivotField,
+    PivotLayoutType,
+    PivotValueField,
+    SheetPurpose,
+    StableModel,
+    compute_hash,
+)
 from .dependency import DependencyGraph
 from .shape import ShapeDTO
 from .sheet import SheetDTO
@@ -41,6 +52,8 @@ class NamedRangeDTO(StableModel):
     scope_sheet: str | None = None  # None = workbook scope
     parsed_range: CellRange | None = None  # Parsed cell range (if parseable)
     parsed_sheet: str | None = None  # Sheet name extracted from ref
+    resolved_range: CellRange | None = None  # Fully resolved target range
+    usage_locations: list[str] = Field(default_factory=list)  # Cell refs that use this name
     is_hidden: bool = False
     comment: str | None = None
 
@@ -81,13 +94,96 @@ class WorkbookProperties(StableModel):
 
     # Calculation settings
     calc_mode: str | None = None  # "auto", "manual", "semiAutomatic"
+    calculation_mode: CalculationMode | None = None
     iterate_enabled: bool = False
     iterate_count: int | None = None
+    iterate_max_change: float | None = None
+    precision_as_displayed: bool = False
+    date_system: DateSystem = DateSystem.DATE_1900
 
     # Security
     has_macros: bool = False
     has_vba_project: bool = False
     is_password_protected: bool = False
+
+
+class PivotTableDTO(StableModel):
+    """
+    A PivotTable extracted from the workbook.
+
+    Captures the structure (row/col/filter/value fields), cache source,
+    layout settings, and slicer connections.
+    """
+
+    model_config = {"frozen": False, "extra": "forbid"}
+
+    name: str
+    sheet_name: str
+    location: str | None = None  # A1 range of the pivot output
+    cache_source_type: str = "range"  # "range", "external", "consolidation"
+    cache_source_ref: str | None = None  # Source data range or table name
+
+    row_fields: list[PivotField] = Field(default_factory=list)
+    col_fields: list[PivotField] = Field(default_factory=list)
+    filter_fields: list[PivotField] = Field(default_factory=list)
+    value_fields: list[PivotValueField] = Field(default_factory=list)
+
+    layout_type: PivotLayoutType = PivotLayoutType.COMPACT
+    show_subtotals: bool = True
+    show_grand_totals: bool = True
+    slicer_connections: list[str] = Field(default_factory=list)
+
+    pivot_id: str = Field(default="")
+
+    def finalize(self, workbook_hash: str) -> None:
+        self.pivot_id = compute_hash(workbook_hash, self.sheet_name, self.name)
+
+
+class SheetSummaryDTO(StableModel):
+    """
+    High-level LLM-ready summary of a worksheet.
+
+    Captures the detected purpose, key entities, and a natural-language
+    summary string.
+    """
+
+    model_config = {"frozen": False, "extra": "forbid"}
+
+    sheet_name: str
+    purpose: SheetPurpose = SheetPurpose.UNKNOWN
+    purpose_confidence: float = 0.0
+
+    total_cells: int = 0
+    formula_count: int = 0
+    formula_density: float = 0.0
+    has_data_validation: bool = False
+    has_charts: bool = False
+    has_print_area: bool = False
+
+    key_tables: list[str] = Field(default_factory=list)
+    key_output_cells: list[str] = Field(default_factory=list)
+    key_entities: list[str] = Field(default_factory=list)
+
+    summary_text: str = ""
+    summary_hash: str = Field(default="")
+
+    def finalize(self, workbook_hash: str) -> None:
+        self.summary_hash = compute_hash(
+            workbook_hash, self.sheet_name, self.purpose.value, self.summary_text,
+        )
+
+
+class KpiDTO(StableModel):
+    """A candidate KPI cell identified by the analysis pipeline."""
+
+    model_config = {"frozen": True, "extra": "forbid"}
+
+    label: str | None = None
+    cell_ref: str  # "Sheet1!B10"
+    value_display: str | None = None
+    sheet_name: str
+    in_degree: int = 0
+    drivers: list[str] = Field(default_factory=list)  # Top dependency cells
 
 
 class WorkbookDTO(StableModel):
@@ -132,8 +228,13 @@ class WorkbookDTO(StableModel):
     # Stage 8: Template nodes
     template_nodes: list[TemplateNode] = Field(default_factory=list)
 
-    # Pivot table detection (ranges only in v1)
+    # Pivot tables
+    pivot_tables: list[PivotTableDTO] = Field(default_factory=list)
     pivot_table_ranges: list[dict[str, Any]] = Field(default_factory=list)
+
+    # LLM-ready artifacts
+    sheet_summaries: list[SheetSummaryDTO] = Field(default_factory=list)
+    kpi_catalog: list[KpiDTO] = Field(default_factory=list)
 
     # Errors
     errors: list[ParseError] = Field(default_factory=list)

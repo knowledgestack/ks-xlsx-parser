@@ -64,7 +64,7 @@ class TextRenderer:
                 if cell:
                     val = cell.display_value or (str(cell.raw_value) if cell.raw_value is not None else "")
                     max_width = max(max_width, len(val))
-            col_widths[col] = min(max_width, 30)  # Cap at 30 chars
+            col_widths[col] = min(max_width, 30)  # Cap at 30 for alignment; text may overflow
 
         # Column header row
         col_headers = []
@@ -100,9 +100,12 @@ class TextRenderer:
                     if cell.formula and not val.startswith("="):
                         val = f"{val} [=]"
 
-                # Truncate long values
+                # For long numeric values: use scientific notation (preserves precision).
+                # Text strings are never truncated.
                 if len(val) > col_widths[col]:
-                    val = val[: col_widths[col] - 1] + "…"
+                    raw = cell.raw_value
+                    if isinstance(raw, (int, float)):
+                        val = f"{float(raw):.6e}"
                 values.append(val.ljust(col_widths[col]))
 
             line = "| " + " | ".join(values) + " |"

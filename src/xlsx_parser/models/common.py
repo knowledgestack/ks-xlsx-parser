@@ -156,6 +156,101 @@ class Severity(str, enum.Enum):
     ERROR = "error"
 
 
+class CalculationMode(str, enum.Enum):
+    """Workbook calculation mode."""
+
+    AUTO = "auto"
+    MANUAL = "manual"
+    SEMI_AUTOMATIC = "semiAutomatic"
+
+
+class DateSystem(str, enum.Enum):
+    """Workbook date system base."""
+
+    DATE_1900 = "1900"
+    DATE_1904 = "1904"
+
+
+class PivotLayoutType(str, enum.Enum):
+    """PivotTable layout type."""
+
+    COMPACT = "compact"
+    TABULAR = "tabular"
+    OUTLINE = "outline"
+
+
+class SheetPurpose(str, enum.Enum):
+    """Detected purpose of a worksheet."""
+
+    INPUT = "input"
+    CALCULATION = "calculation"
+    DASHBOARD = "dashboard"
+    RAW_DATA = "raw_data"
+    LOOKUP = "lookup"
+    REPORT = "report"
+    TEMPLATE = "template"
+    CONFIG = "config"
+    UNKNOWN = "unknown"
+
+
+class RichTextRun(StableModel):
+    """A single run of text within a rich-text cell."""
+
+    model_config = {"frozen": True, "extra": "forbid"}
+
+    text: str
+    bold: bool = False
+    italic: bool = False
+    underline: str | None = None
+    strikethrough: bool = False
+    color: str | None = None
+    font_name: str | None = None
+    font_size: float | None = None
+
+
+class FilterCriteria(StableModel):
+    """A single autofilter criterion on a column."""
+
+    model_config = {"frozen": True, "extra": "forbid"}
+
+    col_index: int  # 0-based column offset within the filter range
+    filter_type: str = "values"  # "values", "custom", "top10", "dynamic", "color"
+    values: list[str] = Field(default_factory=list)
+    operator: str | None = None
+    custom_value: str | None = None
+
+
+class SortKey(StableModel):
+    """A sort key applied to the sheet."""
+
+    model_config = {"frozen": True, "extra": "forbid"}
+
+    col_index: int
+    descending: bool = False
+
+
+class PivotField(StableModel):
+    """A field in a PivotTable (row, column, filter, or value)."""
+
+    model_config = {"frozen": True, "extra": "forbid"}
+
+    name: str
+    field_index: int | None = None
+    subtotals: list[str] = Field(default_factory=list)
+    items: list[str] = Field(default_factory=list)
+
+
+class PivotValueField(StableModel):
+    """A value/measure field in a PivotTable."""
+
+    model_config = {"frozen": True, "extra": "forbid"}
+
+    name: str
+    source_field: str | None = None
+    aggregation: str = "sum"  # "sum", "count", "average", "max", "min", etc.
+    number_format: str | None = None
+
+
 class ParseError(StableModel):
     """A non-fatal error encountered during parsing."""
 
