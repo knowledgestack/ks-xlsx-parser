@@ -54,6 +54,12 @@ class ShapeDTO(StableModel):
     width_emu: int | None = None
     height_emu: int | None = None
 
+    # Spatial ordering
+    z_index: int | None = None  # Drawing order (higher = on top)
+    reading_order: int | None = None  # Top-to-bottom, left-to-right order
+    group_id: str | None = None  # ID of parent group shape, if grouped
+    rotation: float | None = None  # Rotation in degrees
+
     # Hash
     content_hash: str = Field(default="")
 

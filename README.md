@@ -8,12 +8,8 @@ Production-grade Excel parser built for RAG (Retrieval-Augmented Generation) sys
 - [Installation](#installation)
 - [Quick Start](#quick-start)
 - [API Reference](#api-reference)
-- [Pipeline Architecture](#pipeline-architecture)
 - [Web API](#web-api)
 - [Data Models](#data-models)
-- [Storage & Serialization](#storage--serialization)
-- [Testing](#testing)
-- [Project Structure](#project-structure)
 - [Limitations](#limitations)
 - [License](#license)
 
@@ -65,13 +61,13 @@ Requires Python 3.10+.
 
 ```bash
 # Core library
-pip install xlsx-parser
+pip install ks-xlsx-parser
 
 # With FastAPI web server
-pip install xlsx-parser[api]
+pip install ks-xlsx-parser[api]
 
 # With development/test tools
-pip install xlsx-parser[dev]
+pip install ks-xlsx-parser[dev]
 ```
 
 ### From Source
@@ -163,7 +159,7 @@ vector_entries = serializer.to_vector_store_entries()
 
 ### `parse_workbook()`
 
-Parse a single Excel workbook through stages 0-8 of the pipeline.
+Parse a single Excel workbook.
 
 ```python
 def parse_workbook(
@@ -184,7 +180,7 @@ def parse_workbook(
 
 ### `compare_workbooks()`
 
-Stage 9: Compare templates across multiple workbooks to find structural similarities and degrees of freedom.
+Compare templates across multiple workbooks to find structural similarities and degrees of freedom.
 
 ```python
 def compare_workbooks(
@@ -195,7 +191,7 @@ def compare_workbooks(
 
 ### `export_importer()`
 
-Stage 10: Generate a reusable Python importer class from a generalized template.
+Generate a reusable Python importer class from a generalized template.
 
 ```python
 def export_importer(
@@ -205,7 +201,7 @@ def export_importer(
 ) -> Path
 ```
 
-### Multi-Workbook Workflow (Stages 9-10)
+### Multi-Workbook Workflow
 
 ```python
 from xlsx_parser import compare_workbooks, export_importer
@@ -221,37 +217,6 @@ template = compare_workbooks([
 export_importer(template, "generated_importer.py", class_name="QuarterlyReportImporter")
 ```
 
-## Pipeline Architecture
-
-XLSXParser implements the **Excellent Algorithm**, an 11-stage pipeline for deep structural analysis of Excel workbooks.
-
-### Single-Document Stages (0-8)
-
-| Stage | Name | Description |
-|-------|------|-------------|
-| 0 | Sheet Chunking | Adaptive gap analysis + style boundary detection via `LayoutSegmenter` |
-| 1 | Cell Annotation | Feature-based scoring to classify cells (header, data, label, etc.) |
-| 2 | Solid Block ID | Annotation-based splitting into contiguous blocks |
-| 3 | Table Assembly | Associate labels with data regions to form table structures |
-| 4 | Light Block Detection | Associate sparse/isolated blocks with nearby tables |
-| 5 | Table Grouping | Cluster structurally similar tables |
-| 6 | Pattern Splitting | Detect repeating label/template patterns |
-| 7 | Tree Building | Build recursive hierarchy from blocks and structures |
-| 8 | Template Extraction | Identify degrees of freedom across the structure |
-
-### Multi-Document Stages (9-10)
-
-| Stage | Name | Description |
-|-------|------|-------------|
-| 9 | Template Comparison | Compare templates across workbooks, resolve conflicts |
-| 10 | Model Export | Generate Python importer classes from generalized templates |
-
-### Final Processing
-
-- **Rendering** -- HTML and plain text output with proper merged cell handling
-- **Chunking** -- Token-counted chunks with source URIs for RAG systems
-- **Serialization** -- Database-ready records for Postgres and vector stores
-
 ## Web API
 
 XLSXParser includes a built-in FastAPI web application with a drag-and-drop UI.
@@ -260,14 +225,16 @@ XLSXParser includes a built-in FastAPI web application with a drag-and-drop UI.
 # Install with API dependencies
 pip install xlsx-parser[api]
 
-# Start the server
-uvicorn xlsx_parser.api:app --reload
+# Start the server (default port 8080)
+uvicorn xlsx_parser.api:app --reload --port 8080
+
+# Or run: xlsx-parser-api
 ```
 
-Open `http://localhost:8000` to access the upload UI, or POST files directly:
+Open `http://localhost:8080` to access the upload UI, or POST files directly:
 
 ```bash
-curl -X POST http://localhost:8000/parse \
+curl -X POST http://localhost:8080/parse \
   -F "file=@workbook.xlsx"
 ```
 
@@ -291,115 +258,8 @@ All models use Pydantic v2 for validation and serialization.
 | `ChunkDTO` | RAG chunk with HTML/text rendering, token count, source URI, content hash |
 | `DependencyGraph` | Directed graph of formula dependencies with traversal methods |
 | `TableStructure` | Assembled table structure with header/data regions |
-| `TreeNode` | Hierarchical node from Stage 7 tree building |
+| `TreeNode` | Hierarchical node from tree building |
 | `TemplateNode` | Template node with degree-of-freedom annotations |
-
-## Storage & Serialization
-
-The `WorkbookSerializer` produces database-ready records:
-
-```python
-serializer = result.serializer
-
-# Postgres-style records
-workbook_record = serializer.to_workbook_record()   # Single workbook row
-sheet_records = serializer.to_sheet_records()         # One row per sheet
-chunk_records = serializer.to_chunk_records()         # One row per chunk
-
-# Vector store entries (for embedding)
-vector_entries = serializer.to_vector_store_entries()  # Text + metadata per chunk
-```
-
-### Deterministic Hashing
-
-All elements are hashed with xxhash64 for content-addressable storage:
-
-- **Workbook hash** -- derived from raw file bytes
-- **Cell hash** -- sheet name + coordinates + value + formula
-- **Block hash** -- sorted cell hashes (order-independent)
-- **Chunk hash** -- globally unique and stable across repeated parses
-
-## Testing
-
-```bash
-# Run all tests (excluding corpus tests)
-pytest tests/ -v
-
-# Run with coverage
-pytest tests/ --cov=xlsx_parser --cov-report=term-missing
-
-# Run specific test modules
-pytest tests/test_parsers.py -v
-pytest tests/test_pipeline.py -v
-pytest tests/test_formula_parser.py -v
-
-# Run cross-validation tests (requires python-calamine)
-pytest tests/ -m crossval -v
-
-# Run structural invariant tests
-pytest tests/ -m invariant -v
-
-# Run all tests including corpus
-pytest tests/ -m "" -v
-```
-
-### Test Suite
-
-The test suite includes 87 tests across 15 modules:
-
-- **Unit tests** -- models, formula parsing, cell parsing
-- **Integration tests** -- full pipeline, rendering, segmentation
-- **Cross-validation** -- results verified against `python-calamine` as an independent reader
-- **Real-world datasets** -- Iris, Titanic, Boston Housing, Wine Quality, Superstore, and more
-- **Structural invariants** -- hash determinism, chunk completeness, coverage guarantees
-- **Stress tests** -- 25 levels of increasingly complex workbooks
-
-### Test Markers
-
-| Marker | Description |
-|--------|-------------|
-| `crossval` | Cross-validation tests against calamine |
-| `invariant` | Structural invariant tests |
-| `corpus` | External corpus tests (skipped by default) |
-| `slow` | Tests taking >10 seconds |
-
-## Project Structure
-
-```
-XLSXParser/
-├── pyproject.toml                          # Build config and dependencies
-├── DESIGN.md                               # Technical design document
-├── TEST_PLAN.md                            # Test strategy and coverage plan
-├── docs/
-│   └── PARSER_KNOWN_ISSUES.md              # Known limitations
-├── examples/
-│   ├── demo.py                             # Usage examples
-│   ├── generate_examples.py                # Generate sample workbooks
-│   ├── *.xlsx                              # Sample workbooks
-│   └── stress_test/                        # Stress test fixtures and runner
-├── src/xlsx_parser/
-│   ├── __init__.py                         # Public API exports
-│   ├── api.py                              # FastAPI web application
-│   ├── pipeline.py                         # Main entry point (Stages 0-10)
-│   ├── models/                             # Pydantic data models (DTOs)
-│   ├── parsers/                            # Excel reading and extraction
-│   ├── formula/                            # Formula parsing and dependency graphs
-│   ├── charts/                             # Chart extraction via OOXML
-│   ├── chunking/                           # Layout segmentation and RAG chunking
-│   ├── rendering/                          # HTML and text output
-│   ├── annotation/                         # Cell annotation and block splitting (Stages 1-2)
-│   ├── analysis/                           # Table assembly through template extraction (Stages 3-8)
-│   ├── comparison/                         # Multi-workbook template comparison (Stage 9)
-│   ├── export/                             # Python code generation (Stage 10)
-│   ├── storage/                            # Database serialization
-│   ├── verification/                       # Pipeline stage verification
-│   └── utils/                              # Logging configuration
-└── tests/
-    ├── conftest.py                         # 30+ programmatic test fixtures
-    ├── helpers/                            # Test utilities (calamine reader, invariant checker)
-    ├── fixtures/                           # Test data (real-world datasets)
-    └── test_*.py                           # 15 test modules
-```
 
 ## Limitations
 

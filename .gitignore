@@ -47,3 +47,9 @@ ENV/
 *~
 .DS_Store
 tests/fixtures/corpus/
+
+# Generated stress test artifacts (regenerate with stress_test_runner)
+examples/stress_test/*.xlsx
+examples/stress_test/stress_results.json
+examples/stress_test/built_reference.json
+examples/stress_test/STRESS_TEST_RESULTS.md

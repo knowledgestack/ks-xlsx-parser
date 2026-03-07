@@ -88,6 +88,42 @@ class TestMergedCells:
         assert b1.is_merged_slave is True
 
 
+class TestEmptyMasterRecovery:
+    """Test OOXML recovery of values from empty merge masters."""
+
+    def test_string_value_recovered(self, empty_master_workbook):
+        result = WorkbookParser(path=empty_master_workbook).parse()
+        sheet = result.sheets[0]
+        a1 = sheet.get_cell(1, 1)
+        assert a1 is not None, "Master cell A1 should exist after recovery"
+        assert a1.raw_value == "Recovered Text"
+        assert a1.is_merged_master is True
+
+    def test_number_value_recovered(self, empty_master_workbook):
+        result = WorkbookParser(path=empty_master_workbook).parse()
+        sheet = result.sheets[0]
+        a2 = sheet.get_cell(2, 1)
+        assert a2 is not None, "Master cell A2 should exist after recovery"
+        assert a2.raw_value == 42
+        assert a2.is_merged_master is True
+
+    def test_existing_master_value_untouched(self, empty_master_workbook):
+        result = WorkbookParser(path=empty_master_workbook).parse()
+        sheet = result.sheets[0]
+        a3 = sheet.get_cell(3, 1)
+        assert a3 is not None
+        assert a3.raw_value == "Master Has Value"
+        assert a3.is_merged_master is True
+
+    def test_recovery_from_bytes(self, empty_master_workbook):
+        content = empty_master_workbook.read_bytes()
+        result = WorkbookParser(content=content, filename="test.xlsx").parse()
+        sheet = result.sheets[0]
+        a1 = sheet.get_cell(1, 1)
+        assert a1 is not None
+        assert a1.raw_value == "Recovered Text"
+
+
 class TestFormulas:
     """Test formula extraction and cross-sheet references."""
 
@@ -110,6 +146,16 @@ class TestFormulas:
         names = {nr.name for nr in result.named_ranges}
         assert "Price" in names
         assert "Quantity" in names
+
+    def test_array_formula_extracts_text_not_object_repr(self, array_formula_workbook):
+        """ArrayFormula cells should yield formula string, not <openpyxl...object>."""
+        result = WorkbookParser(path=array_formula_workbook).parse()
+        sheet = result.sheets[0]
+        b1 = sheet.get_cell(1, 2)
+        assert b1 is not None
+        assert b1.formula is not None
+        assert "openpyxl" not in b1.formula
+        assert "A1:A3" in b1.formula
 
 
 class TestTables:

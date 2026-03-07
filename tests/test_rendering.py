@@ -103,3 +103,45 @@ class TestTextRendering:
 
         # Should include the A1-style range
         assert "!" in text  # Sheet1!range format
+
+    def test_numeric_cells_use_scientific_notation_not_truncation(self):
+        """Long numeric values use scientific notation instead of truncating with ..."""
+        from xlsx_parser.models.sheet import SheetDTO
+        from xlsx_parser.models.cell import CellDTO
+        from xlsx_parser.models.common import CellCoord, CellRange
+        from xlsx_parser.models.block import BlockDTO
+        from xlsx_parser.models.common import BlockType
+
+        # Create a sheet with a numeric cell whose display_value would exceed column width.
+        # Column width is min(max_cell_len, 30), so we need a number that formats to >30 chars.
+        coord = CellCoord(row=1, col=1)
+        cell = CellDTO(
+            coord=coord,
+            sheet_name="Test",
+            raw_value=0.002668,
+            display_value="0.002668000000000000000000000000",  # 32 chars - would truncate
+        )
+        sheet = SheetDTO(
+            sheet_name="Test",
+            sheet_index=0,
+            cells={"1,1": cell},
+            hidden_rows=set(),
+            hidden_cols=set(),
+        )
+
+        rng = CellRange(
+            top_left=CellCoord(row=1, col=1),
+            bottom_right=CellCoord(row=1, col=1),
+        )
+        block = BlockDTO(
+            sheet_name="Test",
+            block_index=0,
+            cell_range=rng,
+            block_type=BlockType.TABLE,
+        )
+
+        renderer = TextRenderer(sheet)
+        text = renderer.render_block(block)
+
+        # Number should appear in scientific notation (full precision) rather than truncated with …
+        assert "2.668000e-03" in text

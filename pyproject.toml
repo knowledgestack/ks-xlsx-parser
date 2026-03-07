@@ -3,7 +3,7 @@ requires = ["setuptools>=68.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "xlsx-parser"
+name = "ks-xlsx-parser"
 version = "0.1.0"
 description = "Production-grade Excel Workflow Parser for RAG + auditability systems"
 readme = "README.md"
@@ -45,6 +45,9 @@ Homepage = "https://github.com/arnav2/XLSXParser"
 Repository = "https://github.com/arnav2/XLSXParser"
 Documentation = "https://github.com/arnav2/XLSXParser#readme"
 
+[project.scripts]
+xlsx-parser-api = "xlsx_parser.api:main"
+
 [project.optional-dependencies]
 api = [
     "fastapi>=0.100.0",
@@ -57,6 +60,9 @@ dev = [
     "pytest-xdist>=3.0",
     "python-calamine>=0.2.0",
     "requests>=2.28.0",
+]
+ralph = [
+    "anthropic>=0.39.0",
 ]
 
 [tool.pytest.ini_options]

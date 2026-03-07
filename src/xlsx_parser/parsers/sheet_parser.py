@@ -8,13 +8,24 @@ independent execution to support parallel sheet processing.
 
 from __future__ import annotations
 
+import io
 import logging
+import re
+import zipfile
+from pathlib import Path
 from typing import Any
 
+from lxml import etree
 from openpyxl.worksheet.worksheet import Worksheet as OpenpyxlWorksheet
 
 from ..models.cell import CellDTO
-from ..models.common import CellCoord, CellRange, ParseError, Severity
+from ..models.common import CellCoord, CellRange, ParseError, Severity, col_letter_to_number
+
+# OOXML namespace for spreadsheetML
+_OOXML_NS = {"s": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
+
+# Regex to split an A1-style cell reference like "B1" into ("B", "1")
+_CELL_REF_RE = re.compile(r"^([A-Z]+)(\d+)$")
 from ..models.sheet import (
     ConditionalFormatRule,
     DataValidationRule,
@@ -42,6 +53,8 @@ class SheetParser:
         sheet_index: int,
         computed_ws: OpenpyxlWorksheet | None = None,
         max_cells: int = 2_000_000,
+        workbook_path: Path | None = None,
+        workbook_content: bytes | None = None,
     ):
         """
         Args:
@@ -49,6 +62,8 @@ class SheetParser:
             sheet_index: 0-based sheet index in the workbook.
             computed_ws: The same sheet opened with data_only=True for computed values.
             max_cells: Safety limit on cell count to prevent memory issues.
+            workbook_path: Path to the .xlsx file (for raw OOXML fallback).
+            workbook_content: Raw bytes of the .xlsx file (for raw OOXML fallback).
         """
         self._ws = ws
         self._sheet_index = sheet_index
@@ -56,6 +71,8 @@ class SheetParser:
         self._max_cells = max_cells
         self._sheet_name = ws.title
         self._cell_parser = CellParser(self._sheet_name)
+        self._workbook_path = workbook_path
+        self._workbook_content = workbook_content
 
     def parse(self) -> SheetDTO:
         """
@@ -83,6 +100,9 @@ class SheetParser:
         # Extract cells
         self._extract_cells(sheet, merge_masters)
 
+        # Recover values from empty merge masters via raw OOXML
+        self._recover_empty_merge_masters(sheet)
+
         # Extract row heights and column widths
         self._extract_dimensions(sheet)
 
@@ -94,6 +114,9 @@ class SheetParser:
 
         # Extract data validations
         sheet.data_validations = self._extract_data_validations()
+
+        # Extract autofilter state
+        self._extract_autofilter(sheet)
 
         logger.info(
             "Sheet %s parsed: %d cells, %d merges",
@@ -292,6 +315,302 @@ class SheetParser:
                 prompt_message=dv.prompt,
             ))
         return rules
+
+    def _extract_autofilter(self, sheet: SheetDTO) -> None:
+        """Extract autofilter range and criteria from the worksheet."""
+        af = self._ws.auto_filter
+        if not af or not af.ref:
+            return
+        try:
+            from ..models.common import FilterCriteria
+            ref = str(af.ref)
+            parts = ref.split(":")
+            if len(parts) == 2:
+                from ..models.common import col_letter_to_number as c2n
+                start_match = _CELL_REF_RE.match(parts[0])
+                end_match = _CELL_REF_RE.match(parts[1])
+                if start_match and end_match:
+                    sheet.autofilter_range = CellRange(
+                        top_left=CellCoord(
+                            row=int(start_match.group(2)),
+                            col=col_letter_to_number(start_match.group(1)),
+                        ),
+                        bottom_right=CellCoord(
+                            row=int(end_match.group(2)),
+                            col=col_letter_to_number(end_match.group(1)),
+                        ),
+                    )
+
+            # Extract filter criteria from individual column filters
+            if hasattr(af, "filterColumn") and af.filterColumn:
+                for fc in af.filterColumn:
+                    col_id = fc.colId if hasattr(fc, "colId") else 0
+                    vals: list[str] = []
+                    if hasattr(fc, "filters") and fc.filters:
+                        for filt in fc.filters.filter:
+                            if hasattr(filt, "val") and filt.val:
+                                vals.append(str(filt.val))
+                    if vals:
+                        sheet.autofilter_criteria.append(FilterCriteria(
+                            col_index=col_id,
+                            filter_type="values",
+                            values=vals,
+                        ))
+        except Exception as e:
+            logger.debug("Could not fully parse autofilter: %s", e)
+
+    # ------------------------------------------------------------------
+    # Empty-master merge recovery via raw OOXML
+    # ------------------------------------------------------------------
+
+    def _recover_empty_merge_masters(self, sheet: SheetDTO) -> None:
+        """
+        Fix the merge_empty_master issue: when the master cell of a merged
+        region has no value, scan the raw OOXML XML for values in any cell
+        within the merge range and promote the first found value to the master.
+
+        openpyxl's MergedCell class discards values from non-master cells,
+        so this fallback reads the sheet XML directly from the .xlsx ZIP.
+        """
+        if not sheet.merged_regions:
+            return
+        if self._workbook_path is None and self._workbook_content is None:
+            return
+
+        # Identify empty-master regions
+        empty_masters: list[tuple[CellRange, CellCoord]] = []
+        for region in sheet.merged_regions:
+            master_cell = sheet.get_cell(region.master.row, region.master.col)
+            if master_cell is None or master_cell.raw_value is None:
+                empty_masters.append((region.range, region.master))
+
+        if not empty_masters:
+            return
+
+        logger.debug(
+            "Sheet %s: %d empty-master merged regions detected, attempting OOXML recovery",
+            self._sheet_name,
+            len(empty_masters),
+        )
+
+        try:
+            self._do_xml_recovery(sheet, empty_masters)
+        except Exception as e:
+            logger.warning(
+                "OOXML merge recovery failed for sheet %s: %s",
+                self._sheet_name, e,
+            )
+            sheet.errors.append(ParseError(
+                severity=Severity.WARNING,
+                stage="parse",
+                message=f"Merge empty-master recovery failed: {e}",
+                sheet_name=self._sheet_name,
+            ))
+
+    def _do_xml_recovery(
+        self,
+        sheet: SheetDTO,
+        empty_masters: list[tuple[CellRange, CellCoord]],
+    ) -> None:
+        """Open the .xlsx ZIP and parse the sheet XML to recover values."""
+        source: Any
+        if self._workbook_path:
+            source = str(self._workbook_path)
+        else:
+            source = io.BytesIO(self._workbook_content)
+
+        with zipfile.ZipFile(source, "r") as zf:
+            # Find the correct sheet XML path
+            sheet_xml_path = self._find_sheet_xml_path(zf, self._sheet_index)
+            if sheet_xml_path is None:
+                return
+
+            # Load shared strings (needed for t="s" cell values)
+            shared_strings = self._load_shared_strings(zf)
+
+            # Parse the sheet XML
+            with zf.open(sheet_xml_path) as f:
+                tree = etree.parse(f)  # noqa: S320
+            root = tree.getroot()
+
+            # Parse all cell values from XML
+            xml_values = self._parse_cell_values_from_xml(root, shared_strings)
+
+            # For each empty-master region, find a value in the range
+            for cell_range, master_coord in empty_masters:
+                value = self._find_value_in_region(xml_values, cell_range, master_coord)
+                if value is not None:
+                    self._update_master_cell(sheet, master_coord, value)
+                    logger.debug(
+                        "Recovered value for %s!%s from merged region %s",
+                        self._sheet_name, master_coord.to_a1(), cell_range.to_a1(),
+                    )
+
+    @staticmethod
+    def _find_sheet_xml_path(zf: zipfile.ZipFile, sheet_index: int) -> str | None:
+        """Determine the sheet XML path inside the ZIP."""
+        # Try workbook.xml.rels to find the correct mapping
+        # Fallback: xl/worksheets/sheet{N}.xml (1-indexed)
+        candidate = f"xl/worksheets/sheet{sheet_index + 1}.xml"
+        if candidate in zf.namelist():
+            return candidate
+
+        # Try all sheet files and pick by index
+        sheet_files = sorted(
+            n for n in zf.namelist()
+            if n.startswith("xl/worksheets/sheet") and n.endswith(".xml")
+        )
+        if sheet_index < len(sheet_files):
+            return sheet_files[sheet_index]
+
+        return None
+
+    @staticmethod
+    def _load_shared_strings(zf: zipfile.ZipFile) -> list[str]:
+        """Parse xl/sharedStrings.xml to get the shared string table."""
+        ss_path = "xl/sharedStrings.xml"
+        if ss_path not in zf.namelist():
+            return []
+
+        with zf.open(ss_path) as f:
+            tree = etree.parse(f)  # noqa: S320
+        root = tree.getroot()
+
+        strings: list[str] = []
+        for si in root.iter("{http://schemas.openxmlformats.org/spreadsheetml/2006/main}si"):
+            # Simple case: <si><t>text</t></si>
+            t_elem = si.find("{http://schemas.openxmlformats.org/spreadsheetml/2006/main}t")
+            if t_elem is not None and t_elem.text is not None:
+                strings.append(t_elem.text)
+            else:
+                # Rich text case: <si><r><t>part1</t></r><r><t>part2</t></r></si>
+                parts = []
+                for r in si.iter("{http://schemas.openxmlformats.org/spreadsheetml/2006/main}t"):
+                    if r.text:
+                        parts.append(r.text)
+                strings.append("".join(parts))
+
+        return strings
+
+    @staticmethod
+    def _cell_ref_to_coord(ref: str) -> tuple[int, int] | None:
+        """Convert 'B1' to (row=1, col=2). Returns None if unparseable."""
+        m = _CELL_REF_RE.match(ref)
+        if not m:
+            return None
+        col = col_letter_to_number(m.group(1))
+        row = int(m.group(2))
+        return (row, col)
+
+    @classmethod
+    def _parse_cell_values_from_xml(
+        cls,
+        root: etree._Element,
+        shared_strings: list[str],
+    ) -> dict[tuple[int, int], Any]:
+        """Extract all cell values from the sheet XML as {(row, col): value}."""
+        ns = "http://schemas.openxmlformats.org/spreadsheetml/2006/main"
+        values: dict[tuple[int, int], Any] = {}
+
+        for c_elem in root.iter(f"{{{ns}}}c"):
+            ref = c_elem.get("r")
+            if not ref:
+                continue
+            coord = cls._cell_ref_to_coord(ref)
+            if coord is None:
+                continue
+
+            value = cls._resolve_xml_value(c_elem, shared_strings, ns)
+            if value is not None:
+                values[coord] = value
+
+        return values
+
+    @staticmethod
+    def _resolve_xml_value(
+        c_elem: etree._Element,
+        shared_strings: list[str],
+        ns: str,
+    ) -> Any:
+        """Resolve the value of a <c> element considering its type attribute."""
+        cell_type = c_elem.get("t")
+        v_elem = c_elem.find(f"{{{ns}}}v")
+
+        if cell_type == "inlineStr":
+            # Inline string: <c t="inlineStr"><is><t>text</t></is></c>
+            is_elem = c_elem.find(f"{{{ns}}}is")
+            if is_elem is not None:
+                t_elem = is_elem.find(f"{{{ns}}}t")
+                if t_elem is not None and t_elem.text is not None:
+                    return t_elem.text
+            return None
+
+        if v_elem is None or v_elem.text is None:
+            return None
+
+        raw = v_elem.text
+
+        if cell_type == "s":
+            # Shared string index
+            try:
+                idx = int(raw)
+                if 0 <= idx < len(shared_strings):
+                    return shared_strings[idx]
+            except (ValueError, IndexError):
+                pass
+            return None
+
+        if cell_type == "str":
+            return raw
+
+        if cell_type == "b":
+            return raw == "1"
+
+        if cell_type == "e":
+            return raw  # Error value like #REF!, #VALUE!, etc.
+
+        # Default: number
+        try:
+            if "." in raw:
+                return float(raw)
+            return int(raw)
+        except ValueError:
+            return raw
+
+    @staticmethod
+    def _find_value_in_region(
+        xml_values: dict[tuple[int, int], Any],
+        cell_range: CellRange,
+        master_coord: CellCoord,
+    ) -> Any:
+        """Find the first non-None value in a cell range, excluding the master."""
+        for r in range(cell_range.top_left.row, cell_range.bottom_right.row + 1):
+            for c in range(cell_range.top_left.col, cell_range.bottom_right.col + 1):
+                if r == master_coord.row and c == master_coord.col:
+                    continue
+                value = xml_values.get((r, c))
+                if value is not None:
+                    return value
+        # Also check master in XML (might have a value openpyxl missed)
+        return xml_values.get((master_coord.row, master_coord.col))
+
+    @staticmethod
+    def _update_master_cell(sheet: SheetDTO, master_coord: CellCoord, value: Any) -> None:
+        """Update or create the master cell with the recovered value."""
+        master_cell = sheet.get_cell(master_coord.row, master_coord.col)
+        if master_cell is not None:
+            master_cell.raw_value = value
+            master_cell.display_value = str(value) if value is not None else None
+        else:
+            # Create a new cell for the master
+            new_cell = CellDTO(
+                coord=master_coord,
+                sheet_name=sheet.sheet_name,
+                raw_value=value,
+                display_value=str(value) if value is not None else None,
+                is_merged_master=True,
+            )
+            sheet.set_cell(new_cell)
 
     @staticmethod
     def _has_meaningful_style(cell) -> bool:

@@ -13,7 +13,7 @@ from typing import Any
 
 from pydantic import Field
 
-from .common import CellAnnotation, CellCoord, StableModel, compute_hash
+from .common import CellAnnotation, CellCoord, CellRange, RichTextRun, StableModel, compute_hash
 
 
 class FontStyle(StableModel):
@@ -97,6 +97,14 @@ class CellDTO(StableModel):
     # Formula
     formula: str | None = None  # Raw formula string without leading '='
     formula_value: Any = None  # Computed value from data_only pass
+    formula_r1c1: str | None = None  # R1C1-style formula (if converted)
+    formula_references: list[str] = Field(default_factory=list)  # Resolved cell/range refs from formula
+
+    # Rich text (mixed formatting within a single cell)
+    rich_text_runs: list[RichTextRun] = Field(default_factory=list)
+
+    # Dynamic array spill range
+    spill_range: CellRange | None = None
 
     # Style
     style: CellStyle | None = None

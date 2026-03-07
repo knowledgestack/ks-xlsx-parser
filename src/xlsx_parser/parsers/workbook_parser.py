@@ -18,6 +18,7 @@ import xxhash
 from openpyxl import load_workbook
 
 from ..models.common import ParseError, Severity
+from ..models.common import CalculationMode, DateSystem
 from ..models.workbook import (
     ExternalLink,
     NamedRangeDTO,
@@ -151,6 +152,8 @@ class WorkbookParser:
                     sheet_index=idx,
                     computed_ws=computed_ws,
                     max_cells=self._max_cells,
+                    workbook_path=self._path,
+                    workbook_content=self._content,
                 )
                 sheet_dto = sheet_parser.parse()
                 result.sheets.append(sheet_dto)
@@ -242,6 +245,20 @@ class WorkbookParser:
         """Extract workbook-level properties from openpyxl."""
         props = wb.properties
         calc = wb.calculation
+
+        # Map calc mode string to enum
+        calc_mode_str = calc.calcMode if calc else None
+        calculation_mode = None
+        if calc_mode_str:
+            mode_map = {"auto": CalculationMode.AUTO, "manual": CalculationMode.MANUAL,
+                        "semiAutomatic": CalculationMode.SEMI_AUTOMATIC}
+            calculation_mode = mode_map.get(calc_mode_str)
+
+        # Detect date system (1904 mode)
+        date_system = DateSystem.DATE_1900
+        if hasattr(wb, "epoch") and wb.epoch and str(wb.epoch).startswith("1904"):
+            date_system = DateSystem.DATE_1904
+
         return WorkbookProperties(
             creator=props.creator if props else None,
             last_modified_by=props.lastModifiedBy if props else None,
@@ -252,9 +269,12 @@ class WorkbookParser:
             description=props.description if props else None,
             keywords=props.keywords if props else None,
             category=props.category if props else None,
-            calc_mode=calc.calcMode if calc else None,
+            calc_mode=calc_mode_str,
+            calculation_mode=calculation_mode,
             iterate_enabled=bool(calc.iterate) if calc else False,
             iterate_count=calc.iterateCount if calc and calc.iterateCount else None,
+            iterate_max_change=calc.iterateDelta if calc and calc.iterateDelta else None,
+            date_system=date_system,
             has_macros=has_macros,
             has_vba_project=has_macros,
         )

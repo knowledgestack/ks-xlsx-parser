@@ -15,7 +15,7 @@ from pathlib import Path
 import pytest
 from openpyxl import Workbook
 from openpyxl.chart import BarChart, Reference
-from openpyxl.formatting.rule import CellIsRule
+from openpyxl.formatting.rule import CellIsRule, ColorScaleRule, IconSetRule
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.datavalidation import DataValidation
@@ -33,6 +33,8 @@ _DATASETS_DIR = Path(__file__).parent / "fixtures" / "github_datasets"
 PROGRAMMATIC_FIXTURE_NAMES = [
     "simple_workbook",
     "merged_cells_workbook",
+    # empty_master_workbook excluded: it's a raw OOXML ZIP (not openpyxl-generated)
+    # that intentionally diverges from calamine results (our recovery is better)
     "formula_workbook",
     "table_workbook",
     "chart_workbook",
@@ -61,6 +63,8 @@ PROGRAMMATIC_FIXTURE_NAMES = [
     "circular_ref_formulas",
     "lookup_formulas",
     "mixed_formula_types",
+    "stress_comprehensive",
+    "stress_tough",
 ]
 
 
@@ -202,6 +206,21 @@ def formula_workbook(tmp_dir) -> Path:
     wb.defined_names.add(DefinedName("Price", attr_text="Inputs!$B$1"))
     wb.defined_names.add(DefinedName("Quantity", attr_text="Inputs!$B$2"))
 
+    wb.save(path)
+    return path
+
+
+@pytest.fixture
+def array_formula_workbook(tmp_dir) -> Path:
+    """Workbook with an array formula (openpyxl ArrayFormula object)."""
+    from openpyxl.worksheet.formula import ArrayFormula
+
+    path = tmp_dir / "array_formula.xlsx"
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Data"
+    ws["A1"], ws["A2"], ws["A3"] = 1, 2, 3
+    ws["B1"] = ArrayFormula("B1:B3", "=A1:A3*2")
     wb.save(path)
     return path
 
@@ -1125,6 +1144,219 @@ def mixed_formula_types(tmp_dir) -> Path:
     ws2["B7"] = "=B6/COUNT(Data!B2:B7)"
     ws2["A8"] = "Variance"
     ws2["B8"] = "=B4-B5"
+
+    wb.save(path)
+    return path
+
+
+# ---------------------------------------------------------------------------
+# Empty-master merge fixture (merge_empty_master issue)
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture
+def empty_master_workbook(tmp_dir) -> Path:
+    """Workbook simulating the merge_empty_master issue via raw OOXML.
+
+    When Excel merges cells, it may keep values in non-master <c> elements.
+    openpyxl's MergedCell ignores these, so the parser's OOXML recovery
+    must read the raw XML to find them. openpyxl's own save() clears
+    non-master values, so we construct the ZIP directly to match real
+    Excel behavior.
+    """
+    import zipfile
+
+    path = tmp_dir / "empty_master.xlsx"
+
+    # Minimal OOXML structure with values in non-master merged cells
+    content_types = (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+        '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
+        '<Default Extension="xml" ContentType="application/xml"/>'
+        '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'
+        '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'
+        '<Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/>'
+        '</Types>'
+    )
+
+    rels = (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+        '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>'
+        '</Relationships>'
+    )
+
+    workbook_rels = (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+        '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>'
+        '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/>'
+        '</Relationships>'
+    )
+
+    workbook_xml = (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"'
+        ' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'
+        '<sheets><sheet name="EmptyMaster" sheetId="1" r:id="rId1"/></sheets>'
+        '</workbook>'
+    )
+
+    # Sheet with:
+    #   B1 = "Recovered Text" (shared string index 0), A1 empty — merged A1:B1
+    #   B2 = 42 (number), A2 empty — merged A2:B2
+    #   A3 = "Master Has Value" (shared string index 1) — merged A3:B3
+    sheet_xml = (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+        '<sheetData>'
+        '<row r="1"><c r="B1" t="s"><v>0</v></c></row>'
+        '<row r="2"><c r="B2"><v>42</v></c></row>'
+        '<row r="3"><c r="A3" t="s"><v>1</v></c></row>'
+        '</sheetData>'
+        '<mergeCells count="3">'
+        '<mergeCell ref="A1:B1"/>'
+        '<mergeCell ref="A2:B2"/>'
+        '<mergeCell ref="A3:B3"/>'
+        '</mergeCells>'
+        '</worksheet>'
+    )
+
+    shared_strings_xml = (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="2" uniqueCount="2">'
+        '<si><t>Recovered Text</t></si>'
+        '<si><t>Master Has Value</t></si>'
+        '</sst>'
+    )
+
+    with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as zf:
+        zf.writestr("[Content_Types].xml", content_types)
+        zf.writestr("_rels/.rels", rels)
+        zf.writestr("xl/_rels/workbook.xml.rels", workbook_rels)
+        zf.writestr("xl/workbook.xml", workbook_xml)
+        zf.writestr("xl/worksheets/sheet1.xml", sheet_xml)
+        zf.writestr("xl/sharedStrings.xml", shared_strings_xml)
+
+    return path
+
+
+# ---------------------------------------------------------------------------
+# Comprehensive Stress Fixture (tough coverage)
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture
+def stress_comprehensive(tmp_dir) -> Path:
+    """Tough workbook: tab colors, sheet-scoped names, number formats, ColorScale, IconSet, print area."""
+    path = tmp_dir / "stress_comprehensive.xlsx"
+    wb = Workbook()
+
+    # Sheet 1: Tab color + sheet-scoped defined name + print area
+    ws1 = wb.active
+    ws1.title = "StressMain"
+    ws1.sheet_properties.tabColor = "4472C4"  # Blue tab
+
+    ws1["A1"] = "KPI"
+    ws1["B1"] = "Value"
+    ws1["C1"] = "Status"
+    for col in range(1, 4):
+        ws1.cell(row=1, column=col).font = Font(bold=True)
+
+    ws1["A2"] = "Revenue"
+    ws1["B2"] = 1250000
+    ws1["B2"].number_format = '_($* #,##0.00_);_($* (#,##0.00);_($* "-"??_);_(@_)'  # Accounting
+    ws1["A3"] = "Growth %"
+    ws1["B3"] = 0.0923
+    ws1["B3"].number_format = "0.00%"
+    ws1["A4"] = "Fraction"
+    ws1["B4"] = 0.375
+    ws1["B4"].number_format = "# ?/?"
+    ws1["A5"] = "Date"
+    ws1["B5"] = 45300  # Excel date serial
+    ws1["B5"].number_format = "yyyy-mm-dd"
+
+    for row in range(2, 6):
+        ws1.cell(row=row, column=3, value=row * 20)
+
+    # ColorScale conditional formatting
+    ws1.conditional_formatting.add(
+        "B2:B5",
+        ColorScaleRule(
+            start_type="percentile", start_value=0, start_color="FF638EC6",
+            end_type="percentile", end_value=100, end_color="FF9BC2E6",
+        ),
+    )
+    # IconSet on column C
+    ws1.conditional_formatting.add(
+        "C2:C5",
+        IconSetRule("3Arrows", "percent", [0, 33, 67]),
+    )
+
+    ws1.print_area = "A1:C5"
+    ws1.page_margins.left = 0.5
+    ws1.page_margins.right = 0.5
+
+    # Workbook-level defined name
+    from openpyxl.workbook.defined_name import DefinedName
+    wb.defined_names.add(DefinedName("MainRevenue", attr_text="StressMain!$B$2"))
+
+    # Sheet 2: Hidden + very different content
+    ws2 = wb.create_sheet("StressAux")
+    ws2.sheet_state = "hidden"
+    ws2.sheet_properties.tabColor = "ED7D31"
+    ws2["A1"] = "Lookup"
+    ws2["B1"] = "=StressMain!B2*1.1"
+    ws2["A2"] = "Reference"
+    ws2["B2"] = "=StressMain!B3"
+
+    wb.save(path)
+    return path
+
+
+@pytest.fixture
+def stress_tough(tmp_dir) -> Path:
+    """Tougher: table with formulas, chart, external ref placeholder, print titles."""
+    path = tmp_dir / "stress_tough.xlsx"
+    wb = Workbook()
+
+    ws1 = wb.active
+    ws1.title = "ToughData"
+    ws1.sheet_properties.tabColor = "70AD47"
+
+    # Table with formulas
+    headers = ["Id", "Name", "Qty", "Price", "Total"]
+    for col, h in enumerate(headers, 1):
+        ws1.cell(row=1, column=col, value=h).font = Font(bold=True)
+    for r in range(2, 6):
+        ws1.cell(row=r, column=1, value=r - 1)
+        ws1.cell(row=r, column=2, value=f"Item {r - 1}")
+        ws1.cell(row=r, column=3, value=(r - 1) * 10)
+        ws1.cell(row=r, column=4, value=9.99)
+        ws1.cell(row=r, column=5, value=f"=C{r}*D{r}")
+    tab = Table(displayName="ToughTable", ref="A1:E5")
+    tab.tableStyleInfo = TableStyleInfo(name="TableStyleMedium2", showRowStripes=True)
+    ws1.add_table(tab)
+
+    # Chart
+    chart = BarChart()
+    chart.title = "Quantities"
+    data = Reference(ws1, min_col=3, min_row=1, max_row=5)
+    cats = Reference(ws1, min_col=2, min_row=2, max_row=5)
+    chart.add_data(data, titles_from_data=True)
+    chart.set_categories(cats)
+    ws1.add_chart(chart, "G2")
+
+    # External ref placeholder
+    ws1["A8"] = "External"
+    ws1["B8"] = "=[OtherWorkbook.xlsx]Sheet1!$A$1"
+    ws1["A9"] = "Named"
+    from openpyxl.workbook.defined_name import DefinedName
+    wb.defined_names.add(DefinedName("ToughTotal", attr_text="ToughData!$E$5"))
+    ws1["B9"] = "=ToughTotal*2"
+
+    ws1.print_title_rows = "1:1"
 
     wb.save(path)
     return path
