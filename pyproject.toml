@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ks-xlsx-parser"
-version = "0.1.0"
+version = "0.1.1"
 description = "Production-grade Excel Workflow Parser for RAG + auditability systems"
 readme = "README.md"
 license = {text = "MIT"}
