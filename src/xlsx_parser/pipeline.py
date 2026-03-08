@@ -147,6 +147,37 @@ class ParseResult:
                 "total_formulas": self.workbook.total_formulas,
                 "parse_duration_ms": self.workbook.parse_duration_ms,
                 "errors": [e.model_dump(exclude_none=True) for e in self.workbook.errors],
+                "named_ranges": [
+                    {
+                        "name": nr.name,
+                        "ref_string": nr.ref_string,
+                        "scope_sheet": nr.scope_sheet,
+                        "usage_locations": nr.usage_locations,
+                        "is_hidden": nr.is_hidden,
+                    }
+                    for nr in self.workbook.named_ranges
+                    if not nr.is_hidden
+                ],
+                "kpi_catalog": [
+                    {
+                        "label": kpi.label,
+                        "cell_ref": kpi.cell_ref,
+                        "value_display": kpi.value_display,
+                        "sheet_name": kpi.sheet_name,
+                        "drivers": kpi.drivers,
+                    }
+                    for kpi in self.workbook.kpi_catalog
+                ],
+                "dependency_edges": [
+                    {
+                        "source": f"{e.source_sheet}!{e.source_coord.to_a1()}",
+                        "target": e.target_ref_string,
+                        "edge_type": e.edge_type.value
+                        if not isinstance(e.edge_type, str)
+                        else e.edge_type,
+                    }
+                    for e in self.workbook.dependency_graph.edges
+                ],
             },
             "chunks": [
                 {
@@ -158,7 +189,16 @@ class ParseResult:
                     "bottom_right": c.bottom_right_cell,
                     "token_count": c.token_count,
                     "render_text": c.render_text,
+                    "render_html": c.render_html,
                     "cells": _chunk_cells(c, self.workbook),
+                    "key_cells": c.key_cells,
+                    "named_ranges": c.named_ranges,
+                    "dependency_summary": {
+                        "upstream_refs": c.dependency_summary.upstream_refs,
+                        "downstream_refs": c.dependency_summary.downstream_refs,
+                        "cross_sheet_refs": c.dependency_summary.cross_sheet_refs,
+                        "has_circular": c.dependency_summary.has_circular,
+                    },
                 }
                 for c in self.chunks
             ],
