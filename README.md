@@ -1,3 +1,7 @@
+<p align="center">
+  <a href="https://github.com/knowledgestack"><img src="https://img.shields.io/badge/KNOWLEDGE%20STACK-document%20intelligence%20for%20agents-6366f1?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0id2hpdGUiPjxwYXRoIGQ9Ik0xMiAyTDIgN3YxMGwxMCA1IDEwLTVWN0wxMiAyem0wIDIuMzZMMTkuMzkgOCAxMiAxMS42NCA0LjYxIDggMTIgNC4zNnoiLz48L3N2Zz4=" alt="Knowledge Stack"></a>
+</p>
+
 # Make XLSX LLM Ready
 
 **`ks-xlsx-parser` is the missing ETL step between your spreadsheets and your LLM.**
@@ -7,6 +11,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Tests](https://img.shields.io/badge/testBench-1054%2F1054-success.svg)](#the-testbench-dataset)
 [![CI](https://github.com/knowledgestack/ks-xlsx-parser/actions/workflows/ci.yml/badge.svg)](https://github.com/knowledgestack/ks-xlsx-parser/actions/workflows/ci.yml)
+[![Discord](https://img.shields.io/discord/0?label=Discord&logo=discord&logoColor=white&color=5865F2)](https://discord.gg/4uaGhJcx)
+[![Knowledge Stack](https://img.shields.io/badge/Knowledge%20Stack-ecosystem-6366f1)](https://github.com/knowledgestack)
 
 > `.xlsx` → structured, typed, citation-ready JSON that an LLM can actually reason about.
 > Cells, formulas, merged regions, tables, charts, conditional formatting,
@@ -16,24 +22,36 @@ Spreadsheets are still the #1 unstructured data source in the enterprise.
 Feeding a `.xlsx` directly to an LLM loses structure (rows, formulas, merges),
 loses provenance (which cell said what), and blows through context windows.
 `ks-xlsx-parser` turns an Excel workbook into a token-counted, source-addressable
-graph that drops straight into LangChain, LangGraph, CrewAI, or any MCP-aware
-agent.
+graph that drops straight into [LangChain](https://www.langchain.com/),
+[LangGraph](https://langchain-ai.github.io/langgraph/),
+[CrewAI](https://www.crewai.com/), the
+[OpenAI Agents SDK](https://github.com/openai/openai-agents-python), or any
+[MCP](https://modelcontextprotocol.io/)-aware client (Claude Desktop, Cursor, Windsurf, Zed, …).
+
+<p align="center">
+  <a href="https://github.com/knowledgestack/ks-xlsx-parser"><img src="https://img.shields.io/badge/⭐%20STAR%20THE%20REPO-it's%20how%20we%20justify%20maintaining%20this-yellow?style=for-the-badge" alt="Star the repo"></a>
+  &nbsp;
+  <a href="https://discord.gg/4uaGhJcx"><img src="https://img.shields.io/badge/💬%20JOIN%20THE%20DISCORD-chat%20with%20the%20team%20%2B%20contributors-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Join our Discord"></a>
+</p>
 
 ---
 
 ## ⭐ If this helps you
 
-This project is free, open source (MIT), and part of the [Knowledge Stack](https://github.com/knowledgestack)
-ecosystem. The single most helpful thing you can do is **[star the repo](https://github.com/knowledgestack/ks-xlsx-parser)** —
-that's how we justify spending more time on it. 👍
+This project is free, open source (MIT), and part of the
+[**Knowledge Stack**](https://github.com/knowledgestack) ecosystem —
+*document intelligence for agents*. Stars, contributions, and honest feedback
+are all first-class ways to keep the lights on.
 
-**Get involved:**
+**Jump into the community:**
 
-- 💬 [Discussions](https://github.com/knowledgestack/ks-xlsx-parser/discussions) — ask questions, share what you built, or float an idea
-- 🐞 [Issues](https://github.com/knowledgestack/ks-xlsx-parser/issues/new/choose) — report a bug, request a feature, or file a parser edge case
-- 🎯 [Show & Tell](https://github.com/knowledgestack/ks-xlsx-parser/discussions/new?category=show-and-tell) — tell us about your production use
-- 🔐 [Security](https://github.com/knowledgestack/ks-xlsx-parser/security/advisories/new) — report a vulnerability privately
-- 🙌 [Contribute](CONTRIBUTING.md) — every PR is reviewed, `good-first-issue` labels live on Issues
+- 💬 **[Discord](https://discord.gg/4uaGhJcx)** — real-time help, roadmap conversations, show off what you're building. Drop in, say hi.
+- 🗣 [GitHub Discussions](https://github.com/knowledgestack/ks-xlsx-parser/discussions) — async Q&A, RFCs, and long-form ideas.
+- 🐞 [Issues](https://github.com/knowledgestack/ks-xlsx-parser/issues/new/choose) — report a bug, request a feature, or file a parser edge case.
+- 🎯 [Show & Tell](https://github.com/knowledgestack/ks-xlsx-parser/discussions/new?category=show-and-tell) — tell us about your production use.
+- 🔐 [Security](https://github.com/knowledgestack/ks-xlsx-parser/security/advisories/new) — private vulnerability disclosure.
+- 🙌 [Contribute](CONTRIBUTING.md) — every PR is reviewed; `good-first-issue` labels live on Issues.
+- 🧰 [Knowledge Stack org](https://github.com/knowledgestack) — see the rest of the ecosystem (ks-cookbook, ks-xlsx-parser, more on the way).
 
 Not sure where to start? Run `make testbench`, find a file that breaks, open a
 [Parser edge case](https://github.com/knowledgestack/ks-xlsx-parser/issues/new?template=parser_edge_case.yml).
@@ -456,18 +474,90 @@ the main signal that keeps this maintained.
 
 ---
 
-## Ecosystem
+## How it compares
 
-`ks-xlsx-parser` is part of the [Knowledge Stack](https://github.com/knowledgestack)
-open-source family:
+| | pandas / openpyxl | Docling | `ks-xlsx-parser` |
+|---|:---:|:---:|:---:|
+| Reads values | ✅ | ✅ | ✅ |
+| Keeps **formulas** | ⚠️ raw string | ❌ | ✅ parsed + dependency graph |
+| Preserves **merges** | ⚠️ coords only | ⚠️ partial | ✅ master/slave with colspan/rowspan |
+| Extracts **charts** | ❌ | ❌ | ✅ all 7 chart types + text summary |
+| **Conditional formatting** | ❌ | ❌ | ✅ cell/color-scale/icon/data-bar/formula |
+| **Data validation** (dropdowns) | ❌ | ❌ | ✅ all types incl. cross-sheet lists |
+| **Multi-table** sheet layout | ❌ | ⚠️ | ✅ adaptive-gap segmentation |
+| Per-chunk **source URI** (citation) | ❌ | ⚠️ | ✅ `file.xlsx#Sheet!A1:F18` |
+| **Token counts** per chunk | ❌ | ❌ | ✅ via `tiktoken` |
+| **Dependency graph** traversal | ❌ | ❌ | ✅ upstream / downstream, cycle detection |
+| Deterministic **content hashes** | ❌ | ❌ | ✅ xxhash64 per cell / block / chunk |
+| Streaming `.xlsx` > 100 MB | ⚠️ | ❌ | ✅ (chunked parse) |
 
-- [**ks-cookbook**](https://github.com/knowledgestack/ks-cookbook) — 32
-  production-style flagship agents + recipes for LangChain, LangGraph, CrewAI,
-  Temporal, and the OpenAI Agents SDK.
-- **ks-xlsx-parser** (this repo) — turn `.xlsx` into LLM-ready JSON.
+Most tools give you a dataframe. `ks-xlsx-parser` gives you a **graph an LLM can cite**.
+
+---
+
+## Who this is for
+
+Teams shipping agents, RAG pipelines, or auditing tools that ingest Excel.
+Common use cases we see:
+
+- **Banking / finance / accounting / tax** — pull KPIs, trace formulas back to
+  source cells for regulator-ready citations.
+- **Legal / contracts** — extract schedules, fee tables, and covenant matrices
+  without flattening merged headers.
+- **Healthcare / insurance** — normalise claims and pricing spreadsheets into
+  auditable JSON.
+- **Real estate / construction** — parse quantity takeoffs and cost models
+  that still live in XLSX.
+- **Sales ops / HR / engineering** — turn "the source of truth is in a
+  spreadsheet" into structured events without breaking the analyst's workflow.
+
+Not a fit if you need to **execute** Excel (recalculate, run VBA, pivot-refresh).
+Use xlwings or a headless Excel for that. We parse; we don't run.
+
+---
+
+## Knowledge Stack ecosystem
+
+`ks-xlsx-parser` is one piece of the [**Knowledge Stack**](https://github.com/knowledgestack)
+open-source family — *document intelligence for agents*, built so that
+engineering teams can focus on agents and we handle the messy parts of
+enterprise data.
+
+| Repo | What it does |
+|------|--------------|
+| [**ks-cookbook**](https://github.com/knowledgestack/ks-cookbook) | 32 production-style flagship agents + recipes for LangChain, LangGraph, CrewAI, Temporal, the OpenAI Agents SDK, and any [MCP](https://modelcontextprotocol.io/) client. |
+| [**ks-xlsx-parser**](https://github.com/knowledgestack/ks-xlsx-parser) (this repo) | Turn `.xlsx` into LLM-ready JSON with citations and dependency graphs. |
+| [@knowledgestack](https://github.com/knowledgestack) | Follow the org for upcoming repos — parsers, extractors, and MCP servers for PDF, DOCX, PPTX, HTML, and more. |
+
+Building on top of the stack? Tell us about it in
+[Show & Tell](https://github.com/knowledgestack/ks-xlsx-parser/discussions/new?category=show-and-tell)
+or the [#showcase](https://discord.gg/4uaGhJcx) channel on Discord.
+
+---
+
+## Stay in touch
+
+<p align="center">
+  <a href="https://discord.gg/4uaGhJcx"><img src="https://img.shields.io/badge/Discord-Join%20the%20community-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord"></a>
+  <a href="https://github.com/knowledgestack"><img src="https://img.shields.io/badge/GitHub-Follow%20the%20org-181717?style=for-the-badge&logo=github" alt="Follow Knowledge Stack"></a>
+  <a href="https://github.com/knowledgestack/ks-xlsx-parser/discussions"><img src="https://img.shields.io/badge/Discussions-Ask%20a%20question-0969da?style=for-the-badge&logo=github" alt="Discussions"></a>
+</p>
+
+- 💬 **[Join the Discord](https://discord.gg/4uaGhJcx)** — our main real-time channel. Roadmap, help, job postings, show-and-tell, and the occasional meme.
+- 🐙 **[Follow @knowledgestack](https://github.com/knowledgestack)** on GitHub for new releases across the ecosystem.
+- 📣 Watch this repo (→ *Releases only*) to get pinged when `ks-xlsx-parser` ships an update.
+
+If you'd rather just peek first — thousands of parsed workbooks live in the
+[testBench release](https://github.com/knowledgestack/ks-xlsx-parser/releases)
+as a single zip. Pull it, diff it, file an issue if your Excel does something
+weirder than ours.
 
 ---
 
 ## License
 
-[MIT](LICENSE). Use it, fork it, ship it.
+[MIT](LICENSE). Use it, fork it, ship it. Attribution appreciated but not required.
+
+If you ship something built on top of `ks-xlsx-parser`, we'd love a
+[Show & Tell](https://github.com/knowledgestack/ks-xlsx-parser/discussions/new?category=show-and-tell)
+post or a shoutout on [Discord](https://discord.gg/4uaGhJcx).

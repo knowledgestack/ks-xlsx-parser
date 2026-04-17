@@ -1,9 +1,12 @@
 # Contributing to ks-xlsx-parser
 
-**First: welcome.** 👋 If you got here and aren't sure what to do, open a
-[Discussion](https://github.com/knowledgestack/ks-xlsx-parser/discussions) — we'd rather
-talk than have you leave. Every good-first-issue, every weird `.xlsx` fixture,
-every three-line doc patch is welcome.
+**First: welcome.** 👋 If you got here and aren't sure what to do:
+
+- Jump into our [**Discord**](https://discord.gg/4uaGhJcx) — real-time help, roadmap chat, and the fastest way to pair on an idea with a maintainer.
+- Or open a [Discussion](https://github.com/knowledgestack/ks-xlsx-parser/discussions) if async is your thing.
+
+We'd rather talk than have you leave. Every good-first-issue, every weird
+`.xlsx` fixture, every three-line doc patch is welcome.
 
 This project only moves forward because people take 20 minutes to file a good
 bug or send a small PR. If that's you, thank you.
@@ -77,9 +80,11 @@ Helpful things to include:
 
 ## Community
 
+- **Discord**: <https://discord.gg/4uaGhJcx> — come hang out, the maintainers and regulars are active here.
 - Discussions: <https://github.com/knowledgestack/ks-xlsx-parser/discussions>
 - Issues: <https://github.com/knowledgestack/ks-xlsx-parser/issues>
 - Security: <https://github.com/knowledgestack/ks-xlsx-parser/security/advisories>
+- Knowledge Stack org: <https://github.com/knowledgestack>
 
 By participating you agree to follow our [Code of Conduct](CODE_OF_CONDUCT.md).
 
