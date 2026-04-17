@@ -1,8 +1,14 @@
 blank_issues_enabled: false
 contact_links:
-  - name: "💬 Discussions"
+  - name: "💬 Discord (fastest)"
+    url: https://discord.gg/4uaGhJcx
+    about: "Chat with the maintainers and community in real time. Quickest path to an answer."
+  - name: "🗣 GitHub Discussions"
     url: https://github.com/knowledgestack/ks-xlsx-parser/discussions
-    about: "Ask questions, share how you're using the parser, or kick off an idea before it becomes an issue."
+    about: "Async Q&A, RFCs, and long-form ideas before they become issues."
+  - name: "🧰 Knowledge Stack ecosystem"
+    url: https://github.com/knowledgestack
+    about: "Looking for agent recipes (ks-cookbook) or the rest of the document-intelligence org? Start here."
   - name: "🔐 Security advisory"
     url: https://github.com/knowledgestack/ks-xlsx-parser/security/advisories/new
     about: "Reporting a vulnerability? Please use our private security channel instead of a public issue."
