@@ -13,7 +13,7 @@ We provide security fixes for the latest released version on PyPI.
 
 **Please do not report security vulnerabilities through public GitHub issues.**
 
-Instead, report them via GitHub's [Private Vulnerability Reporting](https://github.com/arnav2/XLSXParser/security/advisories/new)
+Instead, report them via GitHub's [Private Vulnerability Reporting](https://github.com/knowledgestack/ks-xlsx-parser/security/advisories/new)
 feature. This lets us triage privately before disclosing.
 
 If you cannot use GitHub's private reporting, email the maintainers
@@ -29,7 +29,7 @@ informed throughout the triage.
 
 ## What counts as a vulnerability
 
-XLSXParser processes untrusted `.xlsx` input, so we treat the following as
+ks-xlsx-parser processes untrusted `.xlsx` input, so we treat the following as
 in-scope:
 
 - Arbitrary code execution via a crafted workbook

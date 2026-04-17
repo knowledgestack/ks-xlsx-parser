@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-build_testbench.py — deterministic generator for the XLSXParser testBench.
+build_testbench.py — deterministic generator for the ks-xlsx-parser testBench.
 
 Produces ~1000 `.xlsx` workbooks under ``testBench/generated/`` organised into
 three groups:
@@ -121,7 +121,7 @@ def _finalize(wb: Workbook, out: Path) -> None:
     """Save workbook with deterministic metadata."""
     wb.properties.created = datetime(2025, 1, 1, 0, 0, 0)
     wb.properties.modified = datetime(2025, 1, 1, 0, 0, 0)
-    wb.properties.creator = "XLSXParser testBench generator"
+    wb.properties.creator = "ks-xlsx-parser testBench generator"
     wb.properties.title = out.stem
     out.parent.mkdir(parents=True, exist_ok=True)
     wb.save(out)

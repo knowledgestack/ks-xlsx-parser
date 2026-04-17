@@ -1,7 +1,7 @@
 """
 Stage verification system for the Excellent Spreadsheet Analysis Algorithm.
 
-Maps the XLSXParser pipeline output to the 11-stage Excellent algorithm
+Maps the ks-xlsx-parser pipeline output to the 11-stage Excellent algorithm
 and produces a verification report showing implementation status, metrics,
 gaps, and recommendations.
 """

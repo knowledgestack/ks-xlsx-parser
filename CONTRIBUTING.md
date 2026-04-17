@@ -1,7 +1,7 @@
-# Contributing to XLSXParser
+# Contributing to ks-xlsx-parser
 
 **First: welcome.** 👋 If you got here and aren't sure what to do, open a
-[Discussion](https://github.com/arnav2/XLSXParser/discussions) — we'd rather
+[Discussion](https://github.com/knowledgestack/ks-xlsx-parser/discussions) — we'd rather
 talk than have you leave. Every good-first-issue, every weird `.xlsx` fixture,
 every three-line doc patch is welcome.
 
@@ -12,21 +12,21 @@ bug or send a small PR. If that's you, thank you.
 
 1. **Run `make testbench` and report a file that breaks.** We actively want
    edge-case `.xlsx` fixtures — use the
-   [Parser edge case issue template](https://github.com/arnav2/XLSXParser/issues/new?template=parser_edge_case.yml).
+   [Parser edge case issue template](https://github.com/knowledgestack/ks-xlsx-parser/issues/new?template=parser_edge_case.yml).
 2. **Add a new workbook to `testBench/`.** Either drop a file under
    `testBench/stress/` or add a builder to `scripts/build_testbench.py`. If
    the parser crashes on it, even better.
 3. **Fix one of the flagged issues** in [`docs/PARSER_KNOWN_ISSUES.md`](docs/PARSER_KNOWN_ISSUES.md).
 4. **Improve docs.** The README, the architecture diagram, the examples —
    if something confused you, it confuses everyone.
-5. **Open a [Show & Tell](https://github.com/arnav2/XLSXParser/discussions/new?category=show-and-tell)**
+5. **Open a [Show & Tell](https://github.com/knowledgestack/ks-xlsx-parser/discussions/new?category=show-and-tell)**
    if you shipped something with the parser. Seriously, it helps us prioritise.
 
 ## Development setup
 
 ```bash
-git clone https://github.com/arnav2/XLSXParser.git
-cd XLSXParser
+git clone https://github.com/knowledgestack/ks-xlsx-parser.git
+cd ks-xlsx-parser
 make install               # pip install -e ".[dev,api]"
 make test                  # fast, default suite
 make testbench-build       # regenerate 1000-file stress corpus (~1 min)
@@ -53,9 +53,9 @@ fix with a one-paragraph explanation is almost always mergeable.
 
 ## Reporting issues
 
-Use the [issue templates](https://github.com/arnav2/XLSXParser/issues/new/choose).
+Use the [issue templates](https://github.com/knowledgestack/ks-xlsx-parser/issues/new/choose).
 For security issues, please use the
-[private advisory flow](https://github.com/arnav2/XLSXParser/security/advisories/new)
+[private advisory flow](https://github.com/knowledgestack/ks-xlsx-parser/security/advisories/new)
 — not a public issue.
 
 Helpful things to include:
@@ -77,9 +77,9 @@ Helpful things to include:
 
 ## Community
 
-- Discussions: <https://github.com/arnav2/XLSXParser/discussions>
-- Issues: <https://github.com/arnav2/XLSXParser/issues>
-- Security: <https://github.com/arnav2/XLSXParser/security/advisories>
+- Discussions: <https://github.com/knowledgestack/ks-xlsx-parser/discussions>
+- Issues: <https://github.com/knowledgestack/ks-xlsx-parser/issues>
+- Security: <https://github.com/knowledgestack/ks-xlsx-parser/security/advisories>
 
 By participating you agree to follow our [Code of Conduct](CODE_OF_CONDUCT.md).
 

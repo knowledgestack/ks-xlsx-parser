@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
   - name: "💬 Discussions"
-    url: https://github.com/arnav2/XLSXParser/discussions
+    url: https://github.com/knowledgestack/ks-xlsx-parser/discussions
     about: "Ask questions, share how you're using the parser, or kick off an idea before it becomes an issue."
   - name: "🔐 Security advisory"
-    url: https://github.com/arnav2/XLSXParser/security/advisories/new
+    url: https://github.com/knowledgestack/ks-xlsx-parser/security/advisories/new
     about: "Reporting a vulnerability? Please use our private security channel instead of a public issue."

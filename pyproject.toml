@@ -41,9 +41,9 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/arnav2/XLSXParser"
-Repository = "https://github.com/arnav2/XLSXParser"
-Documentation = "https://github.com/arnav2/XLSXParser#readme"
+Homepage = "https://github.com/knowledgestack/ks-xlsx-parser"
+Repository = "https://github.com/knowledgestack/ks-xlsx-parser"
+Documentation = "https://github.com/knowledgestack/ks-xlsx-parser#readme"
 
 [project.scripts]
 xlsx-parser-api = "xlsx_parser.api:main"

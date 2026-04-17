@@ -1,10 +1,10 @@
-# testBench — the XLSXParser stress corpus
+# testBench — the ks-xlsx-parser stress corpus
 
 A single, self-contained dataset of **1053 `.xlsx` workbooks** used to
-regression-test and stress-test [XLSXParser](https://github.com/arnav2/XLSXParser).
+regression-test and stress-test [ks-xlsx-parser](https://github.com/knowledgestack/ks-xlsx-parser).
 
 It is MIT-licensed, free to reuse for any Excel parser research (commercial or
-otherwise). If it saves you time, please [star the repo](https://github.com/arnav2/XLSXParser) —
+otherwise). If it saves you time, please [star the repo](https://github.com/knowledgestack/ks-xlsx-parser) —
 that's the only signal we have that open-sourcing this was worth doing.
 
 ## Layout
