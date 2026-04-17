@@ -21,7 +21,7 @@
 <p align="center">
   <img src="assets/hero-highlight.png" alt="ks-xlsx-parser highlighting a financial model on the left and emitting typed, citation-linked chunks on the right" width="900">
   <br>
-  <sub><i>Raw workbook on the left (<code>financial_model.xlsx</code>) → parser output on the right: 6 chunks, each tied back to an exact sheet!range, ready to cite in an LLM response.</i></sub>
+  <sub><i>Raw workbook on the left (<code>financial_model.xlsx</code>) → parser output on the right: 4 chunks, each tied back to an exact sheet!range, ready to cite in an LLM response.</i></sub>
 </p>
 
 Spreadsheets are still the #1 unstructured data source in the enterprise.
