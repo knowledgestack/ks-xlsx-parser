@@ -33,4 +33,4 @@ Allow: /
 User-agent: FacebookBot
 Allow: /
 
-Sitemap: https://app.knowledgestack.ai/ks-xlsx-parser/sitemap.xml
+Sitemap: https://knowledgestack.github.io/ks-xlsx-parser/sitemap.xml

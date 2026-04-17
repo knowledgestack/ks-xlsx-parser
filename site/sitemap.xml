@@ -1,38 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://app.knowledgestack.ai/ks-xlsx-parser/</loc>
+    <loc>https://knowledgestack.github.io/ks-xlsx-parser/</loc>
     <lastmod>2026-04-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://app.knowledgestack.ai/ks-xlsx-parser/#what-you-get</loc>
+    <loc>https://knowledgestack.github.io/ks-xlsx-parser/#what-you-get</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://app.knowledgestack.ai/ks-xlsx-parser/#demo</loc>
+    <loc>https://knowledgestack.github.io/ks-xlsx-parser/#demo</loc>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://app.knowledgestack.ai/ks-xlsx-parser/#compare</loc>
+    <loc>https://knowledgestack.github.io/ks-xlsx-parser/#compare</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://app.knowledgestack.ai/ks-xlsx-parser/#bench</loc>
+    <loc>https://knowledgestack.github.io/ks-xlsx-parser/#bench</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://app.knowledgestack.ai/ks-xlsx-parser/#use-cases</loc>
+    <loc>https://knowledgestack.github.io/ks-xlsx-parser/#use-cases</loc>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://app.knowledgestack.ai/ks-xlsx-parser/#faq</loc>
+    <loc>https://knowledgestack.github.io/ks-xlsx-parser/#faq</loc>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
