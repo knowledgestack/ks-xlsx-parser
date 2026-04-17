@@ -24,7 +24,7 @@ from .pipeline import parse_workbook
 from .verification import StageVerifier
 
 app = FastAPI(
-    title="XLSXParser API",
+    title="ks-xlsx-parser API",
     description="Upload an Excel file and get structured JSON output",
     version="0.1.0",
 )
@@ -40,7 +40,7 @@ UPLOAD_HTML = """
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>XLSXParser</title>
+<title>ks-xlsx-parser</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -83,7 +83,7 @@ UPLOAD_HTML = """
 </head>
 <body>
 <div class="container">
-  <h1>XLSXParser</h1>
+  <h1>ks-xlsx-parser</h1>
   <p class="subtitle">Upload an Excel file to parse it into structured JSON</p>
 
   <div class="upload-area" id="dropzone">

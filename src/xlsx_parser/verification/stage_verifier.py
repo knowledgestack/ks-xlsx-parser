@@ -1,7 +1,7 @@
 """
 Stage verification for the Excellent Spreadsheet Analysis Algorithm.
 
-Maps the XLSXParser pipeline to the 11-stage Excellent algorithm (0-10)
+Maps the ks-xlsx-parser pipeline to the 11-stage Excellent algorithm (0-10)
 and produces a verification report with metrics, gaps, and recommendations.
 """
 
@@ -243,7 +243,7 @@ class VerificationReport(StableModel):
 
 class StageVerifier:
     """
-    Verifies XLSXParser output against the Excellent Algorithm stages.
+    Verifies ks-xlsx-parser output against the Excellent Algorithm stages.
 
     Runs the full pipeline (stages 0-8), introspects intermediate results,
     and produces a VerificationReport mapping output to each of the 11 stages.

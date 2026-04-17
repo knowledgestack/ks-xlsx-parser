@@ -5,7 +5,7 @@ PKG_VERSION := $(shell $(PYTHON) -c "import tomllib, pathlib; print(tomllib.load
 TESTBENCH_ZIP := dist/testBench-v$(PKG_VERSION).zip
 
 help:
-	@echo "XLSXParser — common targets"
+	@echo "ks-xlsx-parser — common targets"
 	@echo ""
 	@echo "  make install         Install package and dev deps (editable)"
 	@echo "  make test            Run the default test suite (skips corpus + testbench)"

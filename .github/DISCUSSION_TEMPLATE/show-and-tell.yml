@@ -4,7 +4,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        ## Share how you're using XLSXParser
+        ## Share how you're using ks-xlsx-parser
 
         We love seeing what people build. Drop a short writeup, a screenshot, or a
         link — anything from a weekend hack to a production pipeline.

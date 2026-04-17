@@ -1,7 +1,7 @@
 """
 Tests for the Excellent Algorithm stage verification system.
 
-Verifies that the StageVerifier correctly maps XLSXParser output
+Verifies that the StageVerifier correctly maps ks-xlsx-parser output
 to each of the 11 Excellent Algorithm stages and produces accurate
 reports with metrics, gaps, and recommendations.
 """

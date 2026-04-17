@@ -1,6 +1,6 @@
 # Corpus & Benchmarks
 
-The XLSXParser test bench is split into two tiers.
+The ks-xlsx-parser test bench is split into two tiers.
 
 ## 1. `testBench/` — checked into the repo
 

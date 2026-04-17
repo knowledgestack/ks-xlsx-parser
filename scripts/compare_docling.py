@@ -1,5 +1,5 @@
 """
-Docling vs XLSXParser head-to-head comparison.
+Docling vs ks-xlsx-parser head-to-head comparison.
 
 Runs both parsers against the same .xlsx files and scores them across
 the five dimensions that matter for RAG + citations:
@@ -167,14 +167,14 @@ def _table_rows(table):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# XLSXParser runner
+# ks-xlsx-parser runner
 # ─────────────────────────────────────────────────────────────────────────────
 
 def run_xlsx_parser(path: Path) -> ScoreCard:
     from xlsx_parser.pipeline import parse_workbook
     import openpyxl
 
-    card = ScoreCard(parser="XLSXParser", file=str(path))
+    card = ScoreCard(parser="ks-xlsx-parser", file=str(path))
 
     try:
         result = parse_workbook(path=path)
@@ -298,7 +298,7 @@ def print_comparison(docling_card: ScoreCard, ks_card: ScoreCard) -> None:
     col2 = 20
     col3 = 20
 
-    header = f"  {'Dimension':<{col1}} {'Docling':<{col2}} {'XLSXParser':<{col3}}"
+    header = f"  {'Dimension':<{col1}} {'Docling':<{col2}} {'ks-xlsx-parser':<{col3}}"
     print(header)
     print(f"  {'-'*col1} {'-'*col2} {'-'*col3}")
 
@@ -337,8 +337,8 @@ def print_global_summary(all_docling: list[ScoreCard], all_ks: list[ScoreCard]) 
 
     print(f"  Files tested     : {len(all_docling)}")
     print(f"  Docling avg      : {avg_d:.1f} / 100")
-    print(f"  XLSXParser avg   : {avg_k:.1f} / 100")
-    winner = "XLSXParser" if avg_k > avg_d else "Docling"
+    print(f"  ks-xlsx-parser avg   : {avg_k:.1f} / 100")
+    winner = "ks-xlsx-parser" if avg_k > avg_d else "Docling"
     print(f"  Overall winner   : {winner}")
     print()
 
@@ -346,7 +346,7 @@ def print_global_summary(all_docling: list[ScoreCard], all_ks: list[ScoreCard]) 
     for d, k in zip(all_docling, all_ks):
         name = Path(d.file).name
         if k.score() > d.score():
-            w = f"XLSXParser (+{k.score()-d.score():.1f})"
+            w = f"ks-xlsx-parser (+{k.score()-d.score():.1f})"
         elif d.score() > k.score():
             w = f"Docling (+{d.score()-k.score():.1f})"
         else:
@@ -387,7 +387,7 @@ def print_sample_chunks(path: Path) -> None:
     except Exception as e:
         print(f"\n  [Docling] Error: {e}")
 
-    # XLSXParser
+    # ks-xlsx-parser
     try:
         from xlsx_parser.pipeline import parse_workbook
         result = parse_workbook(path=path)
@@ -401,12 +401,12 @@ def print_sample_chunks(path: Path) -> None:
         if table_chunk:
             rt = table_chunk.get("render_text", "")
             preview = "\n".join("  " + line for line in rt.splitlines()[:8])
-            print(f"\n  [XLSXParser] First table chunk ({table_chunk.get('block_type')}) @ {table_chunk.get('source_uri', '')}:")
+            print(f"\n  [ks-xlsx-parser] First table chunk ({table_chunk.get('block_type')}) @ {table_chunk.get('source_uri', '')}:")
             print(preview or "  (empty)")
         else:
-            print("\n  [XLSXParser] No chunks found")
+            print("\n  [ks-xlsx-parser] No chunks found")
     except Exception as e:
-        print(f"\n  [XLSXParser] Error: {e}")
+        print(f"\n  [ks-xlsx-parser] Error: {e}")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -421,7 +421,7 @@ def main() -> None:
         print("No xlsx files found. Pass paths as arguments or populate examples/.")
         sys.exit(1)
 
-    print(f"\nComparing Docling vs XLSXParser on {len(files)} file(s)…\n")
+    print(f"\nComparing Docling vs ks-xlsx-parser on {len(files)} file(s)…\n")
 
     all_docling: list[ScoreCard] = []
     all_ks: list[ScoreCard] = []

@@ -1,45 +1,81 @@
-# XLSXParser
+# Make XLSX LLM Ready
 
-**A production-grade Excel parser for RAG, data-pipeline, and audit systems — now open source.**
+**`ks-xlsx-parser` is the missing ETL step between your spreadsheets and your LLM.**
 
 [![PyPI version](https://img.shields.io/pypi/v/ks-xlsx-parser.svg)](https://pypi.org/project/ks-xlsx-parser/)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-1053%20workbooks-success.svg)](#the-testbench-dataset)
+[![Tests](https://img.shields.io/badge/testBench-1054%2F1054-success.svg)](#the-testbench-dataset)
+[![CI](https://github.com/knowledgestack/ks-xlsx-parser/actions/workflows/ci.yml/badge.svg)](https://github.com/knowledgestack/ks-xlsx-parser/actions/workflows/ci.yml)
 
-XLSXParser turns any `.xlsx` file into a fully-typed, loss-minimising
-representation — cells, formulas, tables, charts, styles, merged regions,
-conditional formatting, dependency graphs, named ranges, and RAG-ready chunks
-with source URIs for citation. It is built for systems that need the *whole*
-workbook, not just a dataframe: knowledge bases, document understanding
-pipelines, financial auditing tools, and LLM agents that reason about
-spreadsheets.
+> `.xlsx` → structured, typed, citation-ready JSON that an LLM can actually reason about.
+> Cells, formulas, merged regions, tables, charts, conditional formatting,
+> dependency graphs, and RAG-ready chunks — deterministic, fully tested, MIT.
+
+Spreadsheets are still the #1 unstructured data source in the enterprise.
+Feeding a `.xlsx` directly to an LLM loses structure (rows, formulas, merges),
+loses provenance (which cell said what), and blows through context windows.
+`ks-xlsx-parser` turns an Excel workbook into a token-counted, source-addressable
+graph that drops straight into LangChain, LangGraph, CrewAI, or any MCP-aware
+agent.
 
 ---
 
-## ⭐ If this is useful to you
+## ⭐ If this helps you
 
-This project is free, open source (MIT), and maintained by a small team.
-The single most helpful thing you can do is **[star the repo on GitHub](https://github.com/arnav2/XLSXParser)** —
-it's how we justify spending more time on it. 👍
+This project is free, open source (MIT), and part of the [Knowledge Stack](https://github.com/knowledgestack)
+ecosystem. The single most helpful thing you can do is **[star the repo](https://github.com/knowledgestack/ks-xlsx-parser)** —
+that's how we justify spending more time on it. 👍
 
 **Get involved:**
 
-- 💬 [Discussions](https://github.com/arnav2/XLSXParser/discussions) — ask questions, share what you built, or float an idea
-- 🐞 [Issues](https://github.com/arnav2/XLSXParser/issues/new/choose) — report a bug, request a feature, or file a parser edge case
-- 🎯 [Show & Tell](https://github.com/arnav2/XLSXParser/discussions/new?category=show-and-tell) — tell us about your production use
-- 🔐 [Security](https://github.com/arnav2/XLSXParser/security/advisories/new) — report a vulnerability privately
-- 🙌 [Contribute](CONTRIBUTING.md) — every PR is reviewed, and good-first-issues are labeled
+- 💬 [Discussions](https://github.com/knowledgestack/ks-xlsx-parser/discussions) — ask questions, share what you built, or float an idea
+- 🐞 [Issues](https://github.com/knowledgestack/ks-xlsx-parser/issues/new/choose) — report a bug, request a feature, or file a parser edge case
+- 🎯 [Show & Tell](https://github.com/knowledgestack/ks-xlsx-parser/discussions/new?category=show-and-tell) — tell us about your production use
+- 🔐 [Security](https://github.com/knowledgestack/ks-xlsx-parser/security/advisories/new) — report a vulnerability privately
+- 🙌 [Contribute](CONTRIBUTING.md) — every PR is reviewed, `good-first-issue` labels live on Issues
 
-Not sure where to start? Run `make testbench`, find a file that breaks, and
-open a [Parser edge case](https://github.com/arnav2/XLSXParser/issues/new?template=parser_edge_case.yml).
+Not sure where to start? Run `make testbench`, find a file that breaks, open a
+[Parser edge case](https://github.com/knowledgestack/ks-xlsx-parser/issues/new?template=parser_edge_case.yml).
 That's the fastest path to a merged PR.
+
+---
+
+## 30-second demo
+
+```bash
+pip install ks-xlsx-parser
+```
+
+```python
+from ks_xlsx_parser import parse_workbook
+
+result = parse_workbook(path="q4_forecast.xlsx")
+
+# LLM-ready chunks with citation URIs
+for chunk in result.chunks:
+    print(chunk.source_uri)          # q4_forecast.xlsx#Revenue!A1:F18
+    print(chunk.token_count)         # 412
+    print(chunk.render_text[:200])   # Pipe-delimited Markdown-ish text
+    print(chunk.render_html[:200])   # HTML with proper colspan/rowspan
+
+# Or dump the whole workbook graph
+import json
+json.dump(result.to_json(), open("workbook.json", "w"), default=str)
+```
+
+That's it. Every chunk has:
+- `source_uri` — cite back to exact cells
+- `render_text` / `render_html` — LLM-consumable bodies
+- `token_count` — cap your context window properly
+- `dependency_summary` — upstream/downstream formulas
+- content hash — dedupe across versions
 
 ---
 
 ## Table of Contents
 
-- [Why another Excel parser?](#why-another-excel-parser)
+- [Why a dedicated XLSX parser for LLMs?](#why-a-dedicated-xlsx-parser-for-llms)
 - [Architecture](#architecture)
 - [Installation](#installation)
 - [Quick start](#quick-start)
@@ -53,28 +89,25 @@ That's the fastest path to a merged PR.
 
 ---
 
-## Why another Excel parser?
+## Why a dedicated XLSX parser for LLMs?
 
 Most Excel libraries answer one of two questions well: *"read a rectangle of
 values"* (pandas, openpyxl) or *"run Excel headless"* (xlwings, LibreOffice).
-XLSXParser answers a third one: **"give me a structured, inspectable,
-loss-minimising graph of a workbook that an LLM or an auditor can reason
-about."**
+`ks-xlsx-parser` answers a third one: **"give me a structured, inspectable,
+loss-minimising graph that an LLM or auditor can reason about."**
 
-Concretely, one call to `parse_workbook()` gives you:
+| Output | Why an LLM cares |
+|--------|------------------|
+| Typed cell graph (values, formulas, styles, coordinates) | Round-trips to JSON/DB/vector store without losing formulas or data types |
+| Formula AST + directed dependency graph | Answer "what drives Q4 revenue?" via upstream traversal |
+| Detected tables, merged regions, layout blocks | Multi-table sheets no longer collapse into one giant CSV |
+| Chart extractions (bar / line / pie / scatter / area / radar / bubble) | Text summaries the model can read |
+| Token-counted render chunks (HTML + pipe-text) | Plug straight into an embedding pipeline without blowing context |
+| Citation-ready source URIs (`sheet!A1:B10`) | The LLM can cite the exact cell it's talking about |
+| Deterministic content hashes (xxhash64) | Dedupe across versions, detect change between uploads |
 
-| Output | What it's for |
-|--------|---------------|
-| Typed cell graph (values, formulas, styles, coordinates) | Faithful round-trip into JSON / DB / vector store |
-| Formula AST + directed dependency graph | Impact analysis, lineage, circular-reference detection |
-| Detected tables, merged regions, layout blocks | Structure preservation without losing multi-table sheets |
-| Chart extractions (bar / line / pie / scatter / area / radar / bubble) | Text summaries for RAG |
-| Token-counted render chunks (HTML + pipe-text) | Drop straight into an embedding pipeline |
-| Citation-ready source URIs (`sheet!A1:B10`) | Point an LLM back at the exact cells it cited |
-| Deterministic content hashes (xxhash64) | Deduplication, change detection |
-
-Everything is deterministic, everything is tested, and everything is
-open source.
+Everything is deterministic, everything is tested on a 1054-workbook stress
+corpus, and everything is open source.
 
 ---
 
@@ -124,8 +157,9 @@ open source.
                  │ storage/         │          │ verification/      │
                  │ DB records,      │          │ stage-by-stage     │
                  │ vector entries,  │          │ assertions + diff  │
-                 │ to_json(), to_db │          │ reports            │
-                 └──────────────────┘          └────────────────────┘
+                 │ to_json(),       │          │ reports            │
+                 │ LLM chunks       │          └────────────────────┘
+                 └──────────────────┘
                            │
                            ▼
                  ┌──────────────────┐          ┌────────────────────┐
@@ -150,8 +184,8 @@ open source.
    and mixed multi-table layouts).
 5. **Render** — `rendering/` emits HTML (with faithful colspan/rowspan) and
    pipe-delimited text per block, with token counts.
-6. **Serialize** — `storage/` produces JSON, DB-ready records, and
-   vector-store entries addressable by source URI.
+6. **Serialise** — `storage/` produces JSON, DB-ready records, and vector-store
+   entries addressable by source URI.
 7. **Verify** — `verification/` runs stage-level assertions so regressions
    show up as structured diffs, not silent failures.
 8. **Compare / Export** (optional) — `comparison/` aligns multiple workbooks
@@ -161,7 +195,7 @@ open source.
 ### Public API surface
 
 ```python
-from xlsx_parser import (
+from ks_xlsx_parser import (
     parse_workbook,      # 1 file  → ParseResult
     compare_workbooks,   # N files → GeneralizedTemplate
     export_importer,     # template → generated Python class
@@ -173,7 +207,11 @@ from xlsx_parser import (
 )
 ```
 
-The package is type-annotated end-to-end (`py.typed` is shipped).
+The package is fully type-annotated (`py.typed` is shipped).
+
+> **Note**: the importable module is `xlsx_parser`; the PyPI package is
+> `ks-xlsx-parser`. Both names above work — `ks_xlsx_parser` is re-exported
+> as a convenience alias matching the package name.
 
 ---
 
@@ -185,20 +223,20 @@ Requires Python 3.10+.
 # Core library
 pip install ks-xlsx-parser
 
-# With FastAPI web server
+# With the FastAPI web server
 pip install ks-xlsx-parser[api]
 
-# With development/test tools
+# Dev / test tools
 pip install ks-xlsx-parser[dev]
 ```
 
 ### From source
 
 ```bash
-git clone https://github.com/arnav2/XLSXParser.git
-cd XLSXParser
+git clone https://github.com/knowledgestack/ks-xlsx-parser.git
+cd ks-xlsx-parser
 make install           # pip install -e ".[dev,api]"
-make test              # run the default test suite
+make test              # default suite
 make testbench-build   # generate the 1000-file stress corpus
 make testbench         # round-trip every workbook through the parser
 ```
@@ -208,10 +246,10 @@ make testbench         # round-trip every workbook through the parser
 | Package | Purpose |
 |---------|---------|
 | `openpyxl>=3.1.0` | Excel file reading and cell extraction |
-| `pydantic>=2.0`   | Data validation and serialization |
+| `pydantic>=2.0`   | Data validation and serialisation |
 | `lxml>=4.9.0`     | Fast OOXML/XML parsing |
 | `xxhash>=3.0.0`   | Deterministic content hashing |
-| `tiktoken>=0.5.0` | Token counting for RAG chunking |
+| `tiktoken>=0.5.0` | Token counting for LLM context management |
 
 ---
 
@@ -230,7 +268,7 @@ print(f"Formulas: {result.workbook.total_formulas}")
 print(f"Parsed in {result.workbook.parse_duration_ms:.0f} ms")
 ```
 
-### Iterate RAG chunks
+### LLM chunks with citations
 
 ```python
 for chunk in result.chunks:
@@ -252,14 +290,14 @@ for edge in result.workbook.dependency_graph.get_upstream(
 ### Serialise for a DB or vector store
 
 ```python
-as_dict  = result.to_json()                       # fully JSON-compatible dict
-records  = result.serializer.to_workbook_record() # DB row
-sheets   = result.serializer.to_sheet_records()
-chunks   = result.serializer.to_chunk_records()
-vectors  = result.serializer.to_vector_store_entries()
+as_dict = result.to_json()                             # fully JSON-compatible dict
+records = result.serializer.to_workbook_record()       # DB row
+sheets = result.serializer.to_sheet_records()
+chunks = result.serializer.to_chunk_records()
+vectors = result.serializer.to_vector_store_entries()  # ready for Qdrant / pgvector / Weaviate
 ```
 
-### Parse from bytes
+### Parse from bytes (typical server path)
 
 ```python
 with open("workbook.xlsx", "rb") as f:
@@ -286,7 +324,7 @@ Returns a `ParseResult` with `.workbook`, `.chunks`, and `.serializer`.
 
 ### `compare_workbooks()`
 
-Align multiple workbooks of the same template to find structural similarities
+Align multiple workbooks that share a template to find structural similarities
 and degrees of freedom.
 
 ```python
@@ -309,8 +347,7 @@ export_importer(template, "quarterly_importer.py", class_name="QuarterlyReportIm
 
 ## Web API
 
-XLSXParser ships with an optional FastAPI application (drag-and-drop UI
-included).
+`ks-xlsx-parser` ships with an optional FastAPI application with a drag-and-drop UI.
 
 ```bash
 pip install ks-xlsx-parser[api]
@@ -319,7 +356,7 @@ xlsx-parser-api                          # starts on http://localhost:8080
 uvicorn xlsx_parser.api:app --reload --port 8080
 ```
 
-Open the UI in a browser, or POST a file:
+POST a file:
 
 ```bash
 curl -X POST http://localhost:8080/parse -F "file=@workbook.xlsx"
@@ -331,19 +368,19 @@ The response includes the full parse result plus a verification report.
 
 ## The testBench dataset
 
-A companion **1053-workbook stress corpus** is shipped under
+A companion **1054-workbook stress corpus** is shipped under
 [`testBench/`](testBench/):
 
 | Group | Files | What it covers |
 |-------|------:|----------------|
-| `real_world/`           | 8    | Real anonymised workbooks (financial, engineering, project tracking) |
-| `enterprise/`           | 4    | Deterministic enterprise templates |
-| `github_datasets/`      | 10   | Public datasets (iris, titanic, superstore, …) |
-| `stress/curated/`       | 26   | 26 progressive stress levels authored by hand |
-| `stress/merges/`        | 5    | Pathological merge patterns |
-| `generated/matrix/`     | 297  | One feature per file across 18 categories |
-| `generated/combo/`      | 400  | Deterministic feature cocktails (5 densities × 80 seeds) |
-| `generated/adversarial/`| 300  | 1M-row sheets, 250-sheet workbooks, unicode bombs, circular refs, 32 k-char cells, deep formula chains |
+| `real_world/`            | 8    | Real anonymised workbooks (financial, engineering, project tracking) |
+| `enterprise/`            | 4    | Deterministic enterprise templates |
+| `github_datasets/`       | 10   | Public datasets (iris, titanic, superstore, …) |
+| `stress/curated/`        | 26   | 26 progressive stress levels authored by hand |
+| `stress/merges/`         | 5    | Pathological merge patterns |
+| `generated/matrix/`      | 297  | One feature per file across 18 categories |
+| `generated/combo/`       | 400  | Deterministic feature cocktails (5 densities × 80 seeds) |
+| `generated/adversarial/` | 300  | Unicode bombs, circular refs, 32k-char cells, deep formula chains, sparse 1M-row sheets, 250-sheet workbooks |
 
 The `generated/` tree is produced deterministically by
 [`scripts/build_testbench.py`](scripts/build_testbench.py). Every parser
@@ -352,13 +389,13 @@ whole bench is a fast, diffable acceptance gate.
 
 ```bash
 make testbench-build   # regenerate testBench/generated/ (~1 minute)
-make testbench         # parse every file, record failures
-make testbench-zip     # package as dist/testBench-vX.Y.Z.zip for GitHub release
+make testbench         # 1054/1054 in ~70 seconds
+make testbench-zip     # package as dist/testBench-vX.Y.Z.zip for a GitHub release
 ```
 
-The zipped dataset is attached to every release as
-`testBench-v<version>.zip`. Pull it from the Releases page if you don't want
-to clone the full repo.
+The zipped dataset is attached to every release. Pull it from the
+[Releases page](https://github.com/knowledgestack/ks-xlsx-parser/releases)
+if you don't want to clone the full repo.
 
 ---
 
@@ -374,7 +411,7 @@ All DTOs are Pydantic v2.
 | `TableDTO`        | Excel ListObject table with columns, range, style |
 | `ChartDTO`        | Chart metadata, series data, axis labels, chart type |
 | `BlockDTO`        | Logical block (`HEADER` / `DATA` / `TABLE` / …) with bounding box + hash |
-| `ChunkDTO`        | RAG chunk: HTML + text rendering, token count, source URI, content hash |
+| `ChunkDTO`        | LLM chunk: HTML + text rendering, token count, source URI, content hash |
 | `DependencyGraph` | Directed graph of formula dependencies with traversal helpers |
 | `TableStructure`  | Assembled table with header / data regions |
 | `TreeNode`        | Hierarchical node from tree building |
@@ -403,7 +440,7 @@ We love contributions. Three paths, in order of speed-to-merge:
 
 1. **Report a testBench failure** — run `make testbench`, find a file that
    breaks, attach it to a
-   [Parser edge case issue](https://github.com/arnav2/XLSXParser/issues/new?template=parser_edge_case.yml).
+   [Parser edge case issue](https://github.com/knowledgestack/ks-xlsx-parser/issues/new?template=parser_edge_case.yml).
 2. **Add a new adversarial workbook** — contribute a builder to
    `scripts/build_testbench.py`. Any file that makes the parser crash or
    lose information is welcome.
@@ -414,8 +451,20 @@ See the [Code of Conduct](CODE_OF_CONDUCT.md) and
 [Security policy](SECURITY.md) before posting.
 
 If you don't have time to contribute but the project helped you, please
-**[star the repo](https://github.com/arnav2/XLSXParser)**. That's the main
-signal that keeps this maintained.
+**[star the repo](https://github.com/knowledgestack/ks-xlsx-parser)**. That's
+the main signal that keeps this maintained.
+
+---
+
+## Ecosystem
+
+`ks-xlsx-parser` is part of the [Knowledge Stack](https://github.com/knowledgestack)
+open-source family:
+
+- [**ks-cookbook**](https://github.com/knowledgestack/ks-cookbook) — 32
+  production-style flagship agents + recipes for LangChain, LangGraph, CrewAI,
+  Temporal, and the OpenAI Agents SDK.
+- **ks-xlsx-parser** (this repo) — turn `.xlsx` into LLM-ready JSON.
 
 ---
 

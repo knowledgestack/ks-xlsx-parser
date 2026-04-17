@@ -63,7 +63,7 @@ Create categories (click *New Category* for each):
 
 - **📣 Announcements** (maintainer-posts only) — releases and project news
 - **💡 Ideas** (open) — before-it-becomes-an-issue feature brainstorms
-- **🎯 Show and tell** (open) — projects built with XLSXParser
+- **🎯 Show and tell** (open) — projects built with ks-xlsx-parser
   - Attach the template in `.github/DISCUSSION_TEMPLATE/show-and-tell.yml`
 - **🙏 Q&A** (open, answerable) — usage and "does it handle X" questions
 - **🧪 testBench findings** (open) — edge cases that shouldn't be issues yet
@@ -80,8 +80,8 @@ Pushing a `vX.Y.Z` tag triggers `.github/workflows/release.yml` which will:
 One-time PyPI setup: go to PyPI → *your project* → *Publishing* → *Add a new
 pending publisher* with:
 
-- Owner: `arnav2`
-- Repository name: `XLSXParser`
+- Owner: `knowledgestack`
+- Repository name: `ks-xlsx-parser`
 - Workflow name: `release.yml`
 - Environment name: `pypi`
 
@@ -122,16 +122,16 @@ Put a `.github/CODEOWNERS` with:
 
 ```
 # Everything
-*                             @arnav2
+*                             @knowledgestack/maintainers
 
 # Parser internals
-/src/xlsx_parser/parsers/     @arnav2
-/src/xlsx_parser/formula/     @arnav2
-/src/xlsx_parser/analysis/    @arnav2
+/src/xlsx_parser/parsers/     @knowledgestack/maintainers
+/src/xlsx_parser/formula/     @knowledgestack/maintainers
+/src/xlsx_parser/analysis/    @knowledgestack/maintainers
 
 # Docs
-/docs/                        @arnav2
-README.md                     @arnav2
+/docs/                        @knowledgestack/maintainers
+README.md                     @knowledgestack/maintainers
 ```
 
 Add teammates as co-owners as they come on.
