@@ -3,17 +3,194 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ks-xlsx-parser · Make XLSX LLM Ready</title>
-  <meta name="description" content="Turn .xlsx into structured, citation-ready JSON for LLMs, RAG pipelines, and audit systems. Open source (MIT), part of the Knowledge Stack ecosystem." />
+
+  <!-- Primary SEO -->
+  <title>ks-xlsx-parser — Python Excel (XLSX) Parser for LLMs, RAG, LangChain, LangGraph, CrewAI &amp; Claude</title>
+  <meta name="description" content="Open-source Python library that parses Excel (.xlsx) files into structured, citation-ready JSON for LLMs and AI agents. Works with LangChain, LangGraph, CrewAI, OpenAI Agents SDK, Claude Desktop, Cursor, and any MCP client. Preserves formulas, merges, tables, charts, and emits token-counted RAG chunks with source URIs. MIT licensed." />
+  <meta name="keywords" content="xlsx parser, excel parser, python excel parser, parse xlsx for LLM, excel to json, excel for RAG, langchain excel, langgraph excel, crewai excel, openai agents excel, claude excel, mcp excel, openpyxl alternative, excel dependency graph, spreadsheet parser for AI, xlsx to LLM, RAG pipeline excel, document intelligence excel, excel citations for LLM" />
+  <meta name="author" content="Knowledge Stack" />
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+  <meta name="googlebot" content="index,follow" />
+  <link rel="canonical" href="https://knowledgestack.github.io/ks-xlsx-parser/" />
+  <link rel="sitemap" type="application/xml" href="/ks-xlsx-parser/sitemap.xml" />
+  <link rel="alternate" type="application/atom+xml" href="https://github.com/knowledgestack/ks-xlsx-parser/releases.atom" title="ks-xlsx-parser releases" />
   <meta name="theme-color" content="#064E3B" />
 
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Knowledge Stack" />
   <meta property="og:title" content="ks-xlsx-parser — Make XLSX LLM Ready" />
-  <meta property="og:description" content="Excel → citation-ready JSON for agents and RAG. Open source." />
+  <meta property="og:description" content="Open-source Python library that turns Excel (.xlsx) into citation-ready JSON for LLMs, RAG, LangChain, LangGraph, CrewAI, and MCP agents." />
   <meta property="og:image" content="https://knowledgestack.github.io/ks-xlsx-parser/assets/hero-highlight.png" />
+  <meta property="og:image:width" content="1600" />
+  <meta property="og:image:height" content="900" />
+  <meta property="og:image:alt" content="ks-xlsx-parser parsing a financial model into 4 LLM-ready chunks with citation URIs" />
   <meta property="og:url" content="https://knowledgestack.github.io/ks-xlsx-parser/" />
   <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Make XLSX LLM Ready — ks-xlsx-parser" />
+  <meta name="twitter:description" content="Turn Excel (.xlsx) into citation-ready JSON for LLMs and agents. Works with LangChain, LangGraph, CrewAI, Claude, and MCP. Open source." />
+  <meta name="twitter:image" content="https://knowledgestack.github.io/ks-xlsx-parser/assets/hero-highlight.png" />
+
+  <!-- Schema.org JSON-LD: SoftwareSourceCode + Organization + BreadcrumbList -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareSourceCode",
+        "@id": "https://knowledgestack.github.io/ks-xlsx-parser/#software",
+        "name": "ks-xlsx-parser",
+        "alternateName": ["Knowledge Stack XLSX Parser", "ks-xlsx-parser Python library"],
+        "description": "Open-source Python library that parses Excel (.xlsx) files into structured, citation-ready JSON for LLMs and AI agents (LangChain, LangGraph, CrewAI, OpenAI Agents SDK, Claude Desktop, Cursor, MCP). Preserves formulas with a directed dependency graph, merged regions, tables, charts, conditional formatting, and emits token-counted chunks with source URIs.",
+        "url": "https://knowledgestack.github.io/ks-xlsx-parser/",
+        "codeRepository": "https://github.com/knowledgestack/ks-xlsx-parser",
+        "programmingLanguage": "Python",
+        "runtimePlatform": "Python 3.10+",
+        "softwareVersion": "0.1.1",
+        "license": "https://opensource.org/licenses/MIT",
+        "author": {
+          "@type": "Organization",
+          "name": "Knowledge Stack",
+          "url": "https://github.com/knowledgestack"
+        },
+        "keywords": "xlsx parser, excel parser, python excel parser, parse xlsx for LLM, excel RAG, LangChain, LangGraph, CrewAI, OpenAI Agents, Claude, MCP, openpyxl alternative, excel dependency graph, document intelligence",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Linux, macOS, Windows",
+        "downloadUrl": "https://pypi.org/project/ks-xlsx-parser/",
+        "installUrl": "https://pypi.org/project/ks-xlsx-parser/",
+        "softwareRequirements": "Python 3.10+",
+        "image": "https://knowledgestack.github.io/ks-xlsx-parser/assets/hero-highlight.png"
+      },
+      {
+        "@type": "Organization",
+        "@id": "https://github.com/knowledgestack#org",
+        "name": "Knowledge Stack",
+        "url": "https://github.com/knowledgestack",
+        "logo": "https://avatars.githubusercontent.com/u/206719618",
+        "sameAs": [
+          "https://github.com/knowledgestack",
+          "https://discord.gg/4uaGhJcx"
+        ],
+        "description": "Document intelligence for AI agents. Open-source parsers, extractors, and MCP servers that turn enterprise documents into citation-ready JSON for LLMs."
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {"@type": "ListItem", "position": 1, "name": "Knowledge Stack", "item": "https://github.com/knowledgestack"},
+          {"@type": "ListItem", "position": 2, "name": "ks-xlsx-parser", "item": "https://knowledgestack.github.io/ks-xlsx-parser/"}
+        ]
+      }
+    ]
+  }
+  </script>
+
+  <!-- Schema.org JSON-LD: FAQPage (GEO optimised — LLMs love this) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is the best Python library to parse Excel (.xlsx) files for LLMs?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "ks-xlsx-parser is an open-source Python library purpose-built for turning Excel .xlsx files into LLM-ready JSON. Unlike pandas or openpyxl, it preserves formulas with a directed dependency graph, merged regions, tables, charts, and conditional formatting, and emits token-counted chunks with source URIs (file.xlsx#Sheet!A1:F18) that an LLM can cite. Install with: pip install ks-xlsx-parser."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I parse Excel files for a LangChain or LangGraph agent?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Use ks-xlsx-parser to convert the .xlsx into LLM-ready chunks, then expose them as a tool. Example: parse_workbook(path='data.xlsx') returns chunks with source_uri, render_text, token_count, and a dependency summary. Wrap that output in a LangChain @tool or a LangGraph ToolNode and the agent can load spreadsheets, cite cells, and traverse formula dependencies."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I use Excel spreadsheets in a CrewAI agent?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Call ks_xlsx_parser.parse_workbook() on the .xlsx, then pass the resulting chunks (each with a source_uri and token_count) to the CrewAI agent as context or as a tool output. Because every chunk carries its sheet!range citation, the agent can quote exact cells in its reasoning."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can Claude Desktop, Cursor, or another MCP client read Excel files?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. ks-xlsx-parser is MCP-compatible: you can run its bundled FastAPI server (pip install ks-xlsx-parser[api]; xlsx-parser-api) and call POST /parse from any MCP-aware client including Claude Desktop, Cursor, Windsurf, and Zed. An MCP server that wraps the parser directly is on the Knowledge Stack roadmap."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do I build a RAG pipeline over Excel spreadsheets?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "1. pip install ks-xlsx-parser. 2. Call parse_workbook(path=...) to turn each .xlsx into chunks. 3. Use result.serializer.to_vector_store_entries() to get id+text+metadata triples ready for Qdrant, pgvector, Weaviate, or Pinecone. Each chunk already has a content_hash for deduplication and a source_uri the LLM can cite in its answer."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is the difference between ks-xlsx-parser and openpyxl or pandas?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "openpyxl and pandas give you a rectangle of values. ks-xlsx-parser gives you the full workbook graph: typed cells, parsed formulas with cross-sheet dependency edges, merged-region master/slave relationships, Excel ListObjects, all 7 chart types, every conditional-formatting rule type, data validation, and RAG-ready chunks with citation URIs and token counts. It wraps openpyxl and uses lxml for the bits openpyxl loses."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does ks-xlsx-parser run Excel formulas or macros?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No — ks-xlsx-parser reads .xlsx files; it never executes them. Macros (.xlsm VBA) are flagged but never run. External links are recorded but not followed. ZIP-bomb protection and per-sheet cell-count limits make it safe to point at untrusted uploads."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is ks-xlsx-parser free and open source?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. ks-xlsx-parser is MIT-licensed and maintained on GitHub at knowledgestack/ks-xlsx-parser. It is part of the Knowledge Stack open-source ecosystem, which also includes ks-cookbook (agent recipes for LangChain, LangGraph, CrewAI, Temporal, and the OpenAI Agents SDK)."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What file formats does ks-xlsx-parser support?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "ks-xlsx-parser supports .xlsx and .xlsm (OOXML). Legacy .xls (BIFF) is not supported — convert those externally first. The parser handles unicode content, very wide sheets, very tall sheets, sparse workbooks, 250-sheet workbooks, circular formula chains, and files with 32k-character cells, all covered in the 1054-workbook testBench that runs in CI."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How fast is ks-xlsx-parser?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The full 1054-workbook testBench round-trips in approximately 70 seconds on a single machine. A real-world 21k-cell, 13-sheet financial model parses in about 4.6 seconds (previously 307 seconds before a circular-ref caching fix). Sparse workbooks with extreme addresses parse in under 200 ms."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <!-- Schema.org JSON-LD: HowTo for the core query "how to parse XLSX for LLMs" -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    "name": "How to parse an Excel (.xlsx) file into LLM-ready JSON with citations",
+    "description": "Turn an Excel spreadsheet into structured chunks with source URIs and token counts, ready for a LangChain, LangGraph, CrewAI, or MCP agent.",
+    "totalTime": "PT30S",
+    "tool": [{"@type": "HowToTool", "name": "ks-xlsx-parser"}, {"@type": "HowToTool", "name": "Python 3.10+"}],
+    "step": [
+      {"@type": "HowToStep", "position": 1, "name": "Install ks-xlsx-parser", "text": "Run: pip install ks-xlsx-parser"},
+      {"@type": "HowToStep", "position": 2, "name": "Parse the workbook", "text": "from ks_xlsx_parser import parse_workbook\\nresult = parse_workbook(path='workbook.xlsx')"},
+      {"@type": "HowToStep", "position": 3, "name": "Iterate LLM-ready chunks", "text": "for chunk in result.chunks: print(chunk.source_uri, chunk.token_count, chunk.render_text)"},
+      {"@type": "HowToStep", "position": 4, "name": "Wire into your agent framework", "text": "Expose the chunks as a LangChain @tool, LangGraph ToolNode, CrewAI tool, or MCP tool. Each chunk includes a source_uri the LLM can cite."}
+    ]
+  }
+  </script>
 
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%23064E3B%22/><text y=%2265%22 x=%2250%22 text-anchor=%22middle%22 font-size=%2255%22>📊</text></svg>" />
 
@@ -410,6 +587,107 @@ result = <span class="fn">parse_workbook</span>(path=<span class="s">"q4_forecas
   </div>
 </section>
 
+<!-- ============ USE CASES ============ -->
+<section id="use-cases">
+  <div class="wrap">
+    <div class="kicker">USE CASES</div>
+    <h2>How to parse Excel for your agent stack</h2>
+    <p class="lead">Every framework gets the same output: chunks with a <code>source_uri</code>, <code>token_count</code>, rendered HTML + text, and a dependency summary. Wire it in once; cite cells forever.</p>
+
+    <div class="grid">
+      <div class="card">
+        <div class="icon">🦜</div>
+        <h3>Excel for LangChain</h3>
+        <p>Wrap <code>parse_workbook()</code> as a <code>@tool</code>; return <code>chunk.render_text</code> with the <code>source_uri</code> in metadata so the agent cites exact cells.</p>
+      </div>
+      <div class="card">
+        <div class="icon">🕸️</div>
+        <h3>Excel for LangGraph</h3>
+        <p>Use a <code>ToolNode</code> that calls <code>parse_workbook()</code> once per uploaded workbook and passes the chunks as state between graph nodes.</p>
+      </div>
+      <div class="card">
+        <div class="icon">👥</div>
+        <h3>Excel for CrewAI</h3>
+        <p>Give each crew member a <code>load_spreadsheet(path)</code> tool. Analysts get the cells, writers get the rendered chunks with tokens capped.</p>
+      </div>
+      <div class="card">
+        <div class="icon">🧠</div>
+        <h3>Excel for the OpenAI Agents SDK</h3>
+        <p>Register <code>parse_workbook</code> as a <code>@function_tool</code>; pass the resulting chunks as the answer to the <code>load_spreadsheet</code> action.</p>
+      </div>
+      <div class="card">
+        <div class="icon">🧩</div>
+        <h3>Excel for MCP clients (Claude Desktop, Cursor, Windsurf, Zed)</h3>
+        <p>Run <code>xlsx-parser-api</code> and call <code>POST /parse</code>. Any MCP-aware client can now read Excel files with citations.</p>
+      </div>
+      <div class="card">
+        <div class="icon">🧬</div>
+        <h3>Excel for RAG pipelines (Qdrant, pgvector, Weaviate, Pinecone)</h3>
+        <p><code>result.serializer.to_vector_store_entries()</code> emits <code>id + text + metadata</code> triples ready to upsert. Each entry has a content hash for dedup.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section id="faq" class="alt">
+  <div class="wrap">
+    <div class="kicker">FAQ</div>
+    <h2>Frequently asked questions</h2>
+    <p class="lead">Answers to the questions developers actually type into Google and ChatGPT.</p>
+
+    <details style="background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;margin-top:14px">
+      <summary style="font-weight:600;cursor:pointer">What is the best Python library to parse Excel (.xlsx) files for LLMs?</summary>
+      <p style="color:var(--ink-dim);margin:10px 0 0"><code>ks-xlsx-parser</code> is the purpose-built option. Unlike pandas or openpyxl, it preserves formulas with a directed dependency graph, merged regions, tables, charts, and conditional formatting — and emits token-counted chunks with <code>source_uri</code> citations an LLM can quote. <code>pip install ks-xlsx-parser</code>.</p>
+    </details>
+
+    <details style="background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;margin-top:10px">
+      <summary style="font-weight:600;cursor:pointer">How do I parse Excel for a LangChain or LangGraph agent?</summary>
+      <p style="color:var(--ink-dim);margin:10px 0 0">Call <code>parse_workbook(path=...)</code>, then expose the resulting <code>.chunks</code> as a LangChain <code>@tool</code> or a LangGraph <code>ToolNode</code>. Each chunk carries <code>source_uri</code>, <code>render_text</code>, <code>token_count</code>, and <code>dependency_summary</code> — everything an agent needs to cite and reason.</p>
+    </details>
+
+    <details style="background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;margin-top:10px">
+      <summary style="font-weight:600;cursor:pointer">How do I use Excel in a CrewAI or OpenAI-Agents-SDK agent?</summary>
+      <p style="color:var(--ink-dim);margin:10px 0 0">Same pattern: wrap <code>parse_workbook</code> in whatever tool abstraction your framework provides (<code>@tool</code> in CrewAI, <code>@function_tool</code> in the OpenAI Agents SDK). The parser's output is framework-agnostic.</p>
+    </details>
+
+    <details style="background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;margin-top:10px">
+      <summary style="font-weight:600;cursor:pointer">Can Claude Desktop, Cursor, or another MCP client read Excel files?</summary>
+      <p style="color:var(--ink-dim);margin:10px 0 0">Yes. Run the bundled FastAPI server (<code>pip install ks-xlsx-parser[api]; xlsx-parser-api</code>) and call <code>POST /parse</code>. An MCP server that wraps the parser directly is on the roadmap.</p>
+    </details>
+
+    <details style="background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;margin-top:10px">
+      <summary style="font-weight:600;cursor:pointer">How do I build a RAG pipeline over Excel spreadsheets?</summary>
+      <p style="color:var(--ink-dim);margin:10px 0 0">Three steps: <code>pip install ks-xlsx-parser</code>; call <code>parse_workbook()</code> on each <code>.xlsx</code>; call <code>result.serializer.to_vector_store_entries()</code> and upsert into Qdrant, pgvector, Weaviate, or Pinecone. Every entry has a deterministic <code>content_hash</code> for dedup and a <code>source_uri</code> the LLM can cite.</p>
+    </details>
+
+    <details style="background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;margin-top:10px">
+      <summary style="font-weight:600;cursor:pointer">How is ks-xlsx-parser different from openpyxl or pandas?</summary>
+      <p style="color:var(--ink-dim);margin:10px 0 0">openpyxl and pandas give you a rectangle of values. <code>ks-xlsx-parser</code> gives you the full workbook graph: parsed formulas with dependency edges, merged regions, Excel ListObjects, all 7 chart types, every conditional-formatting rule type, and LLM chunks with citation URIs + token counts. It wraps openpyxl and uses lxml for the bits openpyxl loses.</p>
+    </details>
+
+    <details style="background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;margin-top:10px">
+      <summary style="font-weight:600;cursor:pointer">Does ks-xlsx-parser run Excel formulas or macros?</summary>
+      <p style="color:var(--ink-dim);margin:10px 0 0">No. The library reads <code>.xlsx</code> files; it never executes them. VBA macros are flagged but never run. External links are recorded but never resolved. ZIP-bomb and cell-count limits make it safe for untrusted uploads.</p>
+    </details>
+
+    <details style="background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;margin-top:10px">
+      <summary style="font-weight:600;cursor:pointer">Is ks-xlsx-parser free and open source?</summary>
+      <p style="color:var(--ink-dim);margin:10px 0 0">Yes — MIT licensed. Source: <a href="https://github.com/knowledgestack/ks-xlsx-parser">github.com/knowledgestack/ks-xlsx-parser</a>. Part of the Knowledge Stack ecosystem, which also includes <a href="https://github.com/knowledgestack/ks-cookbook">ks-cookbook</a> (agent recipes).</p>
+    </details>
+
+    <details style="background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;margin-top:10px">
+      <summary style="font-weight:600;cursor:pointer">What Excel features are supported?</summary>
+      <p style="color:var(--ink-dim);margin:10px 0 0">Cells, formulas (with cross-sheet and table refs), merged regions, Excel ListObjects, all 7 chart types, conditional formatting (every rule type), data validation, named ranges, hyperlinks, comments, rich text, hidden rows/columns/sheets, freeze panes, and edge addresses up to <code>XFD1048576</code>. Not supported: <code>.xls</code> legacy, pivot-table data, sparklines, VBA execution.</p>
+    </details>
+
+    <details style="background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;margin-top:10px">
+      <summary style="font-weight:600;cursor:pointer">How fast is it?</summary>
+      <p style="color:var(--ink-dim);margin:10px 0 0">The full 1054-workbook testBench round-trips in about 70 seconds. A real 21k-cell, 13-sheet financial model parses in ~4.6 s. Sparse workbooks with extreme addresses parse in under 200 ms. Details in the <a href="https://github.com/knowledgestack/ks-xlsx-parser/blob/main/CHANGELOG.md">CHANGELOG</a>.</p>
+    </details>
+  </div>
+</section>
+
 <!-- ============ ECOSYSTEM ============ -->
 <section>
   <div class="wrap">
@@ -447,6 +725,35 @@ result = <span class="fn">parse_workbook</span>(path=<span class="s">"q4_forecas
       <a class="btn ghost" href="https://discord.gg/4uaGhJcx" target="_blank" rel="noopener">💬 Join Discord</a>
       <a class="btn ghost" href="https://github.com/knowledgestack/ks-xlsx-parser/discussions" target="_blank" rel="noopener">🗣 Discussions</a>
     </div>
+  </div>
+</section>
+
+<!-- ============ KEYWORDS / SEO PROSE ============ -->
+<section aria-label="Related searches">
+  <div class="wrap">
+    <div class="kicker">RELATED</div>
+    <h2>Also known as</h2>
+    <p class="lead">
+      <code>ks-xlsx-parser</code> is the open-source answer to a lot of queries developers are typing today:
+      <em>Python Excel parser for LLMs</em>, <em>XLSX to JSON for LangChain</em>, <em>Excel ingestion for LangGraph</em>,
+      <em>spreadsheet reader for CrewAI</em>, <em>Excel tool for OpenAI Agents SDK</em>, <em>Excel for Claude Desktop</em>,
+      <em>Excel for Cursor</em>, <em>Excel MCP server</em>, <em>openpyxl alternative for RAG</em>,
+      <em>Excel dependency graph extractor</em>, <em>XLSX OOXML parser for AI</em>,
+      <em>how to parse Excel for an LLM agent</em>, <em>how to feed a spreadsheet to ChatGPT</em>,
+      <em>how to cite Excel cells in an LLM answer</em>, <em>best library to turn Excel into JSON</em>,
+      <em>Python library for parsing formulas</em>, <em>Excel formula dependency traversal</em>,
+      <em>document intelligence for spreadsheets</em>, <em>RAG over Excel files</em>,
+      <em>Excel chunker with token counts</em>, <em>Excel parser with citations</em>,
+      <em>how to build an agent that reads Excel</em>, <em>Excel to vector database pipeline</em>,
+      <em>parse .xlsx for Qdrant</em>, <em>parse .xlsx for pgvector</em>, <em>parse .xlsx for Weaviate</em>,
+      <em>parse .xlsx for Pinecone</em>.
+    </p>
+    <p class="lead">
+      If any of that describes what you're trying to do:
+      <a href="https://github.com/knowledgestack/ks-xlsx-parser">star the repo</a>,
+      <a href="https://discord.gg/4uaGhJcx">join the Discord</a>,
+      or drop an <a href="https://github.com/knowledgestack/ks-xlsx-parser/issues/new/choose">issue</a> so we know what to build next.
+    </p>
   </div>
 </section>
 

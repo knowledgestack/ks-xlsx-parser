@@ -5,7 +5,7 @@
 <h1 align="center">📊 Make XLSX LLM Ready 🤖</h1>
 
 <p align="center">
-  <b><code>ks-xlsx-parser</code> is the missing ETL step between your spreadsheets and your LLM.</b>
+  <b><code>ks-xlsx-parser</code> — the open-source Python library that parses Excel (.xlsx) files into citation-ready JSON for LLMs, RAG pipelines, and AI agents (LangChain, LangGraph, CrewAI, OpenAI Agents SDK, Claude, MCP).</b>
 </p>
 
 <p align="center">
@@ -162,6 +162,7 @@ That's it. Every chunk has:
 - [🧰 Knowledge Stack ecosystem](#-knowledge-stack-ecosystem)
 - [📡 Stay in touch](#-stay-in-touch)
 - [🙌 Contributing](#-contributing)
+- [❓ FAQ](#-faq)
 - [📜 License](#-license)
 
 ---
@@ -437,6 +438,72 @@ See the [Code of Conduct](CODE_OF_CONDUCT.md) and
 If you don't have time to contribute but the project helped you, please
 **[star the repo](https://github.com/knowledgestack/ks-xlsx-parser)**. That's
 the main signal that keeps this maintained.
+
+---
+
+## ❓ FAQ
+
+<details>
+<summary><b>What is the best Python library to parse Excel (.xlsx) for LLMs?</b></summary>
+
+`ks-xlsx-parser` is purpose-built for it. Unlike pandas or openpyxl, it preserves formulas with a directed dependency graph, merged regions, tables, charts, and conditional formatting, and emits token-counted chunks with `source_uri` citations an LLM can quote. `pip install ks-xlsx-parser`.
+
+</details>
+
+<details>
+<summary><b>How do I parse Excel for a LangChain or LangGraph agent?</b></summary>
+
+Call `parse_workbook(path=...)`, then expose `result.chunks` as a LangChain `@tool` or a LangGraph `ToolNode`. Each chunk carries `source_uri`, `render_text`, `token_count`, and a `dependency_summary` — everything the agent needs to cite and reason.
+
+</details>
+
+<details>
+<summary><b>How do I use Excel in a CrewAI or OpenAI-Agents-SDK agent?</b></summary>
+
+Same pattern — wrap `parse_workbook` in whatever tool abstraction your framework provides (`@tool` in CrewAI, `@function_tool` in the OpenAI Agents SDK). The parser's output is framework-agnostic.
+
+</details>
+
+<details>
+<summary><b>Can Claude Desktop, Cursor, Windsurf, or another MCP client read Excel files?</b></summary>
+
+Yes — run the bundled FastAPI server (`pip install ks-xlsx-parser[api]; xlsx-parser-api`) and call `POST /parse`. A native MCP server is on the [Knowledge Stack](https://github.com/knowledgestack) roadmap.
+
+</details>
+
+<details>
+<summary><b>How do I build a RAG pipeline over Excel spreadsheets?</b></summary>
+
+Three steps: `pip install ks-xlsx-parser`, call `parse_workbook()` on each file, then `result.serializer.to_vector_store_entries()` to get `id + text + metadata` triples ready for Qdrant, pgvector, Weaviate, or Pinecone. Every entry has a `content_hash` for dedup and a `source_uri` the LLM cites in its answer.
+
+</details>
+
+<details>
+<summary><b>How is ks-xlsx-parser different from openpyxl or pandas?</b></summary>
+
+openpyxl and pandas give you a rectangle of values. `ks-xlsx-parser` gives you the full workbook graph: parsed formulas with dependency edges, merged regions, Excel ListObjects, all 7 chart types, every conditional-formatting rule type, and LLM chunks with citation URIs + token counts. It wraps openpyxl and uses lxml for the bits openpyxl loses.
+
+</details>
+
+<details>
+<summary><b>Does ks-xlsx-parser run Excel formulas or macros?</b></summary>
+
+No. The library reads `.xlsx` files; it never executes them. VBA macros are flagged but never run. External links are recorded but never resolved. ZIP-bomb and cell-count limits make it safe for untrusted uploads.
+
+</details>
+
+<details>
+<summary><b>How fast is it?</b></summary>
+
+The full 1054-workbook testBench round-trips in ~70 s on a single machine. A real 21k-cell, 13-sheet financial model parses in ~4.6 s (down from 307 s pre-0.1.1 after a circular-ref caching fix). Sparse workbooks with extreme addresses parse in under 200 ms.
+
+</details>
+
+---
+
+## 🔎 Also known as
+
+Search queries this library answers: *Python Excel parser for LLMs*, *XLSX to JSON for LangChain*, *Excel ingestion for LangGraph*, *spreadsheet reader for CrewAI*, *Excel tool for OpenAI Agents SDK*, *Excel for Claude Desktop*, *Excel for Cursor*, *Excel MCP server*, *openpyxl alternative for RAG*, *Excel dependency graph extractor*, *XLSX OOXML parser for AI*, *how to parse Excel for an LLM agent*, *how to feed a spreadsheet to ChatGPT*, *how to cite Excel cells in an LLM answer*, *best library to turn Excel into JSON*, *Python library for parsing formulas*, *Excel formula dependency traversal*, *document intelligence for spreadsheets*, *RAG over Excel files*, *Excel chunker with token counts*, *parse .xlsx for Qdrant / pgvector / Weaviate / Pinecone*.
 
 ---
 
