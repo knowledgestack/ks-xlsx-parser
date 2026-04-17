@@ -158,13 +158,15 @@ class TestMixedContentLayout:
 
     def test_detects_multiple_blocks(self, mixed_content_layout):
         _, _, blocks = _parse_and_segment(mixed_content_layout)
-        assert len(blocks) >= 3
+        assert len(blocks) >= 2
 
-    def test_header_block_detected(self, mixed_content_layout):
+    def test_title_merged_into_table(self, mixed_content_layout):
+        """Title rows are absorbed into the following data block for RAG context."""
         _, _, blocks = _parse_and_segment(mixed_content_layout)
-        header_blocks = [b for b in blocks if b.block_type == BlockType.HEADER]
-        assert len(header_blocks) >= 1
-        assert header_blocks[0].cell_range.top_left.row == 1
+        # The first block should start at row 1 (title) and include the table
+        first = blocks[0]
+        assert first.cell_range.top_left.row == 1
+        assert first.block_type == BlockType.TABLE
 
     def test_table_block_detected(self, mixed_content_layout):
         _, _, blocks = _parse_and_segment(mixed_content_layout)
@@ -207,6 +209,132 @@ class TestMixedContentLayout:
                 assert not (rows_overlap and cols_overlap), (
                     f"Blocks overlap: {a_r.to_a1()} and {b_r.to_a1()}"
                 )
+
+
+class TestTitleMerging:
+    """Title/header rows should be merged into the following data block."""
+
+    @pytest.fixture
+    def title_above_table(self, tmp_dir):
+        """Title row followed by a data table with no gap."""
+        from openpyxl import Workbook
+        from openpyxl.styles import Font
+        from openpyxl.worksheet.table import Table, TableStyleInfo
+
+        path = tmp_dir / "title_above_table.xlsx"
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Sales"
+
+        # Title row
+        ws["A1"] = "Regional Sales Dashboard — FY2024"
+        ws["A1"].font = Font(bold=True, size=14)
+        ws.merge_cells("A1:D1")
+        # Subtitle
+        ws["A2"] = "All figures in thousands ($)"
+
+        # Data table starting at row 3
+        for ci, h in enumerate(["Product", "Region", "Q1", "Q2"], 1):
+            ws.cell(row=3, column=ci, value=h).font = Font(bold=True)
+        for ri, row_data in enumerate(
+            [("Widget", "NA", 100, 200), ("Gadget", "EU", 150, 250)], 4
+        ):
+            for ci, v in enumerate(row_data, 1):
+                ws.cell(row=ri, column=ci, value=v)
+
+        tab = Table(displayName="SalesData", ref="A3:D5")
+        tab.tableStyleInfo = TableStyleInfo(name="TableStyleMedium9")
+        ws.add_table(tab)
+
+        wb.save(path)
+        return path
+
+    @pytest.fixture
+    def title_with_gap(self, tmp_dir):
+        """Title row followed by 1 blank row then a data table."""
+        from openpyxl import Workbook
+        from openpyxl.styles import Font
+
+        path = tmp_dir / "title_with_gap.xlsx"
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Report"
+
+        ws["A1"] = "QUARTERLY REPORT"
+        ws["A1"].font = Font(bold=True, size=14)
+        # Row 2 blank
+        for ci, h in enumerate(["Category", "Value"], 1):
+            ws.cell(row=3, column=ci, value=h).font = Font(bold=True)
+        for ri, row_data in enumerate([("Alpha", 10), ("Beta", 20), ("Gamma", 30)], 4):
+            for ci, v in enumerate(row_data, 1):
+                ws.cell(row=ri, column=ci, value=v)
+
+        wb.save(path)
+        return path
+
+    @pytest.fixture
+    def distant_title(self, tmp_dir):
+        """Title row with 3 blank rows before data — should NOT merge."""
+        from openpyxl import Workbook
+        from openpyxl.styles import Font
+
+        path = tmp_dir / "distant_title.xlsx"
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Distant"
+
+        ws["A1"] = "FAR AWAY TITLE"
+        ws["A1"].font = Font(bold=True, size=14)
+        # Rows 2-4 blank
+        for ci, h in enumerate(["X", "Y"], 1):
+            ws.cell(row=5, column=ci, value=h).font = Font(bold=True)
+        for ri, row_data in enumerate([(1, 2), (3, 4), (5, 6), (7, 8)], 6):
+            for ci, v in enumerate(row_data, 1):
+                ws.cell(row=ri, column=ci, value=v)
+
+        wb.save(path)
+        return path
+
+    def test_title_merged_into_excel_table(self, title_above_table):
+        """Title rows above an Excel table should merge into the table chunk."""
+        _, _, blocks = _parse_and_segment(title_above_table)
+        # Title (rows 1-2) + table (rows 3-5) → single block starting at row 1
+        table_block = next(b for b in blocks if b.table_name == "SalesData")
+        assert table_block.cell_range.top_left.row == 1
+
+    def test_title_merged_preserves_table_type(self, title_above_table):
+        result = parse_workbook(path=title_above_table)
+        chunk = result.chunks[0]
+        assert "Regional Sales Dashboard" in chunk.render_text
+        assert "Product" in chunk.render_text
+
+    def test_title_with_one_blank_row_merges(self, title_with_gap):
+        """HEADER block with 1 blank row gap should merge into data below."""
+        _, _, blocks = _parse_and_segment(title_with_gap)
+        first = blocks[0]
+        assert first.cell_range.top_left.row == 1
+        assert first.cell_range.bottom_right.row >= 4
+
+    def test_distant_title_stays_separate(self, distant_title):
+        """Title with 3+ blank rows gap should NOT merge."""
+        _, _, blocks = _parse_and_segment(distant_title)
+        assert len(blocks) >= 2
+        assert blocks[0].cell_range.bottom_right.row < 5
+
+    def test_merged_chunk_text_includes_title(self, title_above_table):
+        """The merged chunk's render_text should contain both title and data."""
+        result = parse_workbook(path=title_above_table)
+        texts = [ch.render_text for ch in result.chunks if ch.sheet_name == "Sales"]
+        combined = "\n".join(texts)
+        assert "Regional Sales Dashboard" in combined
+        assert "Widget" in combined
+
+    def test_merged_chunk_lineage_spans_full_range(self, title_above_table):
+        """Merged chunk's source_uri should cover row 1 through the table end."""
+        result = parse_workbook(path=title_above_table)
+        sales_chunks = [ch for ch in result.chunks if ch.sheet_name == "Sales"]
+        assert len(sales_chunks) == 1
+        assert sales_chunks[0].top_left_cell == "A1"
 
 
 class TestColorCodedTables:

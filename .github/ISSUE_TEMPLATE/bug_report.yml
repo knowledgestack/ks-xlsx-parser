@@ -1,0 +1,65 @@
+name: "🐞 Bug report"
+description: Something is wrong with the parser or an existing feature
+title: "[bug] "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug. Filling this in carefully saves a round-trip.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What were you trying to do, and what did the parser produce instead?
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal reproduction
+      description: |
+        Paste the smallest code snippet that reproduces the bug. If possible, attach the
+        `.xlsx` file or a generator that produces it. Files under ~100 KB can be attached
+        directly to the issue; larger files should be linked.
+      render: python
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: XLSXParser version
+      placeholder: "0.1.1"
+    validations:
+      required: true
+  - type: input
+    id: python
+    attributes:
+      label: Python version
+      placeholder: "3.12.0"
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: "macOS 14.4 / Ubuntu 22.04 / Windows 11"
+  - type: textarea
+    id: traceback
+    attributes:
+      label: Traceback (if any)
+      render: shell
+  - type: checkboxes
+    id: testbench
+    attributes:
+      label: testBench check
+      description: Does your file already fail `make testbench`? If so, please note which group.
+      options:
+        - label: "I ran `make testbench` and my file failed (attach `metrics/testbench/failures.json`)."
+        - label: "The file is not in the bench; I can contribute it as a new fixture."

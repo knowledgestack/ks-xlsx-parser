@@ -13,7 +13,7 @@ Usage:
         print(chunk.source_uri, chunk.render_text[:100])
 """
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 from .pipeline import (
     ParseResult,

@@ -138,52 +138,67 @@ class SheetParser:
         Applies merge master/slave annotations and computed values.
         """
         cell_count = 0
-        for row in self._ws.iter_rows():
-            for cell in row:
-                if cell_count >= self._max_cells:
-                    sheet.errors.append(ParseError(
-                        severity=Severity.WARNING,
-                        stage="parse",
-                        message=f"Cell limit ({self._max_cells}) reached; truncating",
-                        sheet_name=self._sheet_name,
-                    ))
-                    return
+        # Use openpyxl's internal cell storage when available so sparse sheets
+        # (e.g. A1 + XFD1048576) don't force a walk over ~17B empty cells.
+        # Fall back to iter_rows() for read-only mode where _cells is absent.
+        stored_cells = getattr(self._ws, "_cells", None)
+        if isinstance(stored_cells, dict):
+            # Merged cells are not in _cells; materialise them separately.
+            merge_keys = set()
+            for (mr, mc), (master, _rs, _cs) in merge_masters.items():
+                merge_keys.add((mr, mc))
+            cell_iter = [
+                self._ws.cell(row=r, column=c)
+                for (r, c) in sorted(set(stored_cells.keys()) | merge_keys)
+            ]
+        else:
+            cell_iter = (cell for row in self._ws.iter_rows() for cell in row)
 
-                # Skip truly empty cells (no value, no formula, no style worth capturing)
-                if cell.value is None and cell.data_type != "f" and not self._has_meaningful_style(cell):
-                    # But still capture merged slaves
-                    from openpyxl.cell.cell import MergedCell as MergedCellType
-                    if not isinstance(cell, MergedCellType):
-                        continue
+        for cell in cell_iter:
+            if cell_count >= self._max_cells:
+                sheet.errors.append(ParseError(
+                    severity=Severity.WARNING,
+                    stage="parse",
+                    message=f"Cell limit ({self._max_cells}) reached; truncating",
+                    sheet_name=self._sheet_name,
+                ))
+                return
 
-                # Get computed value from data_only pass
-                computed_value = None
-                if self._computed_ws:
-                    try:
-                        computed_cell = self._computed_ws.cell(
-                            row=cell.row, column=cell.column
-                        )
-                        computed_value = computed_cell.value
-                    except Exception:
-                        pass
+            # Skip truly empty cells (no value, no formula, no style worth capturing)
+            if cell.value is None and cell.data_type != "f" and not self._has_meaningful_style(cell):
+                # But still capture merged slaves
+                from openpyxl.cell.cell import MergedCell as MergedCellType
+                if not isinstance(cell, MergedCellType):
+                    continue
 
-                cell_dto = self._cell_parser.parse(cell, computed_value)
+            # Get computed value from data_only pass
+            computed_value = None
+            if self._computed_ws:
+                try:
+                    computed_cell = self._computed_ws.cell(
+                        row=cell.row, column=cell.column
+                    )
+                    computed_value = computed_cell.value
+                except Exception:
+                    pass
 
-                # Annotate merge info
-                key = (cell.row, cell.column)
-                if key in merge_masters:
-                    master_coord, row_span, col_span = merge_masters[key]
-                    if master_coord.row == cell.row and master_coord.col == cell.column:
-                        cell_dto.is_merged_master = True
-                        cell_dto.merge_extent = row_span
-                        cell_dto.merge_col_extent = col_span
-                    else:
-                        cell_dto.is_merged_slave = True
-                        cell_dto.merge_master = master_coord
+            cell_dto = self._cell_parser.parse(cell, computed_value)
 
-                if not cell_dto.is_empty or cell_dto.is_merged_slave or cell_dto.is_merged_master:
-                    sheet.set_cell(cell_dto)
-                    cell_count += 1
+            # Annotate merge info
+            key = (cell.row, cell.column)
+            if key in merge_masters:
+                master_coord, row_span, col_span = merge_masters[key]
+                if master_coord.row == cell.row and master_coord.col == cell.column:
+                    cell_dto.is_merged_master = True
+                    cell_dto.merge_extent = row_span
+                    cell_dto.merge_col_extent = col_span
+                else:
+                    cell_dto.is_merged_slave = True
+                    cell_dto.merge_master = master_coord
+
+            if not cell_dto.is_empty or cell_dto.is_merged_slave or cell_dto.is_merged_master:
+                sheet.set_cell(cell_dto)
+                cell_count += 1
 
     def _extract_merges(self) -> list[MergedRegion]:
         """Extract all merged cell regions from the worksheet."""

@@ -48,8 +48,16 @@ ENV/
 .DS_Store
 tests/fixtures/corpus/
 
-# Generated stress test artifacts (regenerate with stress_test_runner)
-examples/stress_test/*.xlsx
+# Corpus & metrics outputs
+metrics/corpus/
+metrics/corpus_summary.json
+metrics/testbench/
+
+# Generated stress test artifacts — the 1000-file bench is re-built on demand
+testBench/generated/
 examples/stress_test/stress_results.json
 examples/stress_test/built_reference.json
 examples/stress_test/STRESS_TEST_RESULTS.md
+
+# Packaged dataset (produced by `make testbench-zip`)
+dist/testBench*.zip

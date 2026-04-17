@@ -22,7 +22,7 @@ from xlsx_parser.pipeline import parse_workbook
 from xlsx_parser.storage.serializer import WorkbookSerializer
 
 
-FIXTURES_DIR = Path(__file__).parent / "fixtures" / "github_datasets"
+FIXTURES_DIR = Path(__file__).parent.parent / "testBench" / "github_datasets"
 
 # Each entry: (filename, expected_sheets, expected_min_rows, expected_header_sample)
 DATASET_CATALOG = [

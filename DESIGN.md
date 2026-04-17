@@ -3,7 +3,7 @@
 ## 1. Architecture Overview
 
 ### Purpose
-Parse `.xlsx` workbooks into structured, loss-minimizing representations for a RAG (Retrieval-Augmented Generation) + auditability system ("Knowledge Stack"). Every extracted element is traceable back to exact sheet coordinates and a stable workbook version hash.
+Parse `.xlsx` workbooks into structured, loss-minimizing representations for RAG (Retrieval-Augmented Generation) and auditability systems. Every extracted element is traceable back to exact sheet coordinates and a stable workbook version hash.
 
 ### Assumptions
 - **Input**: `.xlsx` files only (OOXML format). `.xls` (legacy BIFF) is out of scope; conversion via external tools is assumed.

@@ -2,9 +2,12 @@
 FastAPI application for uploading and parsing Excel files.
 
 Run with:
-    uvicorn xlsx_parser.api:app --reload
+    uvicorn xlsx_parser.api:app --reload --port 8080
 
-Then open http://localhost:8000 in your browser to upload a file.
+Or use the xlsx-parser-api script (runs on port 8080 by default):
+    xlsx-parser-api
+
+Then open http://localhost:8080 in your browser to upload a file.
 """
 
 from __future__ import annotations
@@ -235,3 +238,9 @@ async def parse_excel(file: UploadFile = File(...)):
             status_code=500,
             content={"detail": f"Parse error: {str(e)}"},
         )
+
+
+def main() -> None:
+    """Run the API server on port 8080. Use: xlsx-parser-api"""
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8080, reload=True)
