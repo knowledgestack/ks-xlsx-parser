@@ -111,6 +111,9 @@ class LayoutSegmenter:
         # Sort blocks by position (top-left corner)
         blocks.sort(key=lambda b: (b.cell_range.top_left.row, b.cell_range.top_left.col))
 
+        # Merge standalone title/header rows into the block that follows them
+        blocks = self._merge_title_blocks(blocks)
+
         # Re-index after sorting
         for idx, block in enumerate(blocks):
             block.block_index = idx
@@ -146,6 +149,107 @@ class LayoutSegmenter:
         col_gap = self._gap_cols
 
         return row_gap, col_gap
+
+    # Maximum number of rows a standalone title/header block can have to be
+    # eligible for merging into the following block.
+    _MAX_TITLE_ROWS = 3
+
+    def _merge_title_blocks(self, blocks: list[BlockDTO]) -> list[BlockDTO]:
+        """
+        Merge standalone title/header blocks into their following data block.
+
+        A block is treated as a "title" when ALL of the following hold:
+          - has ≤ _MAX_TITLE_ROWS rows,
+          - has no formulas and no explicit Excel table name,
+          - is classified as HEADER, TEXT_BLOCK, TABLE, or MIXED,
+          - sits directly above the next block (≤1 blank row for HEADER,
+            0 blank rows for other types),
+          - the next block is strictly taller (more rows) than the title,
+          - their column ranges overlap.
+
+        When merged the following block's cell_range is extended upward to
+        include the title rows.  Cell counts and key_cells are combined.
+        """
+        if len(blocks) <= 1:
+            return blocks
+
+        absorbed: set[int] = set()  # indices of title blocks consumed
+        merged: list[BlockDTO] = list(blocks)  # mutable copy
+
+        for i in range(len(merged) - 1):
+            blk = merged[i]
+
+            if i in absorbed:
+                continue
+
+            row_span = blk.cell_range.bottom_right.row - blk.cell_range.top_left.row + 1
+            if row_span > self._MAX_TITLE_ROWS:
+                continue
+
+            # Must look like a title, not a real data table
+            if blk.formula_count > 0:
+                continue
+            if blk.table_name:  # explicit Excel table — don't merge away
+                continue
+
+            is_header = blk.block_type == BlockType.HEADER
+            is_other_title = blk.block_type in (
+                BlockType.TEXT_BLOCK,
+                BlockType.TABLE,
+                BlockType.MIXED,
+            )
+            if not (is_header or is_other_title):
+                continue
+
+            # HEADER blocks tolerate 1 blank row; others must be contiguous
+            max_gap = 1 if is_header else 0
+
+            # Find the next non-absorbed block
+            j = i + 1
+            while j < len(merged) and j in absorbed:
+                j += 1
+            if j >= len(merged):
+                continue
+
+            nxt = merged[j]
+            gap = nxt.cell_range.top_left.row - blk.cell_range.bottom_right.row - 1
+            if gap > max_gap:
+                continue
+
+            # The next block must be taller — we merge small into large,
+            # not two equally-sized neighbours
+            nxt_rows = nxt.cell_range.bottom_right.row - nxt.cell_range.top_left.row + 1
+            if nxt_rows <= row_span:
+                continue
+
+            # Column ranges must overlap
+            if (blk.cell_range.bottom_right.col < nxt.cell_range.top_left.col
+                    or blk.cell_range.top_left.col > nxt.cell_range.bottom_right.col):
+                continue
+
+            # Merge: extend nxt upward
+            new_top_row = min(blk.cell_range.top_left.row, nxt.cell_range.top_left.row)
+            new_top_col = min(blk.cell_range.top_left.col, nxt.cell_range.top_left.col)
+            new_bot_row = max(blk.cell_range.bottom_right.row, nxt.cell_range.bottom_right.row)
+            new_bot_col = max(blk.cell_range.bottom_right.col, nxt.cell_range.bottom_right.col)
+
+            nxt.cell_range = CellRange(
+                top_left=CellCoord(row=new_top_row, col=new_top_col),
+                bottom_right=CellCoord(row=new_bot_row, col=new_bot_col),
+            )
+            nxt.cell_count += blk.cell_count
+            nxt.has_merges = nxt.has_merges or blk.has_merges
+            nxt.has_formatting = nxt.has_formatting or blk.has_formatting
+            nxt.key_cells = (blk.key_cells + nxt.key_cells)[:20]
+            nxt.bounding_box = self._sheet.compute_bounding_box(nxt.cell_range)
+
+            absorbed.add(i)
+            logger.debug(
+                "Merged title block %d (%s) into block %d (%s)",
+                i, blk.cell_range.to_a1(), j, nxt.cell_range.to_a1(),
+            )
+
+        return [b for idx, b in enumerate(merged) if idx not in absorbed]
 
     def _detect_style_boundaries(self, cells: list) -> list[list]:
         """

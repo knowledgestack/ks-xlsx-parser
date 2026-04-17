@@ -58,11 +58,11 @@ dev = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
     "pytest-xdist>=3.0",
+    "pytest-timeout>=2.2.0",
     "python-calamine>=0.2.0",
     "requests>=2.28.0",
-]
-ralph = [
-    "anthropic>=0.39.0",
+    "ruff>=0.6.0",
+    "mypy>=1.0",
 ]
 
 [tool.pytest.ini_options]
@@ -75,8 +75,35 @@ markers = [
     "invariant: structural invariant tests",
     "corpus: external corpus tests (skipped by default)",
     "slow: tests taking >10 seconds",
+    "enterprise: enterprise scorecard benchmarks",
+    "testbench: 1000-file testBench round-trip (skipped by default; run with -m testbench)",
 ]
-addopts = "-m 'not corpus'"
+addopts = "-m 'not corpus and not testbench'"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py310"
+extend-exclude = ["testBench", "examples/stress_test", "dist", "build"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+    "SIM", # flake8-simplify
+]
+ignore = [
+    "E501",   # line length handled by formatter
+    "B008",   # function call in default arg (FastAPI pattern)
+    "SIM105", # try/except/pass — often clearer than contextlib.suppress at call sites
+    "B007",   # unused loop control variable (fine in generators)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["B011", "B017"]
+"scripts/**" = ["B008"]

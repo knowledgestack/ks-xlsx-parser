@@ -1,0 +1,27 @@
+title: "[show-and-tell] "
+labels: ["show-and-tell"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Share how you're using XLSXParser
+
+        We love seeing what people build. Drop a short writeup, a screenshot, or a
+        link — anything from a weekend hack to a production pipeline.
+  - type: textarea
+    id: story
+    attributes:
+      label: What did you build?
+      description: "A paragraph is enough. Links to blog posts / repos welcome."
+    validations:
+      required: true
+  - type: textarea
+    id: stack
+    attributes:
+      label: Where does it fit in your stack?
+      description: "Ingestion pipeline? RAG indexer? Audit tool? Internal dashboard?"
+  - type: textarea
+    id: feedback
+    attributes:
+      label: What's one thing that would make it better?
+      description: "Shapes the roadmap."

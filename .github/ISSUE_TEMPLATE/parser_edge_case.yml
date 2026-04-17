@@ -1,0 +1,38 @@
+name: "🧪 Parser edge case / stress case"
+description: A file or pattern that breaks, corrupts, or slows the parser
+title: "[edge] "
+labels: ["edge-case", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Every edge-case report ideally becomes a new fixture in `testBench/`. Bonus points
+        for a minimal generator in `scripts/build_testbench.py`.
+  - type: textarea
+    id: pattern
+    attributes:
+      label: What's the Excel feature or pattern?
+      description: e.g. "conditional-formatting rule of type X", "merged region spanning Y", "formula chain of depth Z"
+    validations:
+      required: true
+  - type: textarea
+    id: failure_mode
+    attributes:
+      label: Failure mode
+      description: Timeout? Wrong output? Exception? Lost data?
+    validations:
+      required: true
+  - type: textarea
+    id: fixture
+    attributes:
+      label: Reproducing fixture
+      description: Attach a `.xlsx` (or paste the openpyxl code that builds one).
+      render: python
+  - type: checkboxes
+    id: intent
+    attributes:
+      label: What would you like next?
+      options:
+        - label: "Add it to `testBench/` as a new stress fixture."
+        - label: "Open a PR fixing the parser."
+        - label: "Triage help — I'm stuck."

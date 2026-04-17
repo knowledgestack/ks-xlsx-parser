@@ -1,0 +1,30 @@
+name: "✨ Feature request"
+description: Suggest a new capability or improvement
+title: "[feat] "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you trying to solve?
+      description: Describe the use case first — we optimise for real-world pain, not feature lists.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What would the API / output look like? A rough sketch is fine.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: Would you be willing to contribute?
+      options:
+        - label: "I'd like to submit a PR for this."
+        - label: "I'd like to pair with a maintainer."

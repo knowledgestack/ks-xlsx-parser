@@ -26,8 +26,9 @@ from openpyxl.worksheet.table import Table, TableStyleInfo
 # ---------------------------------------------------------------------------
 
 _PROJECT_ROOT = Path(__file__).parent.parent
-_EXAMPLES_DIR = _PROJECT_ROOT / "examples"
-_DATASETS_DIR = Path(__file__).parent / "fixtures" / "github_datasets"
+_TESTBENCH_DIR = _PROJECT_ROOT / "testBench"
+_EXAMPLES_DIR = _TESTBENCH_DIR / "real_world"
+_DATASETS_DIR = _TESTBENCH_DIR / "github_datasets"
 
 # Names of conftest fixtures that produce .xlsx files
 PROGRAMMATIC_FIXTURE_NAMES = [

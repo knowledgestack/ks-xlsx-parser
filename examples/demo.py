@@ -15,7 +15,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 from xlsx_parser.pipeline import parse_workbook
 from xlsx_parser.utils.logging_config import configure_logging
 
-EXAMPLES_DIR = Path(__file__).parent
+EXAMPLES_DIR = Path(__file__).parent.parent / "testBench" / "real_world"
 
 
 def demo_financial_model():

@@ -47,6 +47,15 @@ class ChunkBuilder:
     def __init__(self, workbook: WorkbookDTO):
         self._workbook = workbook
         self._dep_graph = workbook.dependency_graph
+        # Circular-ref detection is O(V+E) and does not depend on which block
+        # we're looking at — cache it once per workbook to avoid re-running it
+        # per chunk (otherwise ~O(chunks × V+E) on dense models).
+        self._circular_refs_cache: set[str] | None = None
+
+    def _circular_refs(self) -> set[str]:
+        if self._circular_refs_cache is None:
+            self._circular_refs_cache = self._dep_graph.detect_circular_refs()
+        return self._circular_refs_cache
 
     def build_all(self) -> list[ChunkDTO]:
         """
@@ -225,14 +234,17 @@ class ChunkBuilder:
                         f"{edge.source_sheet}!{edge.source_coord.to_a1()}"
                     )
 
-        # Check for circular refs
-        circular = self._dep_graph.detect_circular_refs()
-        for row in range(rng.top_left.row, rng.bottom_right.row + 1):
-            for col in range(rng.top_left.col, rng.bottom_right.col + 1):
-                key = f"{sheet.sheet_name}!{CellCoord(row=row, col=col).to_a1()}"
-                if key in circular:
-                    has_circular = True
+        # Check for circular refs (cached once per workbook)
+        circular = self._circular_refs()
+        if circular:
+            for row in range(rng.top_left.row, rng.bottom_right.row + 1):
+                if has_circular:
                     break
+                for col in range(rng.top_left.col, rng.bottom_right.col + 1):
+                    key = f"{sheet.sheet_name}!{CellCoord(row=row, col=col).to_a1()}"
+                    if key in circular:
+                        has_circular = True
+                        break
 
         return DependencySummary(
             upstream_refs=sorted(upstream)[:50],

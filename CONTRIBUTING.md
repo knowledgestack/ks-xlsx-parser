@@ -1,52 +1,88 @@
-# Contributing to XLSX Parser
+# Contributing to XLSXParser
 
-Thank you for your interest in contributing.
+**First: welcome.** 👋 If you got here and aren't sure what to do, open a
+[Discussion](https://github.com/arnav2/XLSXParser/discussions) — we'd rather
+talk than have you leave. Every good-first-issue, every weird `.xlsx` fixture,
+every three-line doc patch is welcome.
 
-## Development Setup
+This project only moves forward because people take 20 minutes to file a good
+bug or send a small PR. If that's you, thank you.
+
+## Ways to help (in order of preference for first-time contributors)
+
+1. **Run `make testbench` and report a file that breaks.** We actively want
+   edge-case `.xlsx` fixtures — use the
+   [Parser edge case issue template](https://github.com/arnav2/XLSXParser/issues/new?template=parser_edge_case.yml).
+2. **Add a new workbook to `testBench/`.** Either drop a file under
+   `testBench/stress/` or add a builder to `scripts/build_testbench.py`. If
+   the parser crashes on it, even better.
+3. **Fix one of the flagged issues** in [`docs/PARSER_KNOWN_ISSUES.md`](docs/PARSER_KNOWN_ISSUES.md).
+4. **Improve docs.** The README, the architecture diagram, the examples —
+   if something confused you, it confuses everyone.
+5. **Open a [Show & Tell](https://github.com/arnav2/XLSXParser/discussions/new?category=show-and-tell)**
+   if you shipped something with the parser. Seriously, it helps us prioritise.
+
+## Development setup
 
 ```bash
-git clone https://github.com/your-username/xlsx-parser.git
-cd xlsx-parser
-pip install -e ".[dev]"
+git clone https://github.com/arnav2/XLSXParser.git
+cd XLSXParser
+make install               # pip install -e ".[dev,api]"
+make test                  # fast, default suite
+make testbench-build       # regenerate 1000-file stress corpus (~1 min)
+make testbench             # round-trip every workbook; parallel
 ```
 
-## Running Tests
+Prerequisites: Python 3.10+, `pip`, optionally `make`. We use `ruff` for
+linting/formatting — install it with the `[dev]` extra.
 
-```bash
-pytest
-```
+## Pull-request checklist
 
-Skip slow/corpus tests (default):
+Your PR should:
 
-```bash
-pytest -m "not corpus"
-```
+1. Have tests. `pytest` must stay green: `make test`.
+2. Keep `make testbench` at 1054/1054 (or explain the delta in the PR description).
+3. Pass `ruff check` (`make lint`) and be formatted with `make format`.
+4. Include one sentence in the PR description that starts with *"This change…"*.
+5. Use [conventional-commit style](https://www.conventionalcommits.org/)
+   commit messages: `feat:`, `fix:`, `perf:`, `refactor:`, `docs:`, `test:`,
+   `chore:`.
 
-## Code Style
+We lean toward **smaller PRs with more context** over big bundles. A five-line
+fix with a one-paragraph explanation is almost always mergeable.
 
-- Use type hints where practical.
-- Follow existing patterns in the codebase.
-- Run `pytest` before submitting a PR.
+## Reporting issues
 
-## Adding Tests
+Use the [issue templates](https://github.com/arnav2/XLSXParser/issues/new/choose).
+For security issues, please use the
+[private advisory flow](https://github.com/arnav2/XLSXParser/security/advisories/new)
+— not a public issue.
 
-- Place tests in `tests/`.
-- Use fixtures from `tests/conftest.py` for programmatic workbooks.
-- For cross-validation against calamine, use the `crossval` marker.
+Helpful things to include:
 
-## Reporting Issues
+- Output of `python -c "import xlsx_parser; print(xlsx_parser.__version__)"`
+- Python version (`python --version`)
+- OS
+- Minimal `.xlsx` that reproduces the bug (or a generator that builds one)
+- Full traceback
 
-Include:
+## Code style at a glance
 
-- Python version
-- Minimal `.xlsx` file that reproduces the issue (if applicable)
-- Expected vs actual behavior
-- Output of `xlsx_parser.__version__`
+- Type hints everywhere that's practical.
+- Tests live in `tests/`; programmatic workbook fixtures live in `tests/conftest.py`.
+- Cross-validation against calamine uses the `crossval` marker.
+- Long-running bench tests use `@pytest.mark.testbench` and are skipped by default.
+- Keep public-API changes additive; if you can't, note it in the PR and the
+  maintainers will line up the deprecation.
 
-## Pull Requests
+## Community
 
-1. Fork the repository.
-2. Create a branch from `main`.
-3. Add tests for new behavior.
-4. Ensure all tests pass.
-5. Open a PR with a clear description.
+- Discussions: <https://github.com/arnav2/XLSXParser/discussions>
+- Issues: <https://github.com/arnav2/XLSXParser/issues>
+- Security: <https://github.com/arnav2/XLSXParser/security/advisories>
+
+By participating you agree to follow our [Code of Conduct](CODE_OF_CONDUCT.md).
+
+## Thanks
+
+Really. Every contribution makes this project sustainable.
