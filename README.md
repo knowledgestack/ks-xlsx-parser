@@ -2,19 +2,37 @@
   <a href="https://github.com/knowledgestack"><img src="https://img.shields.io/badge/KNOWLEDGE%20STACK-document%20intelligence%20for%20agents-6366f1?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0id2hpdGUiPjxwYXRoIGQ9Ik0xMiAyTDIgN3YxMGwxMCA1IDEwLTVWN0wxMiAyem0wIDIuMzZMMTkuMzkgOCAxMiAxMS42NCA0LjYxIDggMTIgNC4zNnoiLz48L3N2Zz4=" alt="Knowledge Stack"></a>
 </p>
 
-# Make XLSX LLM Ready
+<h1 align="center">📊 Make XLSX LLM Ready 🤖</h1>
 
-**`ks-xlsx-parser` is the missing ETL step between your spreadsheets and your LLM.**
+<p align="center">
+  <b><code>ks-xlsx-parser</code> is the missing ETL step between your spreadsheets and your LLM.</b>
+</p>
 
-[![PyPI version](https://img.shields.io/pypi/v/ks-xlsx-parser.svg)](https://pypi.org/project/ks-xlsx-parser/)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/testBench-1054%2F1054-success.svg)](#the-testbench-dataset)
-[![CI](https://github.com/knowledgestack/ks-xlsx-parser/actions/workflows/ci.yml/badge.svg)](https://github.com/knowledgestack/ks-xlsx-parser/actions/workflows/ci.yml)
-[![Discord](https://img.shields.io/discord/0?label=Discord&logo=discord&logoColor=white&color=5865F2)](https://discord.gg/4uaGhJcx)
-[![Knowledge Stack](https://img.shields.io/badge/Knowledge%20Stack-ecosystem-6366f1)](https://github.com/knowledgestack)
+<p align="center">
+  <a href="https://pypi.org/project/ks-xlsx-parser/"><img src="https://img.shields.io/pypi/v/ks-xlsx-parser.svg?style=flat-square&logo=pypi&logoColor=white&color=3775A9" alt="PyPI"></a>
+  <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python 3.10+"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-A855F7?style=flat-square" alt="MIT License"></a>
+  <a href="#-the-testbench-dataset"><img src="https://img.shields.io/badge/testBench-1054%2F1054-22C55E?style=flat-square&logo=pytest&logoColor=white" alt="Tests"></a>
+  <a href="https://github.com/knowledgestack/ks-xlsx-parser/actions/workflows/ci.yml"><img src="https://github.com/knowledgestack/ks-xlsx-parser/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
+</p>
 
-> `.xlsx` → structured, typed, citation-ready JSON that an LLM can actually reason about.
+<p align="center">
+  <a href="https://discord.gg/4uaGhJcx"><img src="https://img.shields.io/badge/Discord-join%20us-5865F2?style=flat-square&logo=discord&logoColor=white" alt="Discord"></a>
+  <a href="https://github.com/knowledgestack"><img src="https://img.shields.io/badge/Knowledge%20Stack-ecosystem-6366F1?style=flat-square&logo=github&logoColor=white" alt="Knowledge Stack"></a>
+  <a href="https://github.com/knowledgestack/ks-xlsx-parser/discussions"><img src="https://img.shields.io/badge/discussions-open-0969DA?style=flat-square&logo=github&logoColor=white" alt="Discussions"></a>
+  <a href="https://github.com/knowledgestack/ks-xlsx-parser/stargazers"><img src="https://img.shields.io/github/stars/knowledgestack/ks-xlsx-parser?style=flat-square&logo=github&color=FDB813" alt="GitHub stars"></a>
+</p>
+
+<p align="center">
+  <a href="https://www.langchain.com/"><img src="https://img.shields.io/badge/LangChain-ready-1C3C3C?style=flat-square&logo=langchain&logoColor=white" alt="LangChain ready"></a>
+  <a href="https://langchain-ai.github.io/langgraph/"><img src="https://img.shields.io/badge/LangGraph-ready-FF6F00?style=flat-square" alt="LangGraph ready"></a>
+  <a href="https://www.crewai.com/"><img src="https://img.shields.io/badge/CrewAI-ready-FF5A1F?style=flat-square" alt="CrewAI ready"></a>
+  <a href="https://github.com/openai/openai-agents-python"><img src="https://img.shields.io/badge/OpenAI%20Agents-ready-10A37F?style=flat-square&logo=openai&logoColor=white" alt="OpenAI Agents SDK"></a>
+  <a href="https://modelcontextprotocol.io/"><img src="https://img.shields.io/badge/MCP-compatible-8B5CF6?style=flat-square" alt="MCP compatible"></a>
+</p>
+
+> [!TIP]
+> **`.xlsx` → structured, typed, citation-ready JSON that an LLM can actually reason about.**
 > Cells, formulas, merged regions, tables, charts, conditional formatting,
 > dependency graphs, and RAG-ready chunks — deterministic, fully tested, MIT.
 
@@ -35,10 +53,43 @@ graph that drops straight into [LangChain](https://www.langchain.com/),
 [MCP](https://modelcontextprotocol.io/)-aware client (Claude Desktop, Cursor, Windsurf, Zed, …).
 
 <p align="center">
-  <a href="https://github.com/knowledgestack/ks-xlsx-parser"><img src="https://img.shields.io/badge/⭐%20STAR%20THE%20REPO-it's%20how%20we%20justify%20maintaining%20this-yellow?style=for-the-badge" alt="Star the repo"></a>
+  <a href="https://github.com/knowledgestack/ks-xlsx-parser"><img src="https://img.shields.io/badge/%E2%AD%90%20STAR%20THE%20REPO-it's%20how%20we%20justify%20maintaining%20this-FDB813?style=for-the-badge" alt="Star the repo"></a>
   &nbsp;
-  <a href="https://discord.gg/4uaGhJcx"><img src="https://img.shields.io/badge/💬%20JOIN%20THE%20DISCORD-chat%20with%20the%20team%20%2B%20contributors-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Join our Discord"></a>
+  <a href="https://discord.gg/4uaGhJcx"><img src="https://img.shields.io/badge/%F0%9F%92%AC%20JOIN%20THE%20DISCORD-chat%20with%20the%20team%20%2B%20contributors-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Join our Discord"></a>
 </p>
+
+<p align="center">
+  <a href="#-30-second-demo"><img src="https://img.shields.io/badge/🚀%20Quick%20Start-pip%20install-10B981?style=for-the-badge" alt="Quick start"></a>
+  &nbsp;
+  <a href="docs/wiki/Quick-Start.md"><img src="https://img.shields.io/badge/📚%20Docs-in%20the%20wiki-6366F1?style=for-the-badge" alt="Docs"></a>
+  &nbsp;
+  <a href="https://github.com/knowledgestack/ks-xlsx-parser/releases"><img src="https://img.shields.io/badge/📦%20Download-testBench%20dataset-F59E0B?style=for-the-badge" alt="Dataset"></a>
+</p>
+
+---
+
+## ✨ What you get, at a glance
+
+<table>
+  <tr>
+    <td align="center" width="25%">🧾<br><b>Typed cell graph</b><br><sub>values, formulas, styles, coords</sub></td>
+    <td align="center" width="25%">🧭<br><b>Citation URIs</b><br><sub><code>file.xlsx#Sheet!A1:F18</code></sub></td>
+    <td align="center" width="25%">🧮<br><b>Dependency graph</b><br><sub>upstream · downstream · cycles</sub></td>
+    <td align="center" width="25%">🧩<br><b>RAG-ready chunks</b><br><sub>HTML + text + token count</sub></td>
+  </tr>
+  <tr>
+    <td align="center">📊<br><b>All 7 chart types</b><br><sub>bar · line · pie · scatter · area · radar · bubble</sub></td>
+    <td align="center">🎨<br><b>Conditional formatting</b><br><sub>every Excel rule type</sub></td>
+    <td align="center">📋<br><b>Tables & merges</b><br><sub>ListObjects + master/slave</sub></td>
+    <td align="center">🔐<br><b>Safe by default</b><br><sub>no macros · no external links · ZIP-bomb guard</sub></td>
+  </tr>
+  <tr>
+    <td align="center">⚡<br><b>Fast</b><br><sub>1054 workbooks / 70s in CI</sub></td>
+    <td align="center">🧬<br><b>Deterministic</b><br><sub>xxhash64 content addressing</sub></td>
+    <td align="center">🧰<br><b>Framework-agnostic</b><br><sub>LangChain · LangGraph · CrewAI · MCP</sub></td>
+    <td align="center">📜<br><b>MIT licensed</b><br><sub>use it, fork it, ship it</sub></td>
+  </tr>
+</table>
 
 ---
 
@@ -65,7 +116,7 @@ That's the fastest path to a merged PR.
 
 ---
 
-## 30-second demo
+## 🚀 30-second demo
 
 ```bash
 pip install ks-xlsx-parser
@@ -97,24 +148,24 @@ That's it. Every chunk has:
 
 ---
 
-## Table of Contents
+## 🗺️ Table of Contents
 
-- [Why a dedicated XLSX parser for LLMs?](#why-a-dedicated-xlsx-parser-for-llms)
-- [Architecture](#architecture)
-- [Installation](#installation)
-- [Documentation](#documentation)
-- [How it compares](#how-it-compares)
-- [Who this is for](#who-this-is-for)
-- [The testBench dataset](#the-testbench-dataset)
-- [Limitations](#limitations)
-- [Knowledge Stack ecosystem](#knowledge-stack-ecosystem)
-- [Stay in touch](#stay-in-touch)
-- [Contributing](#contributing)
-- [License](#license)
+- [🤔 Why a dedicated XLSX parser for LLMs?](#-why-a-dedicated-xlsx-parser-for-llms)
+- [🏗️ Architecture](#️-architecture)
+- [📦 Installation](#-installation)
+- [📚 Documentation](#-documentation)
+- [⚔️ How it compares](#️-how-it-compares)
+- [🎯 Who this is for](#-who-this-is-for)
+- [🧪 The testBench dataset](#-the-testbench-dataset)
+- [🚧 Limitations](#-limitations)
+- [🧰 Knowledge Stack ecosystem](#-knowledge-stack-ecosystem)
+- [📡 Stay in touch](#-stay-in-touch)
+- [🙌 Contributing](#-contributing)
+- [📜 License](#-license)
 
 ---
 
-## Why a dedicated XLSX parser for LLMs?
+## 🤔 Why a dedicated XLSX parser for LLMs?
 
 Most Excel libraries answer one of two questions well: *"read a rectangle of
 values"* (pandas, openpyxl) or *"run Excel headless"* (xlwings, LibreOffice).
@@ -136,76 +187,71 @@ corpus, and everything is open source.
 
 ---
 
-## Architecture
+## 🏗️ Architecture
 
-```
-                          ┌────────────────────────────┐
-   .xlsx bytes ────────▶  │  parsers/ (OOXML drivers)  │
-                          │  openpyxl + raw lxml       │
-                          └─────────────┬──────────────┘
-                                        │
-                                        ▼
-                          ┌────────────────────────────┐
-                          │  models/ (Pydantic DTOs)   │
-                          │  WorkbookDTO, SheetDTO,    │
-                          │  CellDTO, TableDTO,        │
-                          │  ChartDTO, BlockDTO, ...   │
-                          └─────────────┬──────────────┘
-                                        │
-             ┌──────────────────────────┼────────────────────────────┐
-             ▼                          ▼                            ▼
-   ┌─────────────────┐        ┌──────────────────┐        ┌────────────────────┐
-   │ formula/        │        │ analysis/        │        │ charts/            │
-   │ lexer + parser, │        │ dependency graph │        │ OOXML chart extr.  │
-   │ token refs,     │        │ impact + cycles  │        │ series + axes      │
-   │ cross-sheet,    │        └──────────────────┘        └────────────────────┘
-   │ table refs,     │                  │                           │
-   │ array CSE       │                  ▼                           │
-   └────────┬────────┘        ┌──────────────────┐                  │
-            │                 │ annotation/      │◀─────────────────┘
-            │                 │ semantic roles,  │
-            │                 │ KPIs, block type │
-            │                 └────────┬─────────┘
-            │                          │
-            ▼                          ▼
-   ┌─────────────────┐        ┌──────────────────┐
-   │ chunking/       │        │ rendering/       │
-   │ segmenter that  │        │ HTML + pipe-text │
-   │ splits sheets   │        │ preserving       │
-   │ into logical    │        │ colspan/rowspan  │
-   │ blocks          │        └────────┬─────────┘
-   └────────┬────────┘                 │
-            │                          │
-            └──────────────┬───────────┘
-                           ▼
-                 ┌──────────────────┐          ┌────────────────────┐
-                 │ storage/         │          │ verification/      │
-                 │ DB records,      │          │ stage-by-stage     │
-                 │ vector entries,  │          │ assertions + diff  │
-                 │ to_json(),       │          │ reports            │
-                 │ LLM chunks       │          └────────────────────┘
-                 └──────────────────┘
-                           │
-                           ▼
-                 ┌──────────────────┐          ┌────────────────────┐
-                 │ comparison/      │          │ export/            │
-                 │ cross-workbook   │          │ generate Python    │
-                 │ templates + DOF  │          │ importer classes   │
-                 └──────────────────┘          └────────────────────┘
+```mermaid
+%%{init: {'theme':'base', 'themeVariables': {
+  'primaryColor':'#6366F1','primaryTextColor':'#fff','primaryBorderColor':'#4F46E5',
+  'lineColor':'#94A3B8','secondaryColor':'#10B981','tertiaryColor':'#F59E0B',
+  'background':'#FFFFFF','mainBkg':'#6366F1','clusterBkg':'#F8FAFC'
+}}}%%
+flowchart TD
+    IN([📄 .xlsx bytes])
+    PARSE[["① parsers/<br/>OOXML drivers<br/><i>openpyxl + lxml</i>"]]
+    MODELS[["② models/<br/>Pydantic DTOs<br/><i>Workbook · Sheet · Cell · Table · Chart</i>"]]
+    FORMULA[["③ formula/<br/>lexer + parser<br/><i>cross-sheet · table · array</i>"]]
+    ANALYSIS[["④ analysis/<br/>dependency graph<br/><i>cycles · impact</i>"]]
+    CHARTS[["⑤ charts/<br/>OOXML chart extraction"]]
+    ANNOT[["⑥ annotation/<br/>semantic roles · KPIs"]]
+    SEG[["⑦ chunking/<br/>adaptive segmenter"]]
+    REND[["⑧ rendering/<br/>HTML + pipe-text<br/>token counts"]]
+    STORE[["🗄️ storage/<br/>JSON · DB rows · vectors"]]
+    VER[["✅ verification/<br/>stage assertions"]]
+    CMP[["🔀 comparison/<br/>multi-workbook templates"]]
+    EXP[["🧬 export/<br/>generated importer"]]
+    OUT([🤖 LLM-ready chunks<br/>with citations])
+
+    IN --> PARSE --> MODELS
+    MODELS --> FORMULA
+    MODELS --> ANALYSIS
+    MODELS --> CHARTS
+    FORMULA --> ANALYSIS
+    ANALYSIS --> ANNOT
+    CHARTS --> ANNOT
+    ANNOT --> SEG --> REND --> STORE
+    MODELS --> VER
+    STORE --> OUT
+    STORE -.-> CMP -.-> EXP
+
+    classDef entry   fill:#0EA5E9,stroke:#0369A1,color:#fff,stroke-width:2px;
+    classDef parse   fill:#6366F1,stroke:#4338CA,color:#fff,stroke-width:2px;
+    classDef model   fill:#8B5CF6,stroke:#6D28D9,color:#fff,stroke-width:2px;
+    classDef analyze fill:#F59E0B,stroke:#B45309,color:#fff,stroke-width:2px;
+    classDef render  fill:#EC4899,stroke:#BE185D,color:#fff,stroke-width:2px;
+    classDef output  fill:#10B981,stroke:#047857,color:#fff,stroke-width:2px;
+    classDef aux     fill:#64748B,stroke:#334155,color:#fff,stroke-width:2px;
+
+    class IN entry
+    class PARSE parse
+    class MODELS model
+    class FORMULA,ANALYSIS,CHARTS analyze
+    class ANNOT,SEG,REND render
+    class STORE,OUT output
+    class VER,CMP,EXP aux
 ```
 
-The pipeline has 8 stages (parse → analyse → annotate → segment → render →
-serialise → verify → compare/export). For the full breakdown, read
-[**Pipeline Internals**](https://github.com/knowledgestack/ks-xlsx-parser/wiki/Pipeline-Internals)
-in the wiki.
+The pipeline has **8 stages** (parse → analyse → annotate → segment →
+render → serialise → verify → compare/export). Full breakdown in
+[**Pipeline Internals**](docs/wiki/Pipeline-Internals.md).
 
-The importable module is `xlsx_parser`; `ks_xlsx_parser` is a re-export
-that matches the PyPI package name. The package is fully type-annotated
-(`py.typed` is shipped).
+> [!NOTE]
+> The importable module is `xlsx_parser`; `ks_xlsx_parser` is a re-export
+> matching the PyPI package name. The package is fully type-annotated
+> (`py.typed` is shipped).
 
 ---
 
-## Installation
+## 📦 Installation
 
 Requires Python 3.10+.
 
@@ -230,7 +276,7 @@ Runtime deps: `openpyxl`, `pydantic`, `lxml`, `xxhash`, `tiktoken`.
 
 ---
 
-## Documentation
+## 📚 Documentation
 
 All implementation detail lives under [`docs/wiki/`](docs/wiki/) (mirrored
 to the [GitHub Wiki](https://github.com/knowledgestack/ks-xlsx-parser/wiki)
@@ -247,7 +293,7 @@ on each release) so this README stays scannable:
 
 ---
 
-## How it compares
+## ⚔️ How it compares
 
 | | pandas / openpyxl | Docling | `ks-xlsx-parser` |
 |---|:---:|:---:|:---:|
@@ -268,28 +314,27 @@ Most tools give you a dataframe. `ks-xlsx-parser` gives you a **graph an LLM can
 
 ---
 
-## Who this is for
+## 🎯 Who this is for
 
 Teams shipping agents, RAG pipelines, or auditing tools that ingest Excel.
-Common use cases we see:
 
-- **Banking / finance / accounting / tax** — pull KPIs, trace formulas back to
-  source cells for regulator-ready citations.
-- **Legal / contracts** — extract schedules, fee tables, and covenant matrices
-  without flattening merged headers.
-- **Healthcare / insurance** — normalise claims and pricing spreadsheets into
-  auditable JSON.
-- **Real estate / construction** — parse quantity takeoffs and cost models
-  that still live in XLSX.
-- **Sales ops / HR / engineering** — turn "the source of truth is in a
-  spreadsheet" into structured events without breaking the analyst's workflow.
+<table>
+  <tr>
+    <td align="center" width="20%">🏦<br><b>Banking &amp; Finance</b><br><sub>KPI extraction, formula lineage, regulator-ready citations</sub></td>
+    <td align="center" width="20%">⚖️<br><b>Legal &amp; Contracts</b><br><sub>schedules, fee tables, covenant matrices without flattening merges</sub></td>
+    <td align="center" width="20%">🏥<br><b>Healthcare &amp; Insurance</b><br><sub>normalise claims, pricing, and actuarial sheets into auditable JSON</sub></td>
+    <td align="center" width="20%">🏗️<br><b>Real Estate &amp; Construction</b><br><sub>quantity takeoffs and cost models that still live in XLSX</sub></td>
+    <td align="center" width="20%">📈<br><b>Sales Ops / HR / Engineering</b><br><sub>"source of truth is a spreadsheet" → structured events, in minutes</sub></td>
+  </tr>
+</table>
 
-Not a fit if you need to **execute** Excel (recalculate, run VBA, pivot-refresh).
-Use xlwings or a headless Excel for that. We parse; we don't run.
+> [!IMPORTANT]
+> **Not a fit** if you need to *execute* Excel (recalculate, run VBA, pivot-refresh).
+> Use xlwings or a headless Excel for that. `ks-xlsx-parser` reads; it doesn't run.
 
 ---
 
-## The testBench dataset
+## 🧪 The testBench dataset
 
 A **1054-workbook stress corpus** ships under [`testBench/`](testBench/) and
 is round-tripped in CI on every commit. It's the easiest way to see whether
@@ -317,7 +362,7 @@ The zipped dataset is attached to every [release](https://github.com/knowledgest
 
 ---
 
-## Limitations
+## 🚧 Limitations
 
 - **`.xls` not supported** — only `.xlsx` and `.xlsm` (OOXML). Convert legacy files externally.
 - **Pivot tables** — detected but not fully parsed.
@@ -332,7 +377,7 @@ Full list in [`docs/PARSER_KNOWN_ISSUES.md`](docs/PARSER_KNOWN_ISSUES.md).
 
 ---
 
-## Knowledge Stack ecosystem
+## 🧰 Knowledge Stack ecosystem
 
 `ks-xlsx-parser` is one piece of the [**Knowledge Stack**](https://github.com/knowledgestack)
 open-source family — *document intelligence for agents*, built so that
@@ -351,7 +396,7 @@ or the [#showcase](https://discord.gg/4uaGhJcx) channel on Discord.
 
 ---
 
-## Stay in touch
+## 📡 Stay in touch
 
 <p align="center">
   <a href="https://discord.gg/4uaGhJcx"><img src="https://img.shields.io/badge/Discord-Join%20the%20community-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord"></a>
@@ -370,7 +415,7 @@ weirder than ours.
 
 ---
 
-## Contributing
+## 🙌 Contributing
 
 We love contributions. Three paths, in order of speed-to-merge:
 
@@ -392,7 +437,7 @@ the main signal that keeps this maintained.
 
 ---
 
-## License
+## 📜 License
 
 [MIT](LICENSE). Use it, fork it, ship it. Attribution appreciated but not required.
 
