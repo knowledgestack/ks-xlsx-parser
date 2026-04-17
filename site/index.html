@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ks-xlsx-parser · Make XLSX LLM Ready</title>
+  <meta name="description" content="Turn .xlsx into structured, citation-ready JSON for LLMs, RAG pipelines, and audit systems. Open source (MIT), part of the Knowledge Stack ecosystem." />
+  <meta name="theme-color" content="#064E3B" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="ks-xlsx-parser — Make XLSX LLM Ready" />
+  <meta property="og:description" content="Excel → citation-ready JSON for agents and RAG. Open source." />
+  <meta property="og:image" content="https://knowledgestack.github.io/ks-xlsx-parser/assets/hero-highlight.png" />
+  <meta property="og:url" content="https://knowledgestack.github.io/ks-xlsx-parser/" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%23064E3B%22/><text y=%2265%22 x=%2250%22 text-anchor=%22middle%22 font-size=%2255%22>📊</text></svg>" />
+
+  <style>
+    :root{
+      --bg:#0B1410;
+      --bg-2:#0F1C17;
+      --panel:#0F251B;
+      --panel-2:#13382A;
+      --ink:#E8F5EE;
+      --ink-dim:#A7C9B8;
+      --muted:#6B8F7E;
+      --accent-0:#022C22;
+      --accent-1:#065F46;
+      --accent-2:#047857;
+      --accent-3:#10B981;
+      --accent-4:#22C55E;
+      --accent-5:#34D399;
+      --accent-6:#A7F3D0;
+      --border:#133B2B;
+      --code-bg:#061712;
+      --radius:14px;
+      --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+      --sans:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Roboto,Arial,sans-serif;
+    }
+    *,*::before,*::after{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{
+      font-family:var(--sans);
+      background:
+        radial-gradient(1200px 600px at 20% -10%, rgba(16,185,129,.18), transparent 60%),
+        radial-gradient(900px 500px at 85% 10%, rgba(34,197,94,.12), transparent 65%),
+        var(--bg);
+      color:var(--ink);
+      line-height:1.55;
+      -webkit-font-smoothing:antialiased;
+      text-rendering:optimizeLegibility;
+    }
+    a{color:var(--accent-5);text-decoration:none}
+    a:hover{color:var(--accent-6)}
+    code,pre,kbd{font-family:var(--mono)}
+    pre{margin:0}
+    .wrap{max-width:1120px;margin:0 auto;padding:0 28px}
+
+    /* ---- nav ---- */
+    nav.top{
+      position:sticky;top:0;z-index:10;
+      backdrop-filter:saturate(180%) blur(10px);
+      background:rgba(11,20,16,.75);
+      border-bottom:1px solid var(--border);
+    }
+    nav.top .wrap{display:flex;align-items:center;justify-content:space-between;padding-top:14px;padding-bottom:14px}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.2px}
+    .brand .dot{
+      width:26px;height:26px;border-radius:8px;
+      background:linear-gradient(135deg,var(--accent-2),var(--accent-4));
+      display:grid;place-items:center;font-size:14px;
+    }
+    .brand small{font-weight:500;color:var(--ink-dim);margin-left:8px}
+    nav.top a.link{color:var(--ink-dim);margin-left:20px;font-size:14px}
+    nav.top a.link:hover{color:var(--accent-5)}
+    .gh-btn{
+      display:inline-flex;align-items:center;gap:8px;
+      background:var(--accent-2);color:#fff;
+      padding:8px 14px;border-radius:8px;font-size:13px;font-weight:600;
+    }
+    .gh-btn:hover{background:var(--accent-3);color:#fff}
+
+    /* ---- hero ---- */
+    .hero{padding:80px 0 40px;text-align:center}
+    .tag{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:6px 12px;border:1px solid var(--border);border-radius:999px;
+      background:rgba(16,185,129,.08);color:var(--accent-5);
+      font-size:13px;margin-bottom:22px;
+    }
+    .tag .pulse{width:8px;height:8px;border-radius:50%;background:var(--accent-4);box-shadow:0 0 0 0 rgba(34,197,94,.6);animation:pulse 2s infinite}
+    @keyframes pulse{
+      0%{box-shadow:0 0 0 0 rgba(34,197,94,.5)}
+      70%{box-shadow:0 0 0 10px rgba(34,197,94,0)}
+      100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}
+    }
+    h1.title{
+      font-size:clamp(38px,5.4vw,64px);line-height:1.05;margin:0 auto 18px;max-width:14ch;
+      background:linear-gradient(180deg,#E8F5EE 0%,#7EE3B5 100%);
+      -webkit-background-clip:text;background-clip:text;color:transparent;
+      letter-spacing:-.02em;font-weight:800;
+    }
+    .subhead{font-size:clamp(17px,1.9vw,20px);color:var(--ink-dim);max-width:66ch;margin:0 auto 28px}
+    .cta-row{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-bottom:22px}
+    .btn{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:12px 18px;border-radius:10px;font-size:14px;font-weight:600;
+      transition:transform .08s ease, background .15s ease;
+    }
+    .btn:active{transform:translateY(1px)}
+    .btn.primary{background:var(--accent-2);color:#fff}
+    .btn.primary:hover{background:var(--accent-3);color:#fff}
+    .btn.ghost{background:var(--panel);color:var(--ink);border:1px solid var(--border)}
+    .btn.ghost:hover{border-color:var(--accent-3);color:var(--accent-5)}
+    .btn.discord{background:#13382A;border:1px solid var(--accent-2);color:#E8F5EE}
+    .btn.discord:hover{background:var(--accent-1);color:#fff}
+    .hero-meta{color:var(--muted);font-size:13px;margin-top:10px}
+    .hero-meta b{color:var(--ink-dim);font-weight:600}
+
+    /* ---- install card ---- */
+    .install{
+      max-width:720px;margin:40px auto 60px;
+      background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);
+      overflow:hidden;
+    }
+    .install-head{
+      display:flex;justify-content:space-between;align-items:center;
+      padding:10px 14px;border-bottom:1px solid var(--border);
+      font-size:12px;color:var(--muted);letter-spacing:.4px;text-transform:uppercase;
+    }
+    .install pre{padding:18px 20px;color:#E8F5EE;font-size:14px;overflow-x:auto}
+    .install .hl-cmd{color:var(--accent-5)}
+    .install .hl-str{color:var(--accent-6)}
+    .install .hl-com{color:var(--muted)}
+    .copy{
+      background:transparent;border:1px solid var(--border);color:var(--ink-dim);
+      padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;letter-spacing:.3px;
+    }
+    .copy:hover{border-color:var(--accent-3);color:var(--accent-5)}
+    .copy.ok{border-color:var(--accent-3);color:var(--accent-4)}
+
+    /* ---- hero image ---- */
+    .hero-shot{
+      max-width:960px;margin:0 auto 70px;padding:0 8px;
+    }
+    .hero-shot img{
+      width:100%;display:block;border-radius:16px;border:1px solid var(--border);
+      box-shadow:0 30px 80px -20px rgba(16,185,129,.25), 0 8px 30px -10px rgba(0,0,0,.6);
+    }
+    .hero-shot figcaption{text-align:center;color:var(--muted);font-size:13px;margin-top:14px}
+
+    /* ---- sections ---- */
+    section{padding:70px 0;border-top:1px solid var(--border)}
+    section.alt{background:var(--bg-2)}
+    .kicker{color:var(--accent-4);font-size:13px;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
+    h2{font-size:clamp(26px,3.2vw,38px);margin:0 0 14px;letter-spacing:-.01em}
+    .lead{color:var(--ink-dim);max-width:60ch}
+
+    /* ---- feature grid ---- */
+    .grid{
+      display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+      gap:16px;margin-top:36px;
+    }
+    .card{
+      background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);
+      padding:22px;transition:border-color .15s ease,transform .15s ease;
+    }
+    .card:hover{border-color:var(--accent-2);transform:translateY(-2px)}
+    .card .icon{font-size:22px;margin-bottom:10px}
+    .card h3{font-size:16px;margin:0 0 6px}
+    .card p{color:var(--ink-dim);font-size:14px;margin:0}
+
+    /* ---- two-col code + copy ---- */
+    .code-demo{
+      display:grid;grid-template-columns:1.1fr .9fr;gap:28px;align-items:start;margin-top:32px;
+    }
+    @media(max-width:860px){.code-demo{grid-template-columns:1fr}}
+    .codebox{
+      background:var(--code-bg);border:1px solid var(--border);border-radius:var(--radius);
+      overflow:hidden;position:relative;
+    }
+    .codebox-head{
+      display:flex;justify-content:space-between;align-items:center;
+      padding:10px 14px;background:var(--panel);border-bottom:1px solid var(--border);
+      font-size:12px;color:var(--muted);font-family:var(--mono);
+    }
+    .codebox pre{padding:18px 20px;font-size:13px;overflow-x:auto;color:#E8F5EE}
+    .k{color:#7EE3B5}
+    .s{color:#A7F3D0}
+    .n{color:#6EE7B7}
+    .c{color:var(--muted)}
+    .cls{color:#34D399}
+    .fn{color:#86EFAC}
+
+    /* ---- stats ---- */
+    .stats{
+      display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:36px;
+    }
+    @media(max-width:720px){.stats{grid-template-columns:repeat(2,1fr)}}
+    .stat{
+      padding:22px;border:1px solid var(--border);border-radius:var(--radius);
+      background:linear-gradient(180deg,rgba(16,185,129,.07),rgba(16,185,129,0));
+    }
+    .stat b{display:block;font-size:32px;color:var(--accent-5);font-weight:800;letter-spacing:-.02em}
+    .stat span{color:var(--ink-dim);font-size:13px}
+
+    /* ---- comparison table ---- */
+    table.cmp{
+      width:100%;border-collapse:collapse;margin-top:32px;
+      background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;
+    }
+    table.cmp th,table.cmp td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--border);font-size:14px}
+    table.cmp th{background:var(--bg-2);color:var(--ink-dim);font-weight:600;letter-spacing:.3px}
+    table.cmp td.c{text-align:center}
+    table.cmp tr:last-child td{border-bottom:none}
+    .yes{color:var(--accent-4);font-weight:700}
+    .meh{color:#CA8A04}
+    .no{color:#EF4444}
+
+    /* ---- footer ---- */
+    footer{padding:50px 0 70px;border-top:1px solid var(--border);color:var(--muted);font-size:14px}
+    footer .wrap{display:flex;flex-wrap:wrap;gap:24px;justify-content:space-between;align-items:flex-start}
+    footer h4{color:var(--ink);margin:0 0 8px;font-size:14px;letter-spacing:.5px;text-transform:uppercase}
+    footer a{display:block;color:var(--ink-dim);padding:3px 0}
+    footer a:hover{color:var(--accent-5)}
+    .foot-brand{max-width:340px}
+    .foot-brand p{margin:6px 0 0}
+
+    /* ---- CTA strip ---- */
+    .strip{
+      background:linear-gradient(135deg,var(--accent-1),var(--accent-2));
+      padding:56px 0;text-align:center;color:#fff;
+    }
+    .strip h2{color:#fff;margin:0 0 8px}
+    .strip p{color:#D1FAE5;margin:0 auto 26px;max-width:60ch}
+    .strip .btn.primary{background:#052e1f;color:#fff}
+    .strip .btn.primary:hover{background:#031f16}
+    .strip .btn.ghost{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.3);color:#fff}
+    .strip .btn.ghost:hover{background:rgba(255,255,255,.2);color:#fff}
+  </style>
+</head>
+<body>
+
+<nav class="top">
+  <div class="wrap">
+    <div class="brand">
+      <span class="dot">📊</span>
+      <span>ks-xlsx-parser</span>
+      <small>by Knowledge Stack</small>
+    </div>
+    <div>
+      <a class="link" href="#what-you-get">Features</a>
+      <a class="link" href="#demo">Demo</a>
+      <a class="link" href="#compare">Compare</a>
+      <a class="link" href="#bench">testBench</a>
+      <a class="link" href="https://github.com/knowledgestack/ks-xlsx-parser/tree/main/docs/wiki">Docs</a>
+      <a class="gh-btn" href="https://github.com/knowledgestack/ks-xlsx-parser" target="_blank" rel="noopener">⭐ Star on GitHub</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="wrap">
+    <span class="tag"><span class="pulse"></span>v0.1.1 — MIT · 1054 / 1054 passing</span>
+    <h1 class="title">Make XLSX LLM Ready</h1>
+    <p class="subhead">
+      The missing ETL step between your spreadsheets and your LLM.
+      Turn <code>.xlsx</code> into structured, typed, citation-ready JSON —
+      cells, formulas, merges, tables, charts, dependency graphs, and token-counted chunks.
+    </p>
+
+    <div class="cta-row">
+      <a class="btn primary" href="https://github.com/knowledgestack/ks-xlsx-parser" target="_blank" rel="noopener">⭐ Star on GitHub</a>
+      <a class="btn ghost" href="#demo">🚀 Try it in 30s</a>
+      <a class="btn discord" href="https://discord.gg/4uaGhJcx" target="_blank" rel="noopener">💬 Join Discord</a>
+    </div>
+    <div class="hero-meta">
+      <b>pip install ks-xlsx-parser</b> · Python 3.10+ · runs on macOS, Linux, Windows
+    </div>
+  </div>
+
+  <!-- install card -->
+  <div class="wrap">
+    <div class="install">
+      <div class="install-head">
+        <span>bash</span>
+        <button class="copy" data-copy="pip install ks-xlsx-parser">COPY</button>
+      </div>
+      <pre><span class="hl-cmd">$</span> pip install ks-xlsx-parser</pre>
+    </div>
+  </div>
+
+  <!-- hero shot -->
+  <figure class="hero-shot wrap">
+    <img src="assets/hero-highlight.png" alt="ks-xlsx-parser highlighting a financial model on the left and emitting typed, citation-linked chunks on the right" />
+    <figcaption>Raw workbook on the left (<code>financial_model.xlsx</code>) → parser output on the right: 4 chunks, each tied back to an exact <code>sheet!range</code>.</figcaption>
+  </figure>
+</header>
+
+<!-- ============ WHAT YOU GET ============ -->
+<section id="what-you-get">
+  <div class="wrap">
+    <div class="kicker">WHAT YOU GET</div>
+    <h2>A graph your LLM can cite, not a CSV it has to guess at.</h2>
+    <p class="lead">Most Excel libraries give you a dataframe. <code>ks-xlsx-parser</code> gives you a full workbook graph — every cell typed, every formula parsed, every chunk addressable back to exact source coordinates.</p>
+
+    <div class="grid">
+      <div class="card"><div class="icon">🧾</div><h3>Typed cell graph</h3><p>Values, formulas, styles, coordinates — all round-trip to JSON / DB / vector store.</p></div>
+      <div class="card"><div class="icon">🧭</div><h3>Citation URIs</h3><p>Every chunk carries a <code>file.xlsx#Sheet!A1:F18</code>. The LLM points back at the exact cell.</p></div>
+      <div class="card"><div class="icon">🧮</div><h3>Dependency graph</h3><p>Directed formula graph with upstream, downstream, and cycle detection.</p></div>
+      <div class="card"><div class="icon">🧩</div><h3>RAG-ready chunks</h3><p>HTML + pipe-text, token-counted via tiktoken, content-hashed for dedup.</p></div>
+      <div class="card"><div class="icon">📊</div><h3>All 7 chart types</h3><p>Bar · line · pie · scatter · area · radar · bubble, each with a text summary.</p></div>
+      <div class="card"><div class="icon">🎨</div><h3>Conditional formatting</h3><p>Every Excel rule type — color scales, data bars, icon sets, formulas.</p></div>
+      <div class="card"><div class="icon">📋</div><h3>Tables &amp; merges</h3><p>Excel ListObjects and master/slave merge relationships preserved.</p></div>
+      <div class="card"><div class="icon">🔐</div><h3>Safe by default</h3><p>No macro execution, no external links, ZIP-bomb guard, size limits.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DEMO ============ -->
+<section id="demo" class="alt">
+  <div class="wrap">
+    <div class="kicker">30-SECOND DEMO</div>
+    <h2>Three lines to go from <code>.xlsx</code> to LLM-ready chunks.</h2>
+    <p class="lead">Every <code>ChunkDTO</code> ships with a source URI, a token count, rendered HTML + text, a dependency summary, and a content hash. Wire it straight into a LangChain, LangGraph, CrewAI, or OpenAI-Agents tool.</p>
+
+    <div class="code-demo">
+      <div class="codebox">
+        <div class="codebox-head">
+          <span>python</span>
+          <button class="copy" data-copy='from ks_xlsx_parser import parse_workbook
+
+result = parse_workbook(path="q4_forecast.xlsx")
+
+for chunk in result.chunks:
+    print(chunk.source_uri)
+    print(chunk.token_count)
+    print(chunk.render_text[:200])'>COPY</button>
+        </div>
+<pre><span class="k">from</span> <span class="cls">ks_xlsx_parser</span> <span class="k">import</span> <span class="fn">parse_workbook</span>
+
+result = <span class="fn">parse_workbook</span>(path=<span class="s">"q4_forecast.xlsx"</span>)
+
+<span class="k">for</span> chunk <span class="k">in</span> result.chunks:
+    <span class="fn">print</span>(chunk.source_uri)        <span class="c"># q4_forecast.xlsx#Revenue!A1:F18</span>
+    <span class="fn">print</span>(chunk.token_count)       <span class="c"># 412</span>
+    <span class="fn">print</span>(chunk.render_text[:<span class="n">200</span>])  <span class="c"># pipe-delimited, LLM-friendly</span>
+    <span class="fn">print</span>(chunk.render_html[:<span class="n">200</span>])  <span class="c"># HTML with proper colspan/rowspan</span></pre>
+      </div>
+
+      <div>
+        <h3 style="margin-top:0">What you get back</h3>
+        <ul style="color:var(--ink-dim);font-size:14px;padding-left:20px;line-height:1.8">
+          <li><code>source_uri</code> — cite back to exact cells</li>
+          <li><code>render_text</code> / <code>render_html</code> — LLM-consumable bodies</li>
+          <li><code>token_count</code> — keep context-window math honest</li>
+          <li><code>dependency_summary</code> — upstream / downstream formulas</li>
+          <li><code>content_hash</code> — xxhash64 dedup across versions</li>
+          <li><code>block_type</code> — HEADER · DATA · TABLE · CHART_ANCHOR · …</li>
+        </ul>
+        <p style="margin-top:22px">
+          <a href="https://github.com/knowledgestack/ks-xlsx-parser/blob/main/docs/wiki/Quick-Start.md" class="btn ghost">📖 Full Quick Start →</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ BENCHMARKS ============ -->
+<section id="bench">
+  <div class="wrap">
+    <div class="kicker">TESTED &amp; FAST</div>
+    <h2>1054-workbook stress corpus. Every commit.</h2>
+    <p class="lead">testBench ships with the repo and runs in CI. One-feature-per-file matrix, randomised density cocktails, and engineered adversarial files — unicode bombs, circular refs, sparse 1M-row sheets, 250-sheet workbooks.</p>
+
+    <div class="stats">
+      <div class="stat"><b>1054/1054</b><span>tests passing on every CI run</span></div>
+      <div class="stat"><b>~70s</b><span>end-to-end bench wall time</span></div>
+      <div class="stat"><b>66×</b><span>Walbridge financial model speedup (0.1.1)</span></div>
+      <div class="stat"><b>17 MB</b><span>dataset zip attached to each release</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ COMPARE ============ -->
+<section id="compare" class="alt">
+  <div class="wrap">
+    <div class="kicker">HOW IT COMPARES</div>
+    <h2>Dataframes are for analysts. Graphs are for agents.</h2>
+
+    <table class="cmp">
+      <thead>
+        <tr><th>Capability</th><th class="c">pandas / openpyxl</th><th class="c">Docling</th><th class="c">ks-xlsx-parser</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Reads values</td><td class="c yes">✓</td><td class="c yes">✓</td><td class="c yes">✓</td></tr>
+        <tr><td>Parses formulas with dependency graph</td><td class="c meh">raw string</td><td class="c no">✗</td><td class="c yes">✓</td></tr>
+        <tr><td>Preserves merges (master/slave)</td><td class="c meh">coords only</td><td class="c meh">partial</td><td class="c yes">✓</td></tr>
+        <tr><td>Extracts charts (bar/line/pie/…)</td><td class="c no">✗</td><td class="c no">✗</td><td class="c yes">✓</td></tr>
+        <tr><td>Conditional formatting rules</td><td class="c no">✗</td><td class="c no">✗</td><td class="c yes">✓</td></tr>
+        <tr><td>Multi-table sheet layout</td><td class="c no">✗</td><td class="c meh">partial</td><td class="c yes">✓</td></tr>
+        <tr><td>Citation URI per chunk</td><td class="c no">✗</td><td class="c meh">partial</td><td class="c yes">✓</td></tr>
+        <tr><td>Token count per chunk</td><td class="c no">✗</td><td class="c no">✗</td><td class="c yes">✓</td></tr>
+        <tr><td>Deterministic content hashes</td><td class="c no">✗</td><td class="c no">✗</td><td class="c yes">✓</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ ECOSYSTEM ============ -->
+<section>
+  <div class="wrap">
+    <div class="kicker">KNOWLEDGE STACK</div>
+    <h2>Part of a larger open-source family.</h2>
+    <p class="lead"><code>ks-xlsx-parser</code> is one piece of the <a href="https://github.com/knowledgestack">Knowledge Stack</a> ecosystem — document intelligence for agents. Focus on agents; we handle the messy parts of enterprise data.</p>
+
+    <div class="grid">
+      <div class="card">
+        <div class="icon">📚</div>
+        <h3><a href="https://github.com/knowledgestack/ks-cookbook">ks-cookbook</a></h3>
+        <p>32 production-style flagship agents + recipes for LangChain, LangGraph, CrewAI, Temporal, and the OpenAI Agents SDK.</p>
+      </div>
+      <div class="card">
+        <div class="icon">📊</div>
+        <h3><a href="https://github.com/knowledgestack/ks-xlsx-parser">ks-xlsx-parser</a></h3>
+        <p>This repo. Turn <code>.xlsx</code> into LLM-ready JSON with citations and dependency graphs.</p>
+      </div>
+      <div class="card">
+        <div class="icon">🧰</div>
+        <h3><a href="https://github.com/knowledgestack">knowledgestack</a></h3>
+        <p>Follow the org for upcoming parsers and MCP servers — PDF, DOCX, PPTX, HTML, and more.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CTA STRIP ============ -->
+<section class="strip">
+  <div class="wrap">
+    <h2>Ship the spreadsheet feature you've been avoiding.</h2>
+    <p>Star the repo, join the Discord, and tell us what your weirdest <code>.xlsx</code> looks like.</p>
+    <div class="cta-row">
+      <a class="btn primary" href="https://github.com/knowledgestack/ks-xlsx-parser" target="_blank" rel="noopener">⭐ Star on GitHub</a>
+      <a class="btn ghost" href="https://discord.gg/4uaGhJcx" target="_blank" rel="noopener">💬 Join Discord</a>
+      <a class="btn ghost" href="https://github.com/knowledgestack/ks-xlsx-parser/discussions" target="_blank" rel="noopener">🗣 Discussions</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-brand">
+      <div class="brand"><span class="dot">📊</span><span>ks-xlsx-parser</span></div>
+      <p>MIT licensed. Built for teams shipping agents against the 800 lb gorilla of enterprise data: the spreadsheet.</p>
+    </div>
+    <div>
+      <h4>Get started</h4>
+      <a href="https://github.com/knowledgestack/ks-xlsx-parser/blob/main/docs/wiki/Quick-Start.md">Quick Start</a>
+      <a href="https://github.com/knowledgestack/ks-xlsx-parser/blob/main/docs/wiki/API-Reference.md">API Reference</a>
+      <a href="https://github.com/knowledgestack/ks-xlsx-parser/blob/main/docs/wiki/Web-API.md">Web API</a>
+      <a href="https://github.com/knowledgestack/ks-xlsx-parser/blob/main/docs/wiki/Data-Models.md">Data Models</a>
+    </div>
+    <div>
+      <h4>Community</h4>
+      <a href="https://discord.gg/4uaGhJcx">Discord</a>
+      <a href="https://github.com/knowledgestack/ks-xlsx-parser/discussions">Discussions</a>
+      <a href="https://github.com/knowledgestack/ks-xlsx-parser/issues/new/choose">Report an issue</a>
+      <a href="https://github.com/knowledgestack/ks-xlsx-parser/blob/main/CONTRIBUTING.md">Contributing</a>
+    </div>
+    <div>
+      <h4>More</h4>
+      <a href="https://github.com/knowledgestack/ks-cookbook">ks-cookbook</a>
+      <a href="https://github.com/knowledgestack">Knowledge Stack org</a>
+      <a href="https://github.com/knowledgestack/ks-xlsx-parser/blob/main/CHANGELOG.md">Changelog</a>
+      <a href="https://github.com/knowledgestack/ks-xlsx-parser/blob/main/LICENSE">MIT License</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  document.querySelectorAll('.copy').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const text = btn.dataset.copy || btn.closest('.codebox, .install')?.querySelector('pre')?.innerText || '';
+      try {
+        await navigator.clipboard.writeText(text);
+        const prev = btn.textContent;
+        btn.textContent = 'COPIED';
+        btn.classList.add('ok');
+        setTimeout(() => { btn.textContent = prev; btn.classList.remove('ok'); }, 1200);
+      } catch(e) { btn.textContent = 'ERR'; }
+    });
+  });
+</script>
+
+</body>
+</html>
