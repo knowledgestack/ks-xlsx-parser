@@ -18,6 +18,7 @@
 - [ ] Added/updated tests covering the change
 - [ ] `ruff check` is clean
 - [ ] Updated docs if user-facing behaviour changed
+- [ ] Added a one-line entry under `## [Unreleased]` in [`CHANGELOG.md`](../CHANGELOG.md) (skip for pure chores / CI-only PRs)
 
 ## Notes for reviewers
 

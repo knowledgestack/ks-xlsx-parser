@@ -91,14 +91,21 @@ without a human click.
 
 ## Release checklist
 
-1. Bump `version` in `pyproject.toml` and `src/xlsx_parser/__init__.py`.
-2. `make testbench` → expect 1054/1054.
-3. `make test` → clean.
-4. Commit with `chore(release): vX.Y.Z`.
-5. `git tag -s vX.Y.Z -m "vX.Y.Z"` (signed tag; required by branch protection).
-6. `git push && git push --tags` — the tag triggers the release workflow.
-7. Approve the `pypi` environment deployment in the Actions tab.
-8. Announce in **📣 Announcements**.
+1. Bump `version` in `pyproject.toml` and `src/xlsx_parser/__init__.py` (keep in sync).
+2. Promote every entry from `## [Unreleased]` in [`../CHANGELOG.md`](../CHANGELOG.md)
+   into a new `## [X.Y.Z] — YYYY-MM-DD` section; reset Unreleased to a stub
+   line; update the compare-link footer at the bottom.
+3. Regenerate the full release notes in `../docs/launch/RELEASE_NOTES_vX.Y.Z.md`
+   (copy from the previous release, edit for the new highlights).
+4. `make testbench` → expect 1054/1054.
+5. `make test` → clean.
+6. Commit with `chore(release): vX.Y.Z`.
+7. `git tag -s vX.Y.Z -m "vX.Y.Z"` (signed tag; required by branch protection).
+8. `git push && git push --tags` — the tag triggers the release workflow.
+9. Approve the `pypi` environment deployment in the Actions tab.
+10. Paste the `RELEASE_NOTES_vX.Y.Z.md` body into the GitHub Release description.
+11. Announce: **📣 Announcements** (Discord + GitHub Discussions), then the
+    social drafts in [`../docs/launch/ANNOUNCEMENTS.md`](../docs/launch/ANNOUNCEMENTS.md).
 
 ## Labels to create
 
