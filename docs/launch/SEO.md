@@ -106,7 +106,7 @@ can pull them into rich snippets and LLMs can quote them.
 ### 1. Google Search Console — submit the site + sitemap
 
 1. Go to <https://search.google.com/search-console/welcome>.
-2. Add a property: **URL prefix** → `https://app.knowledgestack.ai/ks-xlsx-parser/`.
+2. Add a property: **URL prefix** → `https://knowledgestack.github.io/ks-xlsx-parser/`.
 3. Verify via HTML tag — copy the `<meta name="google-site-verification" content="...">` it gives you and paste it into `site/index.html` right after the `<title>`. Commit + push; the Pages workflow redeploys in ~1 min.
 4. Once verified, submit **Sitemaps → `sitemap.xml`**. Coverage reports typically populate in 24–72 h.
 
