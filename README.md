@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://github.com/knowledgestack"><img src="https://img.shields.io/badge/KNOWLEDGE%20STACK-document%20intelligence%20for%20agents-6366f1?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0id2hpdGUiPjxwYXRoIGQ9Ik0xMiAyTDIgN3YxMGwxMCA1IDEwLTVWN0wxMiAyem0wIDIuMzZMMTkuMzkgOCAxMiAxMS42NCA0LjYxIDggMTIgNC4zNnoiLz48L3N2Zz4=" alt="Knowledge Stack"></a>
+  <a href="https://github.com/knowledgestack"><img src="https://img.shields.io/badge/KNOWLEDGE%20STACK-document%20intelligence%20for%20agents-047857?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0id2hpdGUiPjxwYXRoIGQ9Ik0xMiAyTDIgN3YxMGwxMCA1IDEwLTVWN0wxMiAyem0wIDIuMzZMMTkuMzkgOCAxMiAxMS42NCA0LjYxIDggMTIgNC4zNnoiLz48L3N2Zz4=" alt="Knowledge Stack"></a>
 </p>
 
 <h1 align="center">📊 Make XLSX LLM Ready 🤖</h1>
@@ -9,26 +9,26 @@
 </p>
 
 <p align="center">
-  <a href="https://pypi.org/project/ks-xlsx-parser/"><img src="https://img.shields.io/pypi/v/ks-xlsx-parser.svg?style=flat-square&logo=pypi&logoColor=white&color=3775A9" alt="PyPI"></a>
-  <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python 3.10+"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-A855F7?style=flat-square" alt="MIT License"></a>
+  <a href="https://pypi.org/project/ks-xlsx-parser/"><img src="https://img.shields.io/pypi/v/ks-xlsx-parser.svg?style=flat-square&logo=pypi&logoColor=white&label=PyPI&color=047857" alt="PyPI"></a>
+  <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/python-3.10%2B-065F46?style=flat-square&logo=python&logoColor=white" alt="Python 3.10+"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-64748B?style=flat-square" alt="MIT License"></a>
   <a href="#-the-testbench-dataset"><img src="https://img.shields.io/badge/testBench-1054%2F1054-22C55E?style=flat-square&logo=pytest&logoColor=white" alt="Tests"></a>
   <a href="https://github.com/knowledgestack/ks-xlsx-parser/actions/workflows/ci.yml"><img src="https://github.com/knowledgestack/ks-xlsx-parser/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
 </p>
 
 <p align="center">
-  <a href="https://discord.gg/4uaGhJcx"><img src="https://img.shields.io/badge/Discord-join%20us-5865F2?style=flat-square&logo=discord&logoColor=white" alt="Discord"></a>
-  <a href="https://github.com/knowledgestack"><img src="https://img.shields.io/badge/Knowledge%20Stack-ecosystem-6366F1?style=flat-square&logo=github&logoColor=white" alt="Knowledge Stack"></a>
-  <a href="https://github.com/knowledgestack/ks-xlsx-parser/discussions"><img src="https://img.shields.io/badge/discussions-open-0969DA?style=flat-square&logo=github&logoColor=white" alt="Discussions"></a>
-  <a href="https://github.com/knowledgestack/ks-xlsx-parser/stargazers"><img src="https://img.shields.io/github/stars/knowledgestack/ks-xlsx-parser?style=flat-square&logo=github&color=FDB813" alt="GitHub stars"></a>
+  <a href="https://discord.gg/4uaGhJcx"><img src="https://img.shields.io/badge/Discord-join%20us-16A34A?style=flat-square&logo=discord&logoColor=white" alt="Discord"></a>
+  <a href="https://github.com/knowledgestack"><img src="https://img.shields.io/badge/Knowledge%20Stack-ecosystem-059669?style=flat-square&logo=github&logoColor=white" alt="Knowledge Stack"></a>
+  <a href="https://github.com/knowledgestack/ks-xlsx-parser/discussions"><img src="https://img.shields.io/badge/discussions-open-15803D?style=flat-square&logo=github&logoColor=white" alt="Discussions"></a>
+  <a href="https://github.com/knowledgestack/ks-xlsx-parser/stargazers"><img src="https://img.shields.io/github/stars/knowledgestack/ks-xlsx-parser?style=flat-square&logo=github&label=stars&color=84CC16" alt="GitHub stars"></a>
 </p>
 
 <p align="center">
-  <a href="https://www.langchain.com/"><img src="https://img.shields.io/badge/LangChain-ready-1C3C3C?style=flat-square&logo=langchain&logoColor=white" alt="LangChain ready"></a>
-  <a href="https://langchain-ai.github.io/langgraph/"><img src="https://img.shields.io/badge/LangGraph-ready-FF6F00?style=flat-square" alt="LangGraph ready"></a>
-  <a href="https://www.crewai.com/"><img src="https://img.shields.io/badge/CrewAI-ready-FF5A1F?style=flat-square" alt="CrewAI ready"></a>
-  <a href="https://github.com/openai/openai-agents-python"><img src="https://img.shields.io/badge/OpenAI%20Agents-ready-10A37F?style=flat-square&logo=openai&logoColor=white" alt="OpenAI Agents SDK"></a>
-  <a href="https://modelcontextprotocol.io/"><img src="https://img.shields.io/badge/MCP-compatible-8B5CF6?style=flat-square" alt="MCP compatible"></a>
+  <a href="https://www.langchain.com/"><img src="https://img.shields.io/badge/LangChain-ready-166534?style=flat-square" alt="LangChain ready"></a>
+  <a href="https://langchain-ai.github.io/langgraph/"><img src="https://img.shields.io/badge/LangGraph-ready-166534?style=flat-square" alt="LangGraph ready"></a>
+  <a href="https://www.crewai.com/"><img src="https://img.shields.io/badge/CrewAI-ready-166534?style=flat-square" alt="CrewAI ready"></a>
+  <a href="https://github.com/openai/openai-agents-python"><img src="https://img.shields.io/badge/OpenAI%20Agents-ready-166534?style=flat-square&logo=openai&logoColor=white" alt="OpenAI Agents SDK"></a>
+  <a href="https://modelcontextprotocol.io/"><img src="https://img.shields.io/badge/MCP-compatible-166534?style=flat-square" alt="MCP compatible"></a>
 </p>
 
 > [!TIP]
@@ -53,17 +53,17 @@ graph that drops straight into [LangChain](https://www.langchain.com/),
 [MCP](https://modelcontextprotocol.io/)-aware client (Claude Desktop, Cursor, Windsurf, Zed, …).
 
 <p align="center">
-  <a href="https://github.com/knowledgestack/ks-xlsx-parser"><img src="https://img.shields.io/badge/%E2%AD%90%20STAR%20THE%20REPO-it's%20how%20we%20justify%20maintaining%20this-FDB813?style=for-the-badge" alt="Star the repo"></a>
+  <a href="https://github.com/knowledgestack/ks-xlsx-parser"><img src="https://img.shields.io/badge/%E2%AD%90%20STAR%20THE%20REPO-it's%20how%20we%20justify%20maintaining%20this-047857?style=for-the-badge" alt="Star the repo"></a>
   &nbsp;
-  <a href="https://discord.gg/4uaGhJcx"><img src="https://img.shields.io/badge/%F0%9F%92%AC%20JOIN%20THE%20DISCORD-chat%20with%20the%20team%20%2B%20contributors-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Join our Discord"></a>
+  <a href="https://discord.gg/4uaGhJcx"><img src="https://img.shields.io/badge/%F0%9F%92%AC%20JOIN%20THE%20DISCORD-chat%20with%20the%20team%20%2B%20contributors-16A34A?style=for-the-badge&logo=discord&logoColor=white" alt="Join our Discord"></a>
 </p>
 
 <p align="center">
-  <a href="#-30-second-demo"><img src="https://img.shields.io/badge/🚀%20Quick%20Start-pip%20install-10B981?style=for-the-badge" alt="Quick start"></a>
+  <a href="#-30-second-demo"><img src="https://img.shields.io/badge/🚀%20Quick%20Start-pip%20install-059669?style=for-the-badge" alt="Quick start"></a>
   &nbsp;
-  <a href="docs/wiki/Quick-Start.md"><img src="https://img.shields.io/badge/📚%20Docs-in%20the%20wiki-6366F1?style=for-the-badge" alt="Docs"></a>
+  <a href="docs/wiki/Quick-Start.md"><img src="https://img.shields.io/badge/📚%20Docs-wiki-22C55E?style=for-the-badge" alt="Docs"></a>
   &nbsp;
-  <a href="https://github.com/knowledgestack/ks-xlsx-parser/releases"><img src="https://img.shields.io/badge/📦%20Download-testBench%20dataset-F59E0B?style=for-the-badge" alt="Dataset"></a>
+  <a href="https://github.com/knowledgestack/ks-xlsx-parser/releases"><img src="https://img.shields.io/badge/📦%20Download-testBench%20dataset-84CC16?style=for-the-badge" alt="Dataset"></a>
 </p>
 
 ---
@@ -191,9 +191,9 @@ corpus, and everything is open source.
 
 ```mermaid
 %%{init: {'theme':'base', 'themeVariables': {
-  'primaryColor':'#6366F1','primaryTextColor':'#fff','primaryBorderColor':'#4F46E5',
-  'lineColor':'#94A3B8','secondaryColor':'#10B981','tertiaryColor':'#F59E0B',
-  'background':'#FFFFFF','mainBkg':'#6366F1','clusterBkg':'#F8FAFC'
+  'primaryColor':'#10B981','primaryTextColor':'#fff','primaryBorderColor':'#047857',
+  'lineColor':'#94A3B8','secondaryColor':'#22C55E','tertiaryColor':'#34D399',
+  'background':'#FFFFFF','mainBkg':'#10B981','clusterBkg':'#F0FDF4'
 }}}%%
 flowchart TD
     IN([📄 .xlsx bytes])
@@ -223,13 +223,15 @@ flowchart TD
     STORE --> OUT
     STORE -.-> CMP -.-> EXP
 
-    classDef entry   fill:#0EA5E9,stroke:#0369A1,color:#fff,stroke-width:2px;
-    classDef parse   fill:#6366F1,stroke:#4338CA,color:#fff,stroke-width:2px;
-    classDef model   fill:#8B5CF6,stroke:#6D28D9,color:#fff,stroke-width:2px;
-    classDef analyze fill:#F59E0B,stroke:#B45309,color:#fff,stroke-width:2px;
-    classDef render  fill:#EC4899,stroke:#BE185D,color:#fff,stroke-width:2px;
-    classDef output  fill:#10B981,stroke:#047857,color:#fff,stroke-width:2px;
-    classDef aux     fill:#64748B,stroke:#334155,color:#fff,stroke-width:2px;
+    %% All-green palette: deepest for entry, lightest for auxiliary stages,
+    %% emerald for the headline output node.
+    classDef entry   fill:#064E3B,stroke:#022C22,color:#fff,stroke-width:2px;
+    classDef parse   fill:#065F46,stroke:#022C22,color:#fff,stroke-width:2px;
+    classDef model   fill:#047857,stroke:#064E3B,color:#fff,stroke-width:2px;
+    classDef analyze fill:#059669,stroke:#065F46,color:#fff,stroke-width:2px;
+    classDef render  fill:#16A34A,stroke:#166534,color:#fff,stroke-width:2px;
+    classDef output  fill:#22C55E,stroke:#15803D,color:#fff,stroke-width:2px;
+    classDef aux     fill:#A7F3D0,stroke:#047857,color:#065F46,stroke-width:2px;
 
     class IN entry
     class PARSE parse
@@ -399,9 +401,9 @@ or the [#showcase](https://discord.gg/4uaGhJcx) channel on Discord.
 ## 📡 Stay in touch
 
 <p align="center">
-  <a href="https://discord.gg/4uaGhJcx"><img src="https://img.shields.io/badge/Discord-Join%20the%20community-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord"></a>
-  <a href="https://github.com/knowledgestack"><img src="https://img.shields.io/badge/GitHub-Follow%20the%20org-181717?style=for-the-badge&logo=github" alt="Follow Knowledge Stack"></a>
-  <a href="https://github.com/knowledgestack/ks-xlsx-parser/discussions"><img src="https://img.shields.io/badge/Discussions-Ask%20a%20question-0969da?style=for-the-badge&logo=github" alt="Discussions"></a>
+  <a href="https://discord.gg/4uaGhJcx"><img src="https://img.shields.io/badge/Discord-Join%20the%20community-16A34A?style=for-the-badge&logo=discord&logoColor=white" alt="Discord"></a>
+  <a href="https://github.com/knowledgestack"><img src="https://img.shields.io/badge/GitHub-Follow%20the%20org-047857?style=for-the-badge&logo=github" alt="Follow Knowledge Stack"></a>
+  <a href="https://github.com/knowledgestack/ks-xlsx-parser/discussions"><img src="https://img.shields.io/badge/Discussions-Ask%20a%20question-22C55E?style=for-the-badge&logo=github" alt="Discussions"></a>
 </p>
 
 - 💬 **[Join the Discord](https://discord.gg/4uaGhJcx)** — our main real-time channel. Roadmap, help, job postings, show-and-tell, and the occasional meme.
