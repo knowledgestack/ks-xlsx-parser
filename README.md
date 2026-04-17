@@ -21,7 +21,7 @@
   <a href="https://github.com/knowledgestack"><img src="https://img.shields.io/badge/Knowledge%20Stack-ecosystem-059669?style=flat-square&logo=github&logoColor=white" alt="Knowledge Stack"></a>
   <a href="https://github.com/knowledgestack/ks-xlsx-parser/discussions"><img src="https://img.shields.io/badge/discussions-open-15803D?style=flat-square&logo=github&logoColor=white" alt="Discussions"></a>
   <a href="https://github.com/knowledgestack/ks-xlsx-parser/stargazers"><img src="https://img.shields.io/github/stars/knowledgestack/ks-xlsx-parser?style=flat-square&logo=github&label=stars&color=84CC16" alt="GitHub stars"></a>
-  <a href="https://knowledgestack.github.io/ks-xlsx-parser/"><img src="https://img.shields.io/badge/site-knowledgestack.github.io-22C55E?style=flat-square&logo=githubpages&logoColor=white" alt="Landing site"></a>
+  <a href="https://app.knowledgestack.ai/ks-xlsx-parser/"><img src="https://img.shields.io/badge/site-app.knowledgestack.ai-22C55E?style=flat-square&logo=githubpages&logoColor=white" alt="Landing site"></a>
 </p>
 
 <p align="center">
