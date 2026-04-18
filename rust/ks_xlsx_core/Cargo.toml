@@ -1,0 +1,18 @@
+[package]
+name = "ks_xlsx_core"
+version = "0.1.0"
+edition = "2021"
+description = "Rust OOXML fast-path for ks-xlsx-parser: cell values + formulas via calamine, exposed to Python via PyO3. REMOVABLE: see REMOVAL.md when python-calamine upstreams formula support."
+
+[lib]
+name = "ks_xlsx_core"
+crate-type = ["cdylib"]
+
+[dependencies]
+calamine = { version = "0.26", features = ["dates"] }
+pyo3 = { version = "0.22", features = ["extension-module", "abi3-py310"] }
+
+[profile.release]
+lto = true
+codegen-units = 1
+opt-level = 3

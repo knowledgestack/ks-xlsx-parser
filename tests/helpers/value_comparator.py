@@ -5,7 +5,7 @@ Handles known divergences between openpyxl and calamine: int/float,
 date/datetime, bool coercion, None vs empty string, etc.
 """
 
-from __future__ import annotations
+
 
 import datetime
 from dataclasses import dataclass

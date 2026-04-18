@@ -13,11 +13,11 @@ Verifies that the parser correctly:
 
 import pytest
 
-from xlsx_parser.formula.dependency_builder import DependencyBuilder
-from xlsx_parser.formula.formula_parser import FormulaParser, ParsedReference
-from xlsx_parser.models.common import BlockType, CellCoord, EdgeType
-from xlsx_parser.parsers import WorkbookParser
-from xlsx_parser.pipeline import parse_workbook
+from formula.dependency_builder import DependencyBuilder
+from formula.formula_parser import FormulaParser, ParsedReference
+from models.common import BlockType, CellCoord, EdgeType
+from parsers import WorkbookParser
+from pipeline import parse_workbook
 
 
 # ---------------------------------------------------------------------------
@@ -705,7 +705,7 @@ class TestFormulaInBlocks:
     def test_block_formula_count(self, simple_formulas):
         result = parse_workbook(path=simple_formulas)
         # The block should report formula_count > 0
-        from xlsx_parser.chunking.segmenter import LayoutSegmenter
+        from chunking.segmenter import LayoutSegmenter
         sheet = result.workbook.sheets[0]
         tables = [t for t in result.workbook.tables if t.sheet_name == sheet.sheet_name]
         segmenter = LayoutSegmenter(sheet, tables=tables)
@@ -715,7 +715,7 @@ class TestFormulaInBlocks:
 
     def test_cross_sheet_block_has_formulas(self, cross_sheet_formulas):
         result = parse_workbook(path=cross_sheet_formulas)
-        from xlsx_parser.chunking.segmenter import LayoutSegmenter
+        from chunking.segmenter import LayoutSegmenter
         summary = [s for s in result.workbook.sheets if s.sheet_name == "Summary"][0]
         tables = [t for t in result.workbook.tables if t.sheet_name == summary.sheet_name]
         segmenter = LayoutSegmenter(summary, tables=tables)

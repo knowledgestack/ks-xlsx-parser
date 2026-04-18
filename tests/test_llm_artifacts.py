@@ -7,14 +7,14 @@ and reading-order linearization using programmatic fixtures.
 
 import pytest
 
-from xlsx_parser.analysis import (
+from analysis import (
     EntityIndexBuilder,
     KpiCatalogBuilder,
     ReadingOrderLinearizer,
     SheetSummaryAnalyzer,
 )
-from xlsx_parser.models.common import SheetPurpose
-from xlsx_parser.parsers import WorkbookParser
+from models.common import SheetPurpose
+from parsers import WorkbookParser
 
 
 class TestSheetSummaryAnalyzer:

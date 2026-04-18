@@ -9,7 +9,7 @@ import json
 
 import pytest
 
-from xlsx_parser.pipeline import parse_workbook
+from pipeline import parse_workbook
 
 
 class TestEndToEndPipeline:

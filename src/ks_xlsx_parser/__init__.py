@@ -1,26 +1,28 @@
 """
-ks_xlsx_parser — import alias for ``xlsx_parser``.
+ks_xlsx_parser — public API entry point for the ks-xlsx-parser package.
 
-The canonical Python module is ``xlsx_parser``; this alias exists so that
-``import ks_xlsx_parser`` works, matching the PyPI package name
-``ks-xlsx-parser`` exactly (PEP 503 normalisation converts dashes to
-underscores for imports).
+The source tree is flat: top-level modules at ``src/`` (``pipeline``,
+``models``, ``analysis``, ``verification``, etc.). This module re-exports
+the stable, user-facing names so callers can do::
 
-All names are re-exported from the upstream module; there is no
-functional difference between ``from xlsx_parser import X`` and
-``from ks_xlsx_parser import X``.
+    from ks_xlsx_parser import parse_workbook, ParseResult
+
+regardless of internal layout.
 """
 from __future__ import annotations
 
-from xlsx_parser import (  # noqa: F401
-    ExcellentStage,
+__version__ = "0.1.1"
+
+from pipeline import (  # noqa: F401
     ParseResult,
-    StageVerifier,
-    VerificationReport,
-    __version__,
     compare_workbooks,
     export_importer,
     parse_workbook,
+)
+from verification import (  # noqa: F401
+    ExcellentStage,
+    StageVerifier,
+    VerificationReport,
 )
 
 __all__ = [

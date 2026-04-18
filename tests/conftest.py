@@ -6,7 +6,7 @@ edge cases: merged cells, formulas, tables, large sheets, sparse data,
 cross-sheet references, conditional formatting, data validation, etc.
 """
 
-from __future__ import annotations
+
 
 import os
 import tempfile

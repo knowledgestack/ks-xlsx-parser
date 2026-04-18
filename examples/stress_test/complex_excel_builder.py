@@ -7,7 +7,7 @@ Each level adds features that stress different parts of the parser pipeline.
 Output includes a reference JSON describing what was built for validation.
 """
 
-from __future__ import annotations
+
 
 import json
 from datetime import date

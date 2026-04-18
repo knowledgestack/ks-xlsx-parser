@@ -1,0 +1,13 @@
+{
+  "name": "ks-xlsx-parser-hucre-bench",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Isolated node package for benchmarking hucre against ks-xlsx-parser. Not published, not committed beyond this file.",
+  "scripts": {
+    "adapter": "node hucre_adapter.mjs"
+  },
+  "dependencies": {
+    "hucre": "0.3.0"
+  }
+}

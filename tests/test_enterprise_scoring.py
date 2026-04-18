@@ -5,14 +5,14 @@ network access. They exercise formulas, tables, cross-sheet references,
 named ranges, hidden sheets, and simple calculation lineage.
 """
 
-from __future__ import annotations
+
 
 import json
 from pathlib import Path
 
 import pytest
 
-from xlsx_parser import parse_workbook
+from ks_xlsx_parser import parse_workbook
 
 from scripts.generate_enterprise_fixtures import generate_all
 

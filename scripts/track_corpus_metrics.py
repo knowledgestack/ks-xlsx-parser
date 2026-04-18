@@ -1,6 +1,6 @@
 """Aggregate metrics emitted by enterprise/corpus tests."""
 
-from __future__ import annotations
+
 
 import json
 from datetime import datetime

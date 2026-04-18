@@ -8,18 +8,18 @@ a variety of public datasets covering different shapes, sizes, and
 content types (numeric, text, dates, mixed).
 """
 
-from __future__ import annotations
+
 
 import json
 from pathlib import Path
 
 import pytest
 
-from xlsx_parser.chunking.segmenter import LayoutSegmenter
-from xlsx_parser.models import BlockType
-from xlsx_parser.parsers import WorkbookParser
-from xlsx_parser.pipeline import parse_workbook
-from xlsx_parser.storage.serializer import WorkbookSerializer
+from chunking.segmenter import LayoutSegmenter
+from models import BlockType
+from parsers import WorkbookParser
+from pipeline import parse_workbook
+from storage.serializer import WorkbookSerializer
 
 
 FIXTURES_DIR = Path(__file__).parent.parent / "testBench" / "github_datasets"

@@ -7,9 +7,9 @@ assumption blocks, result blocks, and text headers.
 
 import pytest
 
-from xlsx_parser.chunking.segmenter import LayoutSegmenter
-from xlsx_parser.models import BlockType
-from xlsx_parser.parsers import WorkbookParser
+from chunking.segmenter import LayoutSegmenter
+from models import BlockType
+from parsers import WorkbookParser
 
 
 class TestSegmentation:

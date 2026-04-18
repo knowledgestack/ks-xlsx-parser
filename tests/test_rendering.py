@@ -7,10 +7,10 @@ headers, and coordinate annotations.
 
 import pytest
 
-from xlsx_parser.chunking.segmenter import LayoutSegmenter
-from xlsx_parser.parsers import WorkbookParser
-from xlsx_parser.rendering.html_renderer import HtmlRenderer
-from xlsx_parser.rendering.text_renderer import TextRenderer
+from chunking.segmenter import LayoutSegmenter
+from parsers import WorkbookParser
+from rendering.html_renderer import HtmlRenderer
+from rendering.text_renderer import TextRenderer
 
 
 class TestHtmlRendering:
@@ -106,11 +106,11 @@ class TestTextRendering:
 
     def test_numeric_cells_use_scientific_notation_not_truncation(self):
         """Long numeric values use scientific notation instead of truncating with ..."""
-        from xlsx_parser.models.sheet import SheetDTO
-        from xlsx_parser.models.cell import CellDTO
-        from xlsx_parser.models.common import CellCoord, CellRange
-        from xlsx_parser.models.block import BlockDTO
-        from xlsx_parser.models.common import BlockType
+        from models.sheet import SheetDTO
+        from models.cell import CellDTO
+        from models.common import CellCoord, CellRange
+        from models.block import BlockDTO
+        from models.common import BlockType
 
         # Create a sheet with a numeric cell whose display_value would exceed column width.
         # Column width is min(max_cell_len, 30), so we need a number that formats to >30 chars.

@@ -61,3 +61,14 @@ examples/stress_test/STRESS_TEST_RESULTS.md
 
 # Packaged dataset (produced by `make testbench-zip`)
 dist/testBench*.zip
+
+# Local benchmark harness (private, not pushed)
+tests/benchmarks/reports/
+tests/benchmarks/hucre_node/node_modules/
+tests/benchmarks/hucre_node/.pnpm-store/
+
+# Rust / cargo build artifacts — never commit
+rust/**/target/
+rust/**/Cargo.lock.bak
+**/.cargo-lock
+**/.fingerprint/
