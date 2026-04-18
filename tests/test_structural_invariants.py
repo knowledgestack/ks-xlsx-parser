@@ -6,15 +6,15 @@ regardless of the input file: merge structure, used range bounds,
 cell identity, dependency graph, stats, tables, determinism.
 """
 
-from __future__ import annotations
+
 
 import json
 import re
 
 import pytest
 
-from xlsx_parser.pipeline import parse_workbook
-from xlsx_parser.models.common import EdgeType
+from pipeline import parse_workbook
+from models.common import EdgeType
 
 from tests.helpers.invariant_checker import check_invariants
 

@@ -7,8 +7,8 @@ and circular reference detection.
 
 import pytest
 
-from xlsx_parser.formula.formula_parser import FormulaParser
-from xlsx_parser.models import CellCoord, DependencyGraph, DependencyEdgeDTO, EdgeType
+from formula.formula_parser import FormulaParser
+from models import CellCoord, DependencyGraph, DependencyEdgeDTO, EdgeType
 
 
 class TestFormulaParser:

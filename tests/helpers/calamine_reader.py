@@ -4,7 +4,6 @@ Wrapper around python-calamine for cross-validation reads.
 Provides a standardized CalamineResult that can be compared against
 our parser's WorkbookDTO output.
 """
-
 from __future__ import annotations
 
 from dataclasses import dataclass, field

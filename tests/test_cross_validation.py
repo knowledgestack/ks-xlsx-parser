@@ -5,13 +5,13 @@ Calamine is a Rust-based Excel reader, completely independent from openpyxl.
 These tests verify that our parser reads the same data that calamine does.
 """
 
-from __future__ import annotations
+
 
 import datetime
 
 import pytest
 
-from xlsx_parser.pipeline import parse_workbook
+from pipeline import parse_workbook
 
 from tests.helpers.calamine_reader import CalamineResult
 from tests.helpers.value_comparator import Mismatch, compare_cell_value, values_match

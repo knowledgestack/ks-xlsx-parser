@@ -7,7 +7,7 @@ Supports downloading .xlsx files from:
 - Additional GitHub repositories with public xlsx samples
 """
 
-from __future__ import annotations
+
 
 import io
 import logging

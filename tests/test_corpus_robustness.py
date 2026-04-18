@@ -8,15 +8,15 @@ by default — run with: pytest -m corpus
 Corpus download tests require network — run with: pytest -m corpus -k download
 """
 
-from __future__ import annotations
+
 
 import json
 from pathlib import Path
 
 import pytest
 
-from xlsx_parser.pipeline import parse_workbook
-from xlsx_parser.models.common import Severity
+from pipeline import parse_workbook
+from models.common import Severity
 
 from tests.helpers.invariant_checker import check_invariants
 from tests.helpers.corpus_downloader import (

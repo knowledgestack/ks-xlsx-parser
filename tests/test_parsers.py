@@ -8,7 +8,7 @@ tables, comments, data validations, and sheet properties.
 
 import pytest
 
-from xlsx_parser.parsers import WorkbookParser
+from parsers import WorkbookParser
 
 
 class TestSimpleWorkbook:

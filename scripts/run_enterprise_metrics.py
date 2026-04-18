@@ -3,7 +3,7 @@
 Useful for quick local baselines when test dependencies are unavailable.
 """
 
-from __future__ import annotations
+
 
 import json
 

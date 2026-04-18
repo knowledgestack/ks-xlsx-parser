@@ -7,9 +7,9 @@ type, series, axes, title, and position anchor.
 
 import pytest
 
-from xlsx_parser.charts.chart_extractor import ChartExtractor
-from xlsx_parser.models import ChartType
-from xlsx_parser.parsers import WorkbookParser
+from charts.chart_extractor import ChartExtractor
+from models import ChartType
+from parsers import WorkbookParser
 
 
 class TestChartExtraction:

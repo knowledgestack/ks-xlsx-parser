@@ -10,7 +10,7 @@ import json
 
 import pytest
 
-from xlsx_parser.verification import (
+from verification import (
     ExcellentStage,
     ImplementationStatus,
     StageResult,

@@ -7,7 +7,7 @@ and documents any failures, errors, or unexpected behavior. Runs in a loop
 until a failure is encountered or max level reached.
 """
 
-from __future__ import annotations
+
 
 import json
 import sys

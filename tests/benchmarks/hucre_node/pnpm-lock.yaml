@@ -1,0 +1,23 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .:
+    dependencies:
+      hucre:
+        specifier: 0.3.0
+        version: 0.3.0
+
+packages:
+
+  hucre@0.3.0:
+    resolution: {integrity: sha512-gXLYQGcZY/7WwS2We6dV7fsO8SGbKBuiGGntTfOQKh2cbZGg4+aMiCQPsFACngb7/ezoTf+GazxoWISDbv098g==}
+    hasBin: true
+
+snapshots:
+
+  hucre@0.3.0: {}

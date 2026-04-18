@@ -46,7 +46,7 @@ Repository = "https://github.com/knowledgestack/ks-xlsx-parser"
 Documentation = "https://github.com/knowledgestack/ks-xlsx-parser#readme"
 
 [project.scripts]
-xlsx-parser-api = "xlsx_parser.api:main"
+xlsx-parser-api = "api:main"
 
 [project.optional-dependencies]
 api = [

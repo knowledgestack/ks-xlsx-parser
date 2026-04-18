@@ -5,11 +5,11 @@ Runs a suite of invariants that must hold for any valid parse output,
 regardless of the input file. Returns a list of violation messages.
 """
 
-from __future__ import annotations
+
 
 import re
 
-from xlsx_parser.models.common import EdgeType
+from models.common import EdgeType
 
 
 def check_invariants(workbook) -> list[str]:

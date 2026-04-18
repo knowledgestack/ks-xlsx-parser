@@ -15,7 +15,7 @@ Runs under the ``testbench`` marker only (skipped by default). Invoke with:
     pytest tests/test_testbench_roundtrip.py -m testbench -q
     make testbench   # convenience wrapper
 """
-from __future__ import annotations
+
 
 import json
 import os
@@ -24,7 +24,7 @@ from pathlib import Path
 
 import pytest
 
-from xlsx_parser import parse_workbook
+from ks_xlsx_parser import parse_workbook
 
 ROOT = Path(__file__).resolve().parent.parent
 TESTBENCH_DIR = ROOT / "testBench"

@@ -31,7 +31,7 @@ byte-identical files (modulo openpyxl's own timestamping, which we neutralise).
 Every file is accompanied by one row in ``testBench/generated/MANIFEST.json``
 describing its group, feature tags, expected cell count, and SHA256.
 """
-from __future__ import annotations
+
 
 import argparse
 import hashlib

@@ -16,7 +16,7 @@ Usage:
 Defaults to the examples/ directory files.
 """
 
-from __future__ import annotations
+
 
 import sys
 import json

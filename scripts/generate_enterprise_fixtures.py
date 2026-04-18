@@ -5,7 +5,7 @@ They are intentionally lightweight so they can be generated at test time
 without network access or large disk usage.
 """
 
-from __future__ import annotations
+
 
 from pathlib import Path
 from typing import Callable

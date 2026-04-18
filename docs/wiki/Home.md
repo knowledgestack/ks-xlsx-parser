@@ -17,6 +17,10 @@ the front-page README so it stays scannable. The code-heavy stuff lives here.
   JSON output, field by field.
 - **[Pipeline Internals](Pipeline-Internals)** — how the 8 stages fit
   together, and where to hook in if you want to extend the parser.
+- **[Benchmark vs `hucre`](Benchmark-vs-hucre)** — unbiased head-to-head
+  against the [hucre](https://github.com/productdevbook/hucre) TypeScript
+  engine on the 1053-workbook testBench corpus: perf, extraction-count
+  parity, and where each tool wins.
 
 ## Related docs in the main repo
 

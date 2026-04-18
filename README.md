@@ -318,6 +318,15 @@ Most tools give you a dataframe. `ks-xlsx-parser` gives you a **graph an LLM can
 
 ---
 
+> Looking for a tiny, edge-runtime I/O library with write support? See
+> [**`hucre`**](https://github.com/productdevbook/hucre) by
+> [**@productdevbook**](https://github.com/productdevbook). For an unbiased
+> head-to-head on the 1053-workbook testBench corpus — perf numbers,
+> extraction-count parity, where each side wins — see the wiki:
+> [**`ks-xlsx-parser` vs `hucre`**](docs/wiki/Benchmark-vs-hucre.md).
+
+---
+
 ## 🎯 Who this is for
 
 Teams shipping agents, RAG pipelines, or auditing tools that ingest Excel.
