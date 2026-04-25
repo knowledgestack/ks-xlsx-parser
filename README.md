@@ -1,4 +1,8 @@
 <p align="center">
+  <img src="assets/readme-hero.png" alt="ks-xlsx-parser">
+</p>
+
+<p align="center">
   <a href="https://github.com/knowledgestack"><img src="https://img.shields.io/badge/KNOWLEDGE%20STACK-document%20intelligence%20for%20agents-047857?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0id2hpdGUiPjxwYXRoIGQ9Ik0xMiAyTDIgN3YxMGwxMCA1IDEwLTVWN0wxMiAyem0wIDIuMzZMMTkuMzkgOCAxMiAxMS42NCA0LjYxIDggMTIgNC4zNnoiLz48L3N2Zz4=" alt="Knowledge Stack"></a>
 </p>
 
