@@ -3,6 +3,12 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/knowledgestack/ks-xlsx-parser"><img src="https://img.shields.io/badge/⭐%20Star%20on%20GitHub-Support%20the%20project-047857?style=for-the-badge&logo=github&logoColor=white" alt="Star on GitHub"></a>
+  <a href="https://github.com/knowledgestack/ks-xlsx-parser/fork"><img src="https://img.shields.io/badge/🍴%20Fork-Contribute-064E3B?style=for-the-badge&logo=github&logoColor=white" alt="Fork on GitHub"></a>
+  <a href="https://github.com/knowledgestack/ks-xlsx-parser/stargazers"><img src="https://img.shields.io/github/stars/knowledgestack/ks-xlsx-parser?style=for-the-badge&logo=github&logoColor=white&label=stargazers&color=22C55E" alt="GitHub stargazers"></a>
+</p>
+
+<p align="center">
   <a href="https://github.com/knowledgestack"><img src="https://img.shields.io/badge/KNOWLEDGE%20STACK-document%20intelligence%20for%20agents-047857?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0id2hpdGUiPjxwYXRoIGQ9Ik0xMiAyTDIgN3YxMGwxMCA1IDEwLTVWN0wxMiAyem0wIDIuMzZMMTkuMzkgOCAxMiAxMS42NCA0LjYxIDggMTIgNC4zNnoiLz48L3N2Zz4=" alt="Knowledge Stack"></a>
 </p>
 
