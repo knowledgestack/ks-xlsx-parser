@@ -1,6 +1,4 @@
-<p align="center">
-  <img src="assets/readme-hero.png" alt="ks-xlsx-parser">
-</p>
+<img src="assets/readme-hero.png" alt="ks-xlsx-parser" width="100%">
 
 <p align="center">
   <a href="https://github.com/knowledgestack/ks-xlsx-parser"><img src="https://img.shields.io/badge/⭐%20Star%20on%20GitHub-Support%20the%20project-047857?style=for-the-badge&logo=github&logoColor=white" alt="Star on GitHub"></a>
