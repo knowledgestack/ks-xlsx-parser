@@ -79,6 +79,90 @@ graph that drops straight into [LangChain](https://www.langchain.com/),
 
 ---
 
+## 🏁 Benchmark — ks-xlsx-parser vs Docling on SpreadsheetBench
+
+<p align="center">
+  <a href="tests/benchmarks/reports/COMPARISON.md"><img src="https://img.shields.io/badge/SpreadsheetBench-912%20instances%20%C2%B7%205%2C458%20xlsx-047857?style=for-the-badge&logo=microsoftexcel&logoColor=white" alt="SpreadsheetBench"></a>
+  <a href="tests/benchmarks/reports/COMPARISON.md"><img src="https://img.shields.io/badge/parse%20success-99.945%25-22C55E?style=for-the-badge&logo=checkmarx&logoColor=white" alt="Parse success"></a>
+  <a href="tests/benchmarks/reports/COMPARISON.md"><img src="https://img.shields.io/badge/recall%403%20vs%20Docling-%2B2.7%20pp-22C55E?style=for-the-badge&logo=target&logoColor=white" alt="Recall@3 vs Docling"></a>
+  <a href="tests/benchmarks/reports/COMPARISON.md"><img src="https://img.shields.io/badge/citation%20anchors-A1%20per%20chunk-047857?style=for-the-badge&logo=anchor&logoColor=white" alt="A1 anchors"></a>
+</p>
+
+Apples-to-apples on [SpreadsheetBench v0.1](https://github.com/RUCKBReasoning/SpreadsheetBench): 912 real-world task instances curated from ExcelHome / Mr.Excel / r/excel. For each instance we parse the input `.xlsx`, embed every chunk with `BAAI/bge-small-en-v1.5`, then check whether the chunk containing the ground-truth answer is in the top-k by similarity to the question.
+
+<table>
+<thead>
+<tr>
+  <th align="left">Metric</th>
+  <th align="center" bgcolor="#047857"><span style="color:#FFFFFF"><b>🟢 ks-xlsx-parser</b></span></th>
+  <th align="center" bgcolor="#475569"><span style="color:#FFFFFF"><b>⚪ Docling 2.93</b></span></th>
+  <th align="center">Δ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><b>📊 Parse success</b><br/><sub>5,458-file corpus</sub></td>
+  <td align="center" bgcolor="#D1FAE5"><img src="https://img.shields.io/badge/99.945%25-047857?style=flat-square&labelColor=047857" alt="99.945%"><br/><sub>5,461 ok · 3 timeouts · 0 errors</sub></td>
+  <td align="center" bgcolor="#F1F5F9"><sub>not run at scale</sub></td>
+  <td align="center">—</td>
+</tr>
+<tr>
+  <td><b>🎯 Recall@1</b><br/><sub>text-match</sub></td>
+  <td align="center" bgcolor="#D1FAE5"><img src="https://img.shields.io/badge/0.580-047857?style=flat-square" alt="0.580"></td>
+  <td align="center" bgcolor="#F1F5F9"><img src="https://img.shields.io/badge/0.579-64748B?style=flat-square" alt="0.579"></td>
+  <td align="center"><img src="https://img.shields.io/badge/tied-22C55E?style=flat-square" alt="tied"></td>
+</tr>
+<tr>
+  <td><b>🎯 Recall@3</b><br/><sub>text-match</sub></td>
+  <td align="center" bgcolor="#A7F3D0"><img src="https://img.shields.io/badge/0.697-047857?style=flat-square" alt="0.697"></td>
+  <td align="center" bgcolor="#F1F5F9"><img src="https://img.shields.io/badge/0.670-64748B?style=flat-square" alt="0.670"></td>
+  <td align="center"><img src="https://img.shields.io/badge/%2B2.7%20pp-22C55E?style=flat-square&logo=arrowup&logoColor=white" alt="+2.7 pp"></td>
+</tr>
+<tr>
+  <td><b>🎯 Recall@5</b><br/><sub>text-match</sub></td>
+  <td align="center" bgcolor="#A7F3D0"><img src="https://img.shields.io/badge/0.704-047857?style=flat-square" alt="0.704"></td>
+  <td align="center" bgcolor="#F1F5F9"><img src="https://img.shields.io/badge/0.686-64748B?style=flat-square" alt="0.686"></td>
+  <td align="center"><img src="https://img.shields.io/badge/%2B1.8%20pp-22C55E?style=flat-square&logo=arrowup&logoColor=white" alt="+1.8 pp"></td>
+</tr>
+<tr>
+  <td><b>📍 Geometric Recall@5</b><br/><sub>chunk's <code>sheet!A1:Z99</code> overlaps the ground-truth range</sub></td>
+  <td align="center" bgcolor="#6EE7B7"><img src="https://img.shields.io/badge/0.369-064E3B?style=flat-square" alt="0.369"></td>
+  <td align="center" bgcolor="#FEE2E2"><img src="https://img.shields.io/badge/0.000-991B1B?style=flat-square" alt="0.000"></td>
+  <td align="center"><img src="https://img.shields.io/badge/citation--grade%20only-047857?style=flat-square&logo=anchor&logoColor=white" alt="citation-grade only"></td>
+</tr>
+<tr>
+  <td><b>⚡ Mean parse time</b><br/><sub>per file</sub></td>
+  <td align="center" bgcolor="#D1FAE5"><img src="https://img.shields.io/badge/251%20ms-047857?style=flat-square" alt="251 ms"></td>
+  <td align="center" bgcolor="#F1F5F9"><img src="https://img.shields.io/badge/265%20ms-64748B?style=flat-square" alt="265 ms"></td>
+  <td align="center"><img src="https://img.shields.io/badge/%7E5%25%20faster-22C55E?style=flat-square" alt="~5% faster"></td>
+</tr>
+<tr>
+  <td><b>🧱 Parser errors</b><br/><sub>across 912 instances</sub></td>
+  <td align="center" bgcolor="#D1FAE5"><img src="https://img.shields.io/badge/0-047857?style=flat-square" alt="0"></td>
+  <td align="center" bgcolor="#F1F5F9"><img src="https://img.shields.io/badge/0-64748B?style=flat-square" alt="0"></td>
+  <td align="center">—</td>
+</tr>
+</tbody>
+</table>
+
+### 💡 What the numbers mean
+
+- **`ks-xlsx-parser` ties at recall@1 and wins recall@3 (+2.7 pp) and recall@5 (+1.8 pp).** Text-match recall is parser-agnostic — it asks whether *any* parser surfaced a chunk containing the answer string, after normalising commas, percent signs, ISO dates, and booleans on both sides.
+- **`ks-xlsx-parser` wins citation-grade (geometric) recall outright (0.369 vs 0.000).** Docling produces markdown without per-chunk `sheet!range` anchors, so it can't render a citation that points at the exact source cells. This is the difference between "the answer is somewhere in the workbook" and "the answer is in `Revenue!C7`."
+- **`Marker` is excluded by design.** Its xlsx → HTML → PDF → layout-recognition pipeline clocks >30 min per workbook on CPU. The benchmark framework supports adding a Marker adapter when GPU is available — see [`tests/benchmarks/adapters/docling_adapter.py`](tests/benchmarks/adapters/docling_adapter.py) as a template.
+
+### 🔁 Reproduce
+
+```bash
+make corpus-download   # one-time, ~100 MB; gitignored under data/corpora/
+make bench             # robustness + retrieval, ~50 min on M-series CPU
+open tests/benchmarks/reports/COMPARISON.md
+```
+
+Full methodology, capability matrix, error breakdown, and caveats live in [`tests/benchmarks/reports/COMPARISON.md`](tests/benchmarks/reports/COMPARISON.md). Adapter design notes in [`tests/benchmarks/README.md`](tests/benchmarks/README.md).
+
+---
+
 ## ✨ What you get, at a glance
 
 <table>
@@ -161,6 +245,7 @@ That's it. Every chunk has:
 
 ## 🗺️ Table of Contents
 
+- [🏁 Benchmark — vs Docling on SpreadsheetBench](#-benchmark--ks-xlsx-parser-vs-docling-on-spreadsheetbench)
 - [🤔 Why a dedicated XLSX parser for LLMs?](#-why-a-dedicated-xlsx-parser-for-llms)
 - [🏗️ Architecture](#️-architecture)
 - [📦 Installation](#-installation)
@@ -201,62 +286,7 @@ corpus, and everything is open source.
 
 ## 🏗️ Architecture
 
-```mermaid
-%%{init: {'theme':'base', 'themeVariables': {
-  'primaryColor':'#10B981','primaryTextColor':'#fff','primaryBorderColor':'#047857',
-  'lineColor':'#94A3B8','secondaryColor':'#22C55E','tertiaryColor':'#34D399',
-  'background':'#FFFFFF','mainBkg':'#10B981','clusterBkg':'#F0FDF4'
-}}}%%
-flowchart TD
-    IN([📄 .xlsx bytes])
-    PARSE[["① parsers/<br/>OOXML drivers<br/><i>openpyxl + lxml</i>"]]
-    MODELS[["② models/<br/>Pydantic DTOs<br/><i>Workbook · Sheet · Cell · Table · Chart</i>"]]
-    FORMULA[["③ formula/<br/>lexer + parser<br/><i>cross-sheet · table · array</i>"]]
-    ANALYSIS[["④ analysis/<br/>dependency graph<br/><i>cycles · impact</i>"]]
-    CHARTS[["⑤ charts/<br/>OOXML chart extraction"]]
-    ANNOT[["⑥ annotation/<br/>semantic roles · KPIs"]]
-    SEG[["⑦ chunking/<br/>adaptive segmenter"]]
-    REND[["⑧ rendering/<br/>HTML + pipe-text<br/>token counts"]]
-    STORE[["🗄️ storage/<br/>JSON · DB rows · vectors"]]
-    VER[["✅ verification/<br/>stage assertions"]]
-    CMP[["🔀 comparison/<br/>multi-workbook templates"]]
-    EXP[["🧬 export/<br/>generated importer"]]
-    OUT([🤖 LLM-ready chunks<br/>with citations])
-
-    IN --> PARSE --> MODELS
-    MODELS --> FORMULA
-    MODELS --> ANALYSIS
-    MODELS --> CHARTS
-    FORMULA --> ANALYSIS
-    ANALYSIS --> ANNOT
-    CHARTS --> ANNOT
-    ANNOT --> SEG --> REND --> STORE
-    MODELS --> VER
-    STORE --> OUT
-    STORE -.-> CMP -.-> EXP
-
-    %% All-green palette: deepest for entry, lightest for auxiliary stages,
-    %% emerald for the headline output node.
-    classDef entry   fill:#064E3B,stroke:#022C22,color:#fff,stroke-width:2px;
-    classDef parse   fill:#065F46,stroke:#022C22,color:#fff,stroke-width:2px;
-    classDef model   fill:#047857,stroke:#064E3B,color:#fff,stroke-width:2px;
-    classDef analyze fill:#059669,stroke:#065F46,color:#fff,stroke-width:2px;
-    classDef render  fill:#16A34A,stroke:#166534,color:#fff,stroke-width:2px;
-    classDef output  fill:#22C55E,stroke:#15803D,color:#fff,stroke-width:2px;
-    classDef aux     fill:#A7F3D0,stroke:#047857,color:#065F46,stroke-width:2px;
-
-    class IN entry
-    class PARSE parse
-    class MODELS model
-    class FORMULA,ANALYSIS,CHARTS analyze
-    class ANNOT,SEG,REND render
-    class STORE,OUT output
-    class VER,CMP,EXP aux
-```
-
-The pipeline has **8 stages** (parse → analyse → annotate → segment →
-render → serialise → verify → compare/export). Full breakdown in
-[**Pipeline Internals**](docs/wiki/Pipeline-Internals.md).
+The pipeline runs **8 deterministic stages**: parse → analyse → annotate → segment → render → serialise → verify → compare/export. Full diagram, stage-by-stage breakdown, and module map in [**docs/wiki/Architecture.md**](docs/wiki/Architecture.md). Stage internals in [**Pipeline Internals**](docs/wiki/Pipeline-Internals.md).
 
 > [!NOTE]
 > The importable module is `xlsx_parser`; `ks_xlsx_parser` is a re-export
@@ -308,6 +338,8 @@ on each release) so this README stays scannable:
 ---
 
 ## ⚔️ How it compares
+
+This is the **structural** capability matrix. For head-to-head retrieval numbers (recall@k, geometric, latency) on a 912-instance real-world corpus, see [🏁 Benchmark — ks-xlsx-parser vs Docling on SpreadsheetBench](#-benchmark--ks-xlsx-parser-vs-docling-on-spreadsheetbench) up top.
 
 | | pandas / openpyxl | Docling | `ks-xlsx-parser` |
 |---|:---:|:---:|:---:|

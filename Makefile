@@ -1,4 +1,4 @@
-.PHONY: help install test test-ci testbench testbench-build testbench-zip lint format typecheck clean corpus-download
+.PHONY: help install test test-ci testbench testbench-build testbench-zip lint format typecheck clean corpus-download bench-robust bench-retrieval bench
 
 PYTHON ?= python
 PKG_VERSION := $(shell $(PYTHON) -c "import tomllib, pathlib; print(tomllib.loads(pathlib.Path('pyproject.toml').read_text())['project']['version'])")
@@ -20,6 +20,10 @@ help:
 	@echo "  make typecheck       mypy"
 	@echo ""
 	@echo "  make corpus-download Fetch public XLSX corpora for extended robustness"
+	@echo ""
+	@echo "  make bench-robust    Robustness on SpreadsheetBench (ks vs docling, ~20 min)"
+	@echo "  make bench-retrieval Retrieval recall on SpreadsheetBench (ks vs docling, ~40 min)"
+	@echo "  make bench           Run both benchmarks back-to-back"
 
 install:
 	$(PYTHON) -m pip install -e ".[dev,api]"
@@ -62,3 +66,16 @@ clean:
 
 corpus-download:
 	./scripts/download_corpora.sh
+
+bench-robust:
+	@test -d data/corpora/spreadsheetbench || (echo "Corpus missing. Run 'make corpus-download' first." && exit 1)
+	PYTHONPATH=src $(PYTHON) -m tests.benchmarks.vs_hucre \
+		--corpus data/corpora/spreadsheetbench --parsers ks,docling \
+		--per-file-timeout 120 \
+		--out tests/benchmarks/reports/spreadsheetbench
+
+bench-retrieval:
+	@test -d data/corpora/spreadsheetbench || (echo "Corpus missing. Run 'make corpus-download' first." && exit 1)
+	PYTHONPATH=src $(PYTHON) scripts/eval_retrieval.py --parsers ks,docling
+
+bench: bench-robust bench-retrieval

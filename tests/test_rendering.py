@@ -104,22 +104,27 @@ class TestTextRendering:
         # Should include the A1-style range
         assert "!" in text  # Sheet1!range format
 
-    def test_numeric_cells_use_scientific_notation_not_truncation(self):
-        """Long numeric values use scientific notation instead of truncating with ..."""
+    def test_numeric_cells_render_raw_not_display_formatted(self):
+        """Numeric cells render the raw value, ignoring Excel's display
+        formatting. This is intentional for RAG retrievability: a query
+        like "1272" should match the cell even if Excel displays it as
+        "1,272.00". The clobbered display format used to also trigger a
+        sci-notation fallback (``1.272000e+03``) once the ``[=]`` formula
+        marker pushed the rendered string past col_width — this test
+        guards against that regression."""
         from models.sheet import SheetDTO
         from models.cell import CellDTO
         from models.common import CellCoord, CellRange
         from models.block import BlockDTO
         from models.common import BlockType
 
-        # Create a sheet with a numeric cell whose display_value would exceed column width.
-        # Column width is min(max_cell_len, 30), so we need a number that formats to >30 chars.
         coord = CellCoord(row=1, col=1)
         cell = CellDTO(
             coord=coord,
             sheet_name="Test",
             raw_value=0.002668,
-            display_value="0.002668000000000000000000000000",  # 32 chars - would truncate
+            # Excel display would be e.g. "0.27%" or "0.002668000000000..."
+            display_value="0.002668000000000000000000000000",
         )
         sheet = SheetDTO(
             sheet_name="Test",
@@ -143,5 +148,7 @@ class TestTextRendering:
         renderer = TextRenderer(sheet)
         text = renderer.render_block(block)
 
-        # Number should appear in scientific notation (full precision) rather than truncated with …
-        assert "2.668000e-03" in text
+        # Raw value, sci-notation-free
+        assert "0.002668" in text
+        assert "e-03" not in text
+        assert "e+03" not in text

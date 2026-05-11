@@ -47,6 +47,98 @@ Template for a new release (copy this block, fill in, move Unreleased items in):
 
 Nothing yet. Open a PR and add your entry under the appropriate heading.
 
+## [0.2.0] — 2026-05-11
+
+**Benchmark + retrievability release.** Adds a head-to-head benchmark against
+[Docling](https://github.com/DS4SD/docling) on the [SpreadsheetBench](https://github.com/RUCKBReasoning/SpreadsheetBench)
+corpus (912 instances, 5,458 xlsx files) and fixes three rendering bugs that
+were silently torpedoing RAG retrieval. ks-xlsx-parser parses **99.945%** of
+SpreadsheetBench and **ties Docling at recall@1 / wins at recall@3 (+2.7 pp)
+and recall@5 (+1.8 pp)**, plus 36.9% citation-grade geometric recall (Docling
+0%, structurally — no A1 anchors).
+
+### Added
+- `tests/benchmarks/adapters/docling_adapter.py` — Docling adapter speaking the
+  same NDJSON-worker protocol as `ks_adapter.py` (#TBD).
+- `tests/benchmarks/_runner.py`: `docling_runner` factory wired into
+  `vs_hucre.py`'s `--parsers` dispatch.
+- `scripts/eval_retrieval.py` — retrieval-recall benchmark over
+  SpreadsheetBench's `(instruction, data_position, answer_position)` triples.
+  Uses `sentence-transformers` (default `BAAI/bge-small-en-v1.5`) and computes
+  geometric overlap + numeric/date/boolean-normalized text-match recall@k.
+  Persistent docling subprocess with hard-kill timeout — PyTorch's table-rec
+  loop holds the GIL through C-land so in-process timeouts don't work.
+- `scripts/summarize_retrieval.py` — re-aggregate a `results.ndjson` into
+  `summary.json` / `summary.md` if a long run is interrupted.
+- `scripts/download_corpora.sh`: fetches SpreadsheetBench v0.1 (~96 MB tar.gz)
+  into `data/corpora/spreadsheetbench/` (gitignored).
+- `tests/benchmarks/README.md` — adapter design notes + benchmark how-to.
+- `tests/benchmarks/reports/COMPARISON.md` — head-to-head report incl.
+  methodology, capability matrix, caveats.
+- `Makefile`: `bench`, `bench-robust`, `bench-retrieval` targets.
+
+### Fixed
+- `src/rendering/text_renderer.py`: numeric cells now render the raw value
+  (`1272`) instead of Excel's display-formatted string (`1,272.00`). The
+  display format defeated substring-match retrieval for the most common RAG
+  query shape ("what was the value in 2020?" → user types `1272`).
+- `src/rendering/text_renderer.py`: the `[=]` formula marker no longer
+  spuriously inflates a cell past its column width, which used to trigger
+  a sci-notation fallback (`1.272000e+03`) on perfectly small values.
+  Column widths now computed using the same rendering pipeline data rows
+  will use, so the long-value path only triggers on genuinely-too-wide
+  values.
+- `src/rendering/text_renderer.py`: dates render as ISO `YYYY-MM-DD` and drop
+  the spurious `00:00:00` time component on midnight datetimes.
+- `src/rendering/text_renderer.py`: embedded newlines inside header cells
+  (e.g. `"租金\n天数"`) collapse to spaces so they don't tear apart the
+  Markdown grid (regression fixed for `租赁收入计提表.xlsx`-class layouts).
+- `src/chunking/segmenter.py`: removed `_detect_style_boundaries`. The
+  function split a coherent table into 5 fragments at fill-color band
+  boundaries (year-banding, alternating-row shading), shedding header
+  context from data rows. The connected-components + gap detection
+  already handles real boundaries; fill banding is not a semantic one.
+- `src/parsers/cell_parser.py`: `GradientFill` cells no longer crash the
+  sheet parser. Accessing `.patternType` on a `GradientFill` (vs the
+  expected `PatternFill`) raised `AttributeError`, which propagated up and
+  killed every cell on the sheet. We don't model gradients but we no
+  longer drop the sheet because of them (caught by SpreadsheetBench
+  instance `118-8`, 8 sheets / 1,244 cells previously lost).
+
+### Changed
+- `tests/benchmarks/_schema.py`: `formulas` is now nullable on `status=ok`
+  records. Parsers that don't model formulas (Docling, Marker) can now
+  emit valid `BenchmarkRecord`s without tripping schema validation. The
+  schema's load-bearing `None` vs `0` distinction is preserved: `None` =
+  "feature not modeled by this parser", `0` = "modeled and observed zero".
+
+### Removed
+- `scripts/compare_docling.py` — superseded by the unified `tests/benchmarks/`
+  framework + `eval_retrieval.py`. The old script's `ScoreCard` composite
+  score was structurally biased (formula-preservation gave Docling a 0 by
+  definition while contributing 20/100 points; header-propagation used
+  different proxies for each parser); replaced by parser-agnostic
+  text-match and geometric recall metrics.
+
+### Performance
+- ks-xlsx-parser is now ~5% faster on average parse time on SpreadsheetBench
+  than Docling (251 ms vs 265 ms mean), while producing a richer output
+  (formulas, dependency graph, charts, named ranges, etc.).
+
+### Docs
+- `tests/benchmarks/README.md` — new — methodology + adapter design.
+- `tests/benchmarks/reports/COMPARISON.md` — new — head-to-head report.
+- README — new "Benchmark — ks-xlsx-parser vs Docling on SpreadsheetBench"
+  section near the top with the headline table.
+
+### Internal
+- `tests/test_rendering.py`: updated `test_numeric_cells_use_scientific_notation_not_truncation`
+  to assert the new raw-numeric rendering (test renamed
+  `test_numeric_cells_render_raw_not_display_formatted`).
+- `.gitignore`: `data/corpora/` (downloaded benchmark corpora; can run to
+  several GB).
+- `Makefile`: `bench`, `bench-robust`, `bench-retrieval` targets.
+
 ## [0.1.1] — 2026-04-17
 
 **First public release.** MIT-licensed, open-sourced under the

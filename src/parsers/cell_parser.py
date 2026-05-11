@@ -319,12 +319,23 @@ class CellParser:
         )
 
     def _extract_fill(self, cell: OpenpyxlCell) -> FillStyle | None:
-        """Extract fill/background properties from a cell."""
+        """Extract fill/background properties from a cell.
+
+        Cells can carry a ``GradientFill`` instead of a ``PatternFill``;
+        gradient fills have ``stops`` + ``type`` but no ``patternType`` /
+        ``fgColor`` attributes. We don't model gradients (rare in finance
+        spreadsheets, and the ``FillStyle`` DTO is pattern-shaped), but
+        accessing ``patternType`` on one raises ``AttributeError`` and
+        crashes the sheet parser — losing every cell on the sheet. So we
+        defensively skip non-PatternFill objects rather than propagate.
+        """
         f = cell.fill
-        if not f or not f.patternType or f.patternType == "none":
+        if not f or not hasattr(f, "patternType"):
             return None
-        fg = self._extract_color(f.fgColor) if f.fgColor else None
-        bg = self._extract_color(f.bgColor) if f.bgColor else None
+        if not f.patternType or f.patternType == "none":
+            return None
+        fg = self._extract_color(f.fgColor) if getattr(f, "fgColor", None) else None
+        bg = self._extract_color(f.bgColor) if getattr(f, "bgColor", None) else None
         if not fg and not bg:
             return None
         return FillStyle(pattern_type=f.patternType, fg_color=fg, bg_color=bg)
