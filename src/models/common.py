@@ -64,7 +64,7 @@ class CellCoord:
     """A single cell coordinate (1-indexed row and column).
 
     **Not a Pydantic model** — frozen slotted dataclass. Profiling showed
-    339k Pydantic inits on Walbridge contributed ~0.65 s of parse time;
+    339k Pydantic inits on a real-world workbook contributed ~0.65 s of parse time;
     dataclass construction is ~2.2× faster with the same immutability
     and equality semantics. Validation of ``row >= 1`` / ``col >= 1`` is
     dropped: all producers in this codebase build coords from parsed

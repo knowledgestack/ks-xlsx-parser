@@ -257,13 +257,7 @@ def generate_summary(out_dir: Path) -> None:
             continue
         try:
             rel = Path(r["file"]).resolve()
-            # Find segment after 'testBench/' or use file's parent name.
-            parts = rel.parts
-            if "testBench" in parts:
-                idx = parts.index("testBench")
-                sub = "/".join(parts[idx + 1: idx + 3]) if idx + 2 < len(parts) else parts[idx + 1]
-            else:
-                sub = rel.parent.name
+            sub = rel.parent.name
         except Exception:  # noqa: BLE001
             sub = "?"
         by_sub[(r["parser"], sub)].append(r["parse_time_ms"])

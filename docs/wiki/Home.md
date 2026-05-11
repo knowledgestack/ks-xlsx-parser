@@ -22,8 +22,8 @@ the front-page README so it stays scannable. The code-heavy stuff lives here.
   together, and where to hook in if you want to extend the parser.
 - **[Benchmark vs `hucre`](Benchmark-vs-hucre)** — unbiased head-to-head
   against the [hucre](https://github.com/productdevbook/hucre) TypeScript
-  engine on the 1053-workbook testBench corpus: perf, extraction-count
-  parity, and where each tool wins.
+  engine on the SpreadsheetBench corpus: perf, extraction-count parity,
+  and where each tool wins.
 
 ## Related docs in the main repo
 
@@ -34,7 +34,7 @@ the front-page README so it stays scannable. The code-heavy stuff lives here.
 - [`docs/PARSER_KNOWN_ISSUES.md`](https://github.com/knowledgestack/ks-xlsx-parser/blob/main/docs/PARSER_KNOWN_ISSUES.md) —
   known edge cases and how we handle them.
 - [`docs/corpora.md`](https://github.com/knowledgestack/ks-xlsx-parser/blob/main/docs/corpora.md) —
-  the testBench stress corpus and public-corpus benchmarks.
+  public benchmark corpora (SpreadsheetBench, EUSES, Enron).
 - [`CONTRIBUTING.md`](https://github.com/knowledgestack/ks-xlsx-parser/blob/main/CONTRIBUTING.md) —
   dev loop, PR checklist, community channels.
 - [`CHANGELOG.md`](https://github.com/knowledgestack/ks-xlsx-parser/blob/main/CHANGELOG.md) —

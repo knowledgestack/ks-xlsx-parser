@@ -52,7 +52,7 @@ resolve references (cell / range / cross-sheet / table / external).
 
 Circular-reference detection is O(V+E) DFS with memoisation at the
 edge level. It's cached per workbook inside `ChunkBuilder` — running it
-per chunk is how Walbridge Coatings used to take 307 s.
+per chunk is how a real 21k-cell workbook used to take 307 s.
 
 ## 3. Annotate
 
@@ -129,7 +129,6 @@ parser writes the importer for you.
 | Add a verification stage | `verification/stage_verifier.py` |
 | Add a new DTO field | `models/*.py` (+ serializer + renderer) |
 
-When in doubt, write the test first — the
-[`testBench/`](https://github.com/knowledgestack/ks-xlsx-parser/tree/main/testBench)
-corpus is the fastest signal that a pipeline change didn't regress
-anything else.
+When in doubt, write the test first — the SpreadsheetBench benchmark
+(`make bench-robust`) is the fastest signal that a pipeline change didn't
+regress anything else.

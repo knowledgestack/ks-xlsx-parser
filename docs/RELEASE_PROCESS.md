@@ -1,6 +1,6 @@
 # Release process
 
-This document is the **operational** companion to [`.github/workflows/release.yml`](../.github/workflows/release.yml). The workflow is tag-triggered (`v*.*.*`); pushing such a tag builds wheel + sdist, attaches a `testBench-vX.Y.Z.zip`, creates a GitHub Release, and publishes to PyPI. **All three actions are partially or fully irreversible** — PyPI in particular does not allow re-publishing a version. Run through this checklist before tagging.
+This document is the **operational** companion to [`.github/workflows/release.yml`](../.github/workflows/release.yml). The workflow is tag-triggered (`v*.*.*`); pushing such a tag builds wheel + sdist, creates a GitHub Release, and publishes to PyPI. **All three actions are partially or fully irreversible** — PyPI in particular does not allow re-publishing a version. Run through this checklist before tagging.
 
 ## One-time setup
 
@@ -53,7 +53,6 @@ gh api -X PUT repos/knowledgestack/ks-xlsx-parser/branches/main/protection \
   -F 'required_status_checks[contexts][]=tests (macos-latest / py3.10)' \
   -F 'required_status_checks[contexts][]=tests (macos-latest / py3.11)' \
   -F 'required_status_checks[contexts][]=tests (macos-latest / py3.12)' \
-  -F 'required_status_checks[contexts][]=testBench round-trip (ubuntu / py3.12)' \
   -F enforce_admins=false \
   -F required_pull_request_reviews[required_approving_review_count]=1 \
   -F restrictions= 2>/dev/null
@@ -82,7 +81,7 @@ For every new version `X.Y.Z`:
 8. **Watch the workflow.** https://github.com/knowledgestack/ks-xlsx-parser/actions — the `Release` workflow should run `build` → `github-release` → `pypi`. If the `pypi` job is gated on a reviewer, approve it in the Actions UI.
 9. **Verify post-release:**
    - PyPI: https://pypi.org/project/ks-xlsx-parser/X.Y.Z/ resolves and `pip install ks-xlsx-parser==X.Y.Z` works in a fresh venv.
-   - GitHub Release: https://github.com/knowledgestack/ks-xlsx-parser/releases/tag/vX.Y.Z shows the release notes + wheel + sdist + `testBench-vX.Y.Z.zip`.
+   - GitHub Release: https://github.com/knowledgestack/ks-xlsx-parser/releases/tag/vX.Y.Z shows the release notes + wheel + sdist.
    - The `[Unreleased]` heading at the top of `CHANGELOG.md` is reset to "Nothing yet" for the next cycle (manual; do this in a follow-up PR).
 
 ## Common failure modes

@@ -6,8 +6,8 @@ body:
   - type: markdown
     attributes:
       value: |
-        Every edge-case report ideally becomes a new fixture in `testBench/`. Bonus points
-        for a minimal generator in `scripts/build_testbench.py`.
+        Every edge-case report ideally becomes a regression test. Bonus points
+        for a minimal `openpyxl` generator that reproduces it.
   - type: textarea
     id: pattern
     attributes:
@@ -33,6 +33,6 @@ body:
     attributes:
       label: What would you like next?
       options:
-        - label: "Add it to `testBench/` as a new stress fixture."
+        - label: "Land it as a new regression test in `tests/`."
         - label: "Open a PR fixing the parser."
         - label: "Triage help — I'm stuck."

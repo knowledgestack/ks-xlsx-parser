@@ -51,16 +51,11 @@ tests/fixtures/corpus/
 # Corpus & metrics outputs
 metrics/corpus/
 metrics/corpus_summary.json
-metrics/testbench/
 
-# Generated stress test artifacts — the 1000-file bench is re-built on demand
-testBench/generated/
+# Generated stress test artifacts
 examples/stress_test/stress_results.json
 examples/stress_test/built_reference.json
 examples/stress_test/STRESS_TEST_RESULTS.md
-
-# Packaged dataset (produced by `make testbench-zip`)
-dist/testBench*.zip
 
 # Local benchmark harness (private, not pushed)
 tests/benchmarks/reports/

@@ -106,7 +106,7 @@ Prepping the library for the public release, we hit two bottlenecks that are int
 
 `detect_circular_refs()` on the dependency graph is O(V+E) with DFS + memoisation. Fine. But our chunk builder was calling it **once per chunk** inside `_build_dependency_summary()`, because every chunk's `has_circular` flag needed the global cycle set.
 
-On a small workbook: invisible. On a 13-sheet, 21k-cell real-world financial model (Walbridge Coatings, now our favourite regression fixture): **115 chunks × ~2.6 s each = 307 s of CPU.** The chunker was dominating the parse.
+On a small workbook: invisible. On a 13-sheet, 21k-cell real-world financial model: **115 chunks × ~2.6 s each = 307 s of CPU.** The chunker was dominating the parse.
 
 The fix is almost embarrassing:
 

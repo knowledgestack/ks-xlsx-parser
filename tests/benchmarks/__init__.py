@@ -2,11 +2,11 @@
 Local-only benchmark harness. Not part of the public test suite.
 
 Runs `ks-xlsx-parser` head-to-head against external parsers (currently `hucre`,
-a TypeScript zero-dependency spreadsheet I/O library) across the `testBench/`
-corpus and produces per-file perf + feature-coverage records.
+a TypeScript zero-dependency spreadsheet I/O library) across the
+SpreadsheetBench corpus and produces per-file perf + feature-coverage records.
 
 Not committed by default — reports and node_modules are git-ignored. Invoke
-via `python -m tests.benchmarks.vs_hucre --corpus testBench`.
+via `python -m tests.benchmarks.vs_hucre --corpus data/corpora/spreadsheetbench`.
 
 Pitfalls this harness is designed to avoid (read before editing):
 

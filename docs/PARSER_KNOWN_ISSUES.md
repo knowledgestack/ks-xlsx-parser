@@ -38,21 +38,17 @@ promoted to the master cell.
 
 ## Documented Limitations (No Hard Fail)
 
-### `Walbridge Coatings 8.9.23.xlsx` — formula cached-value drift
+### Formula cached-value drift on dynamic-array / volatile formulas
 
-**Symptom**: ~11% of formula cells in this real-world workbook produce a
-different cached value than calamine reads. Hard failures are zero; parsing
-and serialization succeed end-to-end.
+**Symptom**: A small fraction of formula cells in some real-world workbooks
+produce a different cached value than calamine reads. Hard failures are zero;
+parsing and serialization succeed end-to-end.
 
 **Root cause**: openpyxl's `data_only=True` reader does not always surface the
 most recently written cached value for complex dynamic-array or volatile
 formulas when the calc chain references across multiple sheets. This is an
 openpyxl limitation, not an ks-xlsx-parser bug; calamine reads from the raw XML
 and catches the newer values.
-
-**Current mitigation**: `tests/test_cross_validation.py::test_formula_cached_values_match`
-uses a 15% threshold for files in a `known_loose_files` set and the default
-5% threshold for everything else.
 
 **Potential fixes** (tracked):
 1. Read cached values directly from the OOXML XML instead of via openpyxl (like

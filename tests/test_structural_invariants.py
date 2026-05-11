@@ -278,29 +278,3 @@ class TestWorkbookHashInvariants:
             )
 
 
-# ---------------------------------------------------------------------------
-# Same invariants on static files (examples + github datasets)
-# ---------------------------------------------------------------------------
-
-
-@pytest.mark.invariant
-class TestAllInvariantsStatic:
-    """Run full invariant checker against each static xlsx file."""
-
-    def test_all_invariants_pass(self, static_xlsx):
-        result = parse_workbook(path=static_xlsx)
-        violations = check_invariants(result.workbook)
-        assert len(violations) == 0, (
-            f"{len(violations)} violations in {static_xlsx.name}:\n"
-            + "\n".join(violations[:10])
-        )
-
-    def test_deterministic_hashes(self, static_xlsx):
-        r1 = parse_workbook(path=static_xlsx)
-        r2 = parse_workbook(path=static_xlsx)
-        assert r1.workbook.workbook_hash == r2.workbook.workbook_hash
-
-    def test_json_serializable(self, static_xlsx):
-        result = parse_workbook(path=static_xlsx)
-        data = result.to_json()
-        json.dumps(data)  # must not raise

@@ -20,7 +20,7 @@
   <a href="https://pypi.org/project/ks-xlsx-parser/"><img src="https://img.shields.io/pypi/v/ks-xlsx-parser.svg?style=flat-square&logo=pypi&logoColor=white&label=PyPI&color=047857" alt="PyPI"></a>
   <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/python-3.10%2B-065F46?style=flat-square&logo=python&logoColor=white" alt="Python 3.10+"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-64748B?style=flat-square" alt="MIT License"></a>
-  <a href="#-the-testbench-dataset"><img src="https://img.shields.io/badge/testBench-1054%2F1054-22C55E?style=flat-square&logo=pytest&logoColor=white" alt="Tests"></a>
+  <a href="tests/benchmarks/reports/COMPARISON.md"><img src="https://img.shields.io/badge/SpreadsheetBench-5%2C455%2F5%2C458%20parsed-22C55E?style=flat-square&logo=pytest&logoColor=white" alt="SpreadsheetBench"></a>
   <a href="https://github.com/knowledgestack/ks-xlsx-parser/actions/workflows/ci.yml"><img src="https://github.com/knowledgestack/ks-xlsx-parser/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
 </p>
 
@@ -72,7 +72,7 @@ graph that drops straight into [LangChain](https://www.langchain.com/),
   &nbsp;
   <a href="docs/wiki/Quick-Start.md"><img src="https://img.shields.io/badge/📚%20Docs-wiki-22C55E?style=for-the-badge" alt="Docs"></a>
   &nbsp;
-  <a href="https://github.com/knowledgestack/ks-xlsx-parser/releases"><img src="https://img.shields.io/badge/📦%20Download-testBench%20dataset-84CC16?style=for-the-badge" alt="Dataset"></a>
+  <a href="tests/benchmarks/reports/COMPARISON.md"><img src="https://img.shields.io/badge/📊%20Benchmarks-SpreadsheetBench-84CC16?style=for-the-badge" alt="Benchmarks"></a>
 </p>
 
 ---
@@ -203,7 +203,8 @@ are all first-class ways to keep the lights on.
 - 🙌 [Contribute](CONTRIBUTING.md) — every PR is reviewed; `good-first-issue` labels live on Issues.
 - 🧰 [Knowledge Stack org](https://github.com/knowledgestack) — see the rest of the ecosystem (ks-cookbook, ks-xlsx-parser, more on the way).
 
-Not sure where to start? Run `make testbench`, find a file that breaks, open a
+Not sure where to start? Run `make bench-robust` on SpreadsheetBench, find a
+file that breaks, open a
 [Parser edge case](https://github.com/knowledgestack/ks-xlsx-parser/issues/new?template=parser_edge_case.yml).
 That's the fastest path to a merged PR.
 
@@ -250,7 +251,7 @@ That's it. Every chunk has:
 - [📚 Documentation](#-documentation)
 - [⚔️ How it compares](#️-how-it-compares)
 - [🎯 Who this is for](#-who-this-is-for)
-- [🧪 The testBench dataset](#-the-testbench-dataset)
+- [📊 Benchmarks](#-benchmarks)
 - [🚧 Limitations](#-limitations)
 - [🧰 Knowledge Stack ecosystem](#-knowledge-stack-ecosystem)
 - [📡 Stay in touch](#-stay-in-touch)
@@ -310,8 +311,9 @@ git clone https://github.com/knowledgestack/ks-xlsx-parser.git
 cd ks-xlsx-parser
 make install           # pip install -e ".[dev,api]"
 make test              # default suite
-make testbench-build   # generate the 1000-file stress corpus
-make testbench         # round-trip every workbook through the parser
+make corpus-download   # fetch SpreadsheetBench (5,458 real-world xlsx)
+make bench-robust      # parse-success + structural counts vs Docling
+make bench-retrieval   # retrieval recall@k vs Docling
 ```
 
 Runtime deps: `openpyxl`, `pydantic`, `lxml`, `xxhash`, `tiktoken`.
@@ -361,7 +363,7 @@ Most tools give you a dataframe. `ks-xlsx-parser` gives you a **graph an LLM can
 > Looking for a tiny, edge-runtime I/O library with write support? See
 > [**`hucre`**](https://github.com/productdevbook/hucre) by
 > [**@productdevbook**](https://github.com/productdevbook). For an unbiased
-> head-to-head on the 1053-workbook testBench corpus — perf numbers,
+> head-to-head on the SpreadsheetBench corpus — perf numbers,
 > extraction-count parity, where each side wins — see the wiki:
 > [**`ks-xlsx-parser` vs `hucre`**](docs/wiki/Benchmark-vs-hucre.md).
 
@@ -387,31 +389,21 @@ Teams shipping agents, RAG pipelines, or auditing tools that ingest Excel.
 
 ---
 
-## 🧪 The testBench dataset
+## 📊 Benchmarks
 
-A **1054-workbook stress corpus** ships under [`testBench/`](testBench/) and
-is round-tripped in CI on every commit. It's the easiest way to see whether
-the parser does the right thing on *your* kind of workbook.
+We benchmark against **SpreadsheetBench v0.1** — 912 instruction × xlsx tasks
+(5,458 unique workbooks) covering financial models, project trackers,
+HR records, scientific data, and a long tail of small business spreadsheets.
 
-| Group | Files | What it covers |
-|-------|------:|----------------|
-| `real_world/`            | 8    | Real anonymised workbooks (financial, engineering, project tracking) |
-| `enterprise/`            | 4    | Deterministic enterprise templates |
-| `github_datasets/`       | 10   | Public datasets (iris, titanic, superstore, …) |
-| `stress/curated/`        | 26   | 26 progressive stress levels authored by hand |
-| `stress/merges/`         | 5    | Pathological merge patterns |
-| `generated/matrix/`      | 297  | One feature per file across 18 categories |
-| `generated/combo/`       | 400  | Deterministic feature cocktails (5 densities × 80 seeds) |
-| `generated/adversarial/` | 300  | Unicode bombs, circular refs, 32k-char cells, deep formula chains, sparse 1M-row sheets, 250-sheet workbooks |
+| Benchmark | What it measures | Cost |
+|---|---|---|
+| `make bench-robust` | Parse-success rate + structural counts vs Docling | ~20 min |
+| `make bench-retrieval` | Top-k retrieval recall + table fragmentation rate vs Docling | ~40 min |
 
-```bash
-make testbench-build   # regenerate testBench/generated/ (~1 minute)
-make testbench         # 1054/1054 in ~70 seconds
-make testbench-zip     # package as dist/testBench-vX.Y.Z.zip for a GitHub release
-```
-
-The zipped dataset is attached to every [release](https://github.com/knowledgestack/ks-xlsx-parser/releases)
-— pull it if you don't want to clone the full repo.
+Headline numbers and methodology live in
+[`tests/benchmarks/reports/COMPARISON.md`](tests/benchmarks/reports/COMPARISON.md).
+The corpus is downloaded on demand (`make corpus-download`) and gitignored —
+nothing is committed to the repo.
 
 ---
 
@@ -461,10 +453,9 @@ or the [#showcase](https://discord.gg/4uaGhJcx) channel on Discord.
 - 🐙 **[Follow @knowledgestack](https://github.com/knowledgestack)** on GitHub for new releases across the ecosystem.
 - 📣 Watch this repo (→ *Releases only*) to get pinged when `ks-xlsx-parser` ships an update.
 
-If you'd rather just peek first — thousands of parsed workbooks live in the
-[testBench release](https://github.com/knowledgestack/ks-xlsx-parser/releases)
-as a single zip. Pull it, diff it, file an issue if your Excel does something
-weirder than ours.
+If you'd rather just peek first — run the benchmark suite against the
+public SpreadsheetBench corpus (`make corpus-download && make bench-robust`)
+and file an issue if your Excel does something weirder than ours.
 
 ---
 
@@ -472,12 +463,11 @@ weirder than ours.
 
 We love contributions. Three paths, in order of speed-to-merge:
 
-1. **Report a testBench failure** — run `make testbench`, find a file that
-   breaks, attach it to a
+1. **Report a benchmark failure** — run `make bench-robust` on SpreadsheetBench,
+   find a file that breaks, attach it to a
    [Parser edge case issue](https://github.com/knowledgestack/ks-xlsx-parser/issues/new?template=parser_edge_case.yml).
-2. **Add a new adversarial workbook** — contribute a builder to
-   `scripts/build_testbench.py`. Any file that makes the parser crash or
-   lose information is welcome.
+2. **Submit an adversarial workbook** — open a Parser edge case issue with the
+   file attached; we'll fold it into the suite.
 3. **Fix a flagged issue** — see [`docs/PARSER_KNOWN_ISSUES.md`](docs/PARSER_KNOWN_ISSUES.md).
 
 Full dev loop, PR checklist, and code style in [`CONTRIBUTING.md`](CONTRIBUTING.md).
@@ -544,7 +534,7 @@ No. The library reads `.xlsx` files; it never executes them. VBA macros are flag
 <details>
 <summary><b>How fast is it?</b></summary>
 
-The full 1054-workbook testBench round-trips in ~70 s on a single machine. A real 21k-cell, 13-sheet financial model parses in ~4.6 s (down from 307 s pre-0.1.1 after a circular-ref caching fix). Sparse workbooks with extreme addresses parse in under 200 ms.
+SpreadsheetBench's full 5,458-workbook corpus parses end-to-end in roughly 20 minutes on a single machine (P50 parse time low double-digit ms). A real 21k-cell, 13-sheet financial model parses in ~4.6 s (down from 307 s pre-0.1.1 after a circular-ref caching fix). Sparse workbooks with extreme addresses parse in under 200 ms.
 
 </details>
 

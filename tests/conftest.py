@@ -22,13 +22,8 @@ from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.worksheet.table import Table, TableStyleInfo
 
 # ---------------------------------------------------------------------------
-# All-xlsx-files collection for cross-validation and invariant tests
+# Programmatic fixture collection for cross-validation and invariant tests
 # ---------------------------------------------------------------------------
-
-_PROJECT_ROOT = Path(__file__).parent.parent
-_TESTBENCH_DIR = _PROJECT_ROOT / "testBench"
-_EXAMPLES_DIR = _TESTBENCH_DIR / "real_world"
-_DATASETS_DIR = _TESTBENCH_DIR / "github_datasets"
 
 # Names of conftest fixtures that produce .xlsx files
 PROGRAMMATIC_FIXTURE_NAMES = [
@@ -69,31 +64,10 @@ PROGRAMMATIC_FIXTURE_NAMES = [
 ]
 
 
-def collect_static_xlsx_files() -> list[Path]:
-    """Collect all static .xlsx files from examples and github_datasets."""
-    files = []
-    for d in [_EXAMPLES_DIR, _DATASETS_DIR]:
-        if d.exists():
-            files.extend(sorted(d.glob("*.xlsx")))
-    return files
-
-
-STATIC_XLSX_FILES = collect_static_xlsx_files()
-
-
 @pytest.fixture(params=PROGRAMMATIC_FIXTURE_NAMES)
 def programmatic_xlsx(request, tmp_dir) -> Path:
     """Yields each programmatic fixture as a Path (re-uses other fixtures)."""
     return request.getfixturevalue(request.param)
-
-
-@pytest.fixture(
-    params=STATIC_XLSX_FILES,
-    ids=[f.stem for f in STATIC_XLSX_FILES],
-)
-def static_xlsx(request) -> Path:
-    """Yields each static .xlsx file path."""
-    return request.param
 
 
 @pytest.fixture
