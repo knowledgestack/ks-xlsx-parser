@@ -72,3 +72,9 @@ rust/**/target/
 rust/**/Cargo.lock.bak
 **/.cargo-lock
 **/.fingerprint/
+
+# Downloaded benchmark corpora (see scripts/download_corpora.sh)
+data/corpora/
+
+# Conductor / Claude Code transient state
+.claude/

@@ -59,6 +59,22 @@ jobs:
           name: dist
           path: dist
 
+      - name: Find hand-written release notes (if any)
+        id: notes
+        run: |
+          # Use docs/launch/RELEASE_NOTES_<tag>.md as the release body when
+          # present, otherwise fall back to GitHub's auto-generated notes.
+          NOTES="docs/launch/RELEASE_NOTES_${GITHUB_REF_NAME}.md"
+          if [ -f "$NOTES" ]; then
+            echo "path=$NOTES" >> "$GITHUB_OUTPUT"
+            echo "auto=false" >> "$GITHUB_OUTPUT"
+            echo "Found release notes: $NOTES"
+          else
+            echo "path=" >> "$GITHUB_OUTPUT"
+            echo "auto=true" >> "$GITHUB_OUTPUT"
+            echo "No hand-written release notes at $NOTES; using auto-generated."
+          fi
+
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
@@ -66,7 +82,8 @@ jobs:
             dist/*.whl
             dist/*.tar.gz
             dist/testBench-v*.zip
-          generate_release_notes: true
+          body_path: ${{ steps.notes.outputs.path }}
+          generate_release_notes: ${{ steps.notes.outputs.auto == 'true' }}
 
   pypi:
     needs: build

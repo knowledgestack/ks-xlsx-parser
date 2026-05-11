@@ -117,7 +117,13 @@ def validate_record(d: dict[str, Any]) -> None:
         raise ValueError(f"unknown status: {status!r}")
 
     if status == "ok":
-        for numeric in ("sheets", "cells", "formulas", "parse_time_ms"):
+        # `cells` and `parse_time_ms` MUST be populated — every parser
+        # extracts cells and we always measure parse time.
+        # `sheets` MUST be populated — every spreadsheet parser knows how
+        # many sheets it processed.
+        # `formulas` is parser-capability dependent (docling, marker
+        # don't model formulas), so None is legal here even on ok.
+        for numeric in ("sheets", "cells", "parse_time_ms"):
             if d[numeric] is None:
                 raise ValueError(f"status=ok but {numeric} is None")
 

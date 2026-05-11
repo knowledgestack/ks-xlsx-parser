@@ -8,6 +8,7 @@ semantic markers for formulas and key cells.
 
 from __future__ import annotations
 
+import datetime as _dt
 import logging
 
 from models.block import BlockDTO
@@ -16,6 +17,75 @@ from models.chart import ChartDTO
 from models.sheet import SheetDTO
 
 logger = logging.getLogger(__name__)
+
+
+def _flatten_cell_text(val: str) -> str:
+    """Collapse embedded line breaks so a cell stays on one row of the
+    Markdown grid. Excel headers often contain `\\n` to wrap text visually
+    (e.g. ``"租金\\n天数"``); rendered into ``| ... |`` rows verbatim they
+    rip the grid apart."""
+    if "\n" not in val and "\r" not in val:
+        return val
+    return val.replace("\r\n", " ").replace("\n", " ").replace("\r", " ")
+
+
+def _format_number_for_retrieval(raw: int | float) -> str:
+    """Render a numeric raw value in a retrieval-friendly form.
+
+    Excel's ``display_value`` honours the cell's number-format string,
+    which produces ``"1,272.00"`` for 1272 or ``"6%"`` for 0.06. Those
+    are great for humans but defeat substring-match retrieval — a user
+    asking "what was the value in 2020?" types ``1272``, not ``1,272.00``.
+
+    Rules:
+      - Integer-valued floats → ``str(int(v))``  (1272.0 → "1272")
+      - Integers → ``str(v)``                    (1272   → "1272")
+      - Floats → ``g`` format up to 10 significant digits, trailing
+        zeros trimmed. Avoids both sci-notation for ordinary magnitudes
+        and trailing ``.0`` noise.
+    """
+    if isinstance(raw, bool):  # bool is a subclass of int
+        return "TRUE" if raw else "FALSE"
+    if isinstance(raw, int):
+        return str(raw)
+    # float
+    if raw == int(raw) and abs(raw) < 1e16:
+        return str(int(raw))
+    return f"{raw:.10g}"
+
+
+def _cell_render_value(cell) -> str:
+    """Pick the string form of `cell` that's best for RAG retrieval.
+
+    For *numeric* cells we ignore the display-formatted string and emit
+    the raw value verbatim — Excel's commas, percent signs, trailing
+    zeros, and currency symbols all defeat substring search.
+
+    For dates we emit ISO ``YYYY-MM-DD`` (no time component) which is
+    both human-readable and matches the date format that openpyxl /
+    pandas surface when reading the answer file.
+
+    Strings and everything else fall back to ``display_value``.
+    """
+    if cell is None:
+        return ""
+    raw = cell.raw_value
+
+    if isinstance(raw, (_dt.date, _dt.datetime)):
+        if isinstance(raw, _dt.datetime):
+            if raw.hour == 0 and raw.minute == 0 and raw.second == 0:
+                return raw.date().isoformat()
+            return raw.isoformat(sep=" ")
+        return raw.isoformat()
+
+    if isinstance(raw, (int, float)) and not isinstance(raw, bool):
+        return _format_number_for_retrieval(raw)
+
+    if cell.display_value is not None:
+        return str(cell.display_value)
+    if raw is not None:
+        return str(raw)
+    return ""
 
 
 class TextRenderer:
@@ -54,16 +124,23 @@ class TextRenderer:
             header += f' table: "{block.table_name}"'
         lines.append(header)
 
-        # Compute column widths
+        # Compute column widths using the SAME rendering rules the data
+        # rows will use, including the trailing `[=]` formula marker.
+        # Otherwise `[=]` inflates a cell past col_width post-hoc and
+        # spuriously triggers the long-value fallback below.
         col_widths: dict[int, int] = {}
         for col in cols:
             col_letter = col_number_to_letter(col)
             max_width = len(col_letter)
             for row in rows:
                 cell = self._sheet.get_cell(row, col)
-                if cell:
-                    val = cell.display_value or (str(cell.raw_value) if cell.raw_value is not None else "")
-                    max_width = max(max_width, len(val))
+                if cell is None:
+                    continue
+                val = _cell_render_value(cell)
+                if cell.formula and not val.startswith("="):
+                    val = f"{val} [=]"
+                val = _flatten_cell_text(val)
+                max_width = max(max_width, len(val))
             col_widths[col] = min(max_width, 30)  # Cap at 30 for alignment; text may overflow
 
         # Column header row
@@ -89,23 +166,20 @@ class TextRenderer:
                 if col in self._sheet.hidden_cols:
                     continue
                 cell = self._sheet.get_cell(row, col)
-                val = ""
-                if cell:
-                    if cell.display_value is not None:
-                        val = str(cell.display_value)
-                    elif cell.raw_value is not None:
-                        val = str(cell.raw_value)
+                val = _cell_render_value(cell) if cell else ""
 
-                    # Annotate formulas with a marker (unless display already shows the formula)
-                    if cell.formula and not val.startswith("="):
-                        val = f"{val} [=]"
+                if cell and cell.formula and not val.startswith("="):
+                    val = f"{val} [=]"
 
-                # For long numeric values: use scientific notation (preserves precision).
-                # Text strings are never truncated.
-                if len(val) > col_widths[col]:
-                    raw = cell.raw_value
-                    if isinstance(raw, (int, float)):
-                        val = f"{float(raw):.6e}"
+                # Markdown table rows are single-line; collapse embedded newlines
+                # (common in headers like "租金\n天数") so they don't break the grid.
+                val = _flatten_cell_text(val)
+
+                # Long-value fallback: only triggers if the rendered string
+                # genuinely exceeds the (now consistently-computed) column
+                # width — i.e. the column was capped at 30. We still emit
+                # the full retrieval value (no truncation) and let the
+                # alignment overflow; truncating destroys retrievability.
                 values.append(val.ljust(col_widths[col]))
 
             line = "| " + " | ".join(values) + " |"
