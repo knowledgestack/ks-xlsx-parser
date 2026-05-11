@@ -21,7 +21,6 @@ Algorithm overview:
 from __future__ import annotations
 
 import logging
-from collections import defaultdict
 
 from models.block import BlockDTO
 from models.common import BlockType, CellCoord, CellRange
@@ -98,13 +97,7 @@ class LayoutSegmenter:
             components = self._find_connected_components(
                 non_table_cells, adaptive_row_gap, adaptive_col_gap
             )
-            # Step 2b: Split components at style boundaries
-            refined_components = []
-            for component in components:
-                sub_components = self._detect_style_boundaries(component)
-                refined_components.extend(sub_components)
-
-            for component_cells in refined_components:
+            for component_cells in components:
                 block = self._classify_component(component_cells, len(blocks))
                 blocks.append(block)
 
@@ -250,74 +243,6 @@ class LayoutSegmenter:
             )
 
         return [b for idx, b in enumerate(merged) if idx not in absorbed]
-
-    def _detect_style_boundaries(self, cells: list) -> list[list]:
-        """
-        Split a component at persistent fill-color discontinuities.
-
-        Only splits on fill/background color changes (not bold, which is
-        expected for header rows). Requires the change to persist for 3+
-        rows and both sides of the boundary must have 3+ rows to avoid
-        splitting headers from their data.
-        """
-        if len(cells) <= 1:
-            return [cells]
-
-        # Group cells by row
-        rows: dict[int, list] = defaultdict(list)
-        for cell in cells:
-            rows[cell.coord.row].append(cell)
-
-        sorted_row_nums = sorted(rows.keys())
-        if len(sorted_row_nums) <= 5:
-            # Too few rows to meaningfully split by style
-            return [cells]
-
-        # Compute fill-only style signature per row (ignore bold)
-        def _row_fill_sig(row_cells: list) -> str:
-            parts = []
-            for c in sorted(row_cells, key=lambda x: x.coord.col):
-                fg = ""
-                if c.style and c.style.fill and c.style.fill.fg_color:
-                    fg = c.style.fill.fg_color
-                parts.append(fg)
-            return ";".join(parts)
-
-        signatures = {r: _row_fill_sig(rows[r]) for r in sorted_row_nums}
-
-        # Find split points: persistent fill color changes (3+ rows on each side)
-        split_rows: list[int] = []
-        for i in range(3, len(sorted_row_nums) - 2):
-            curr_row = sorted_row_nums[i]
-            prev_row = sorted_row_nums[i - 1]
-            if signatures[curr_row] != signatures[prev_row]:
-                # Verify persistence: check 2 more rows after the change
-                next1 = sorted_row_nums[i + 1] if i + 1 < len(sorted_row_nums) else None
-                next2 = sorted_row_nums[i + 2] if i + 2 < len(sorted_row_nums) else None
-                if (
-                    next1 is not None
-                    and next2 is not None
-                    and signatures.get(next1) == signatures[curr_row]
-                    and signatures.get(next2) == signatures[curr_row]
-                ):
-                    split_rows.append(curr_row)
-
-        if not split_rows:
-            return [cells]
-
-        # Split cells into groups at split rows
-        components = []
-        current_cells = []
-        split_set = set(split_rows)
-        for row_num in sorted_row_nums:
-            if row_num in split_set and current_cells:
-                components.append(current_cells)
-                current_cells = []
-            current_cells.extend(rows[row_num])
-        if current_cells:
-            components.append(current_cells)
-
-        return [c for c in components if c]
 
     def segment_with_details(self) -> tuple[list[BlockDTO], list[list]]:
         """

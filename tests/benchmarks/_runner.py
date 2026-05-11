@@ -254,3 +254,20 @@ def hucre_runner(timeout_s: float = 120.0) -> Runner:
         cwd=node_dir,
         per_file_timeout_s=timeout_s,
     ))
+
+
+def docling_runner(python_bin: str | None = None, timeout_s: float = 120.0) -> Runner:
+    """Runner for the IBM Docling Python adapter.
+
+    Loads docling ML models once at worker startup (a few seconds) and
+    reuses them across files. Per-file timeout still applies — large
+    workbooks routinely take 10-60s through docling's pipeline.
+    """
+    py = python_bin or sys.executable
+    return Runner(RunnerConfig(
+        name="docling",
+        cmd=[py, "-m", "tests.benchmarks.adapters.docling_adapter"],
+        cwd=REPO_ROOT,
+        per_file_timeout_s=timeout_s,
+        batch_size=200,  # bigger batches — model load is the bottleneck
+    ))

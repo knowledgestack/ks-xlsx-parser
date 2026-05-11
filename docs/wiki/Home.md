@@ -15,6 +15,9 @@ the front-page README so it stays scannable. The code-heavy stuff lives here.
   `POST /parse` from `curl` / Python / TypeScript.
 - **[Data Models](Data-Models)** — the Pydantic DTOs you'll be reading in
   JSON output, field by field.
+- **[Architecture](Architecture)** — 8-stage pipeline diagram + module map
+  (parsers → models → formula → analysis → charts → annotation → chunking →
+  rendering → storage → verification → comparison → export).
 - **[Pipeline Internals](Pipeline-Internals)** — how the 8 stages fit
   together, and where to hook in if you want to extend the parser.
 - **[Benchmark vs `hucre`](Benchmark-vs-hucre)** — unbiased head-to-head

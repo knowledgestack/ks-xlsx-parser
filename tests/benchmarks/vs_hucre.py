@@ -28,7 +28,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from ._driver import enumerate_corpus, run_benchmark
-from ._runner import hucre_runner, ks_runner
+from ._runner import docling_runner, hucre_runner, ks_runner
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -44,7 +44,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--seed", type=int, default=1337)
     parser.add_argument("--per-file-timeout", type=float, default=120.0)
     parser.add_argument("--parsers", type=str, default="ks,hucre",
-                        help="Comma-separated subset of parsers to run.")
+                        help="Comma-separated subset of parsers to run "
+                             "(supported: ks, hucre, docling).")
     parser.add_argument("--ks-python", type=str, default=sys.executable,
                         help="Python binary for the ks adapter (default: current).")
     parser.add_argument("--batch-size", type=int, default=50,
@@ -73,6 +74,9 @@ def main(argv: list[str] | None = None) -> int:
         r = hucre_runner(timeout_s=args.per_file_timeout)
         r.cfg.batch_size = args.batch_size
         runners["hucre"] = r
+    if "docling" in selected:
+        r = docling_runner(python_bin=args.ks_python, timeout_s=args.per_file_timeout)
+        runners["docling"] = r
     if not runners:
         sys.stderr.write("no parsers selected\n")
         return 2
