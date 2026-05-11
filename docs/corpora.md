@@ -1,36 +1,31 @@
 # Corpus & Benchmarks
 
-The ks-xlsx-parser test bench is split into two tiers.
+ks-xlsx-parser benchmarks against public corpora that are downloaded on demand —
+nothing large is committed to the repo.
 
-## 1. `testBench/` — checked into the repo
+## Primary corpus — SpreadsheetBench v0.1
 
-A 1053-workbook corpus shipped with every clone, exercising the full extraction
-spec. Round-tripped on every CI run. See [`testBench/README.md`](../testBench/README.md)
-for the layout.
-
-```bash
-make testbench-build   # regenerate the 1000-file `generated/` subtree
-make testbench         # parse every workbook, record failures to metrics/testbench/
-make testbench-zip     # package as a GitHub release asset
-```
-
-## 2. External public corpora — downloaded on demand
-
-Heavier public datasets (EUSES, Enron `.xlsx` subset, SheetJS/openpyxl samples)
-stay out of git and download under `tests/fixtures/corpus/`.
+912 instruction × xlsx tasks (5,458 unique workbooks) covering financial models,
+project trackers, HR records, scientific data, and a long tail of small-business
+spreadsheets. Each task ships with an `instruction`, a `data_position`, and
+(usually) an `answer_position`, which gives us ground truth for retrieval recall.
 
 ```bash
-make corpus-download                    # fetch external corpora
-python -m pytest -m corpus -v           # opt-in robustness run
+make corpus-download    # fetch SpreadsheetBench + a few smaller corpora under data/corpora/
+make bench-robust       # parse-success rate + structural counts vs Docling (~20 min)
+make bench-retrieval    # top-k retrieval recall + table fragmentation rate vs Docling (~40 min)
 ```
 
-## Enterprise scorecard (runs by default)
+Reports land in `tests/benchmarks/reports/<timestamp>_<git-sha>/`. The headline
+numbers and methodology live in
+[`tests/benchmarks/reports/COMPARISON.md`](../tests/benchmarks/reports/COMPARISON.md).
+
+## Other public corpora — opt-in robustness
+
+`scripts/download_corpora.sh` also fetches a handful of smaller xlsx corpora
+(EUSES, Enron `.xlsx` subset, SheetJS / openpyxl samples) under
+`data/corpora/`. These are useful for spot-checking specific failure modes.
 
 ```bash
-python -m pytest tests/test_enterprise_scoring.py -v
+python -m pytest -m corpus -v    # opt-in robustness run against external corpora
 ```
-
-Four small deterministic fixtures under `testBench/enterprise/` are regenerated
-if missing by `scripts/generate_enterprise_fixtures.py`. Per-file scorecards
-are written to `metrics/corpus/`; git ignores the `metrics/` tree so CI can
-upload the artifacts without polluting history.

@@ -4,7 +4,7 @@ Entry point: head-to-head benchmark of ks-xlsx-parser vs hucre (TypeScript).
 Usage (from repo root, with venv active):
 
     python -m tests.benchmarks.vs_hucre \\
-        --corpus testBench \\
+        --corpus data/corpora/spreadsheetbench \\
         --out tests/benchmarks/reports \\
         [--subset real_world,enterprise] \\
         [--sample 50] \\
@@ -33,7 +33,7 @@ from ._runner import docling_runner, hucre_runner, ks_runner
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[1] if __doc__ else "")
-    parser.add_argument("--corpus", type=Path, default=Path("testBench"),
+    parser.add_argument("--corpus", type=Path, default=Path("data/corpora/spreadsheetbench"),
                         help="Corpus directory containing .xlsx/.xlsm files.")
     parser.add_argument("--out", type=Path, default=Path("tests/benchmarks/reports"),
                         help="Root directory for reports; a timestamped subdir is created.")

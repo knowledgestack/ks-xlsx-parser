@@ -30,7 +30,6 @@ Enable:
     - `tests (ubuntu-latest / py3.11)`
     - `tests (ubuntu-latest / py3.12)`
     - `tests (macos-latest / py3.12)`
-    - `testBench round-trip (ubuntu / py3.12)`
   - ✅ Require branches to be up to date before merging
 - ✅ Require conversation resolution before merging
 - ✅ Require signed commits (soft lock — can relax if it slows contributors)
@@ -66,16 +65,15 @@ Create categories (click *New Category* for each):
 - **🎯 Show and tell** (open) — projects built with ks-xlsx-parser
   - Attach the template in `.github/DISCUSSION_TEMPLATE/show-and-tell.yml`
 - **🙏 Q&A** (open, answerable) — usage and "does it handle X" questions
-- **🧪 testBench findings** (open) — edge cases that shouldn't be issues yet
+- **🧪 Benchmark findings** (open) — edge cases that shouldn't be issues yet
 
 ### Releases
 
 Pushing a `vX.Y.Z` tag triggers `.github/workflows/release.yml` which will:
 
 1. Build the wheel + sdist
-2. Build `dist/testBench-v<version>.zip`
-3. Attach all three to the GitHub Release
-4. Publish to PyPI via Trusted Publishing
+2. Attach both to the GitHub Release
+3. Publish to PyPI via Trusted Publishing
 
 One-time PyPI setup: go to PyPI → *your project* → *Publishing* → *Add a new
 pending publisher* with:
@@ -97,8 +95,9 @@ without a human click.
    line; update the compare-link footer at the bottom.
 3. Regenerate the full release notes in `../docs/launch/RELEASE_NOTES_vX.Y.Z.md`
    (copy from the previous release, edit for the new highlights).
-4. `make testbench` → expect 1054/1054.
-5. `make test` → clean.
+4. `make test` → clean.
+5. If touching parser internals, run `make bench-robust` against
+   SpreadsheetBench and confirm no regressions.
 6. Commit with `chore(release): vX.Y.Z`.
 7. `git tag -s vX.Y.Z -m "vX.Y.Z"` (signed tag; required by branch protection).
 8. `git push && git push --tags` — the tag triggers the release workflow.

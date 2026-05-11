@@ -56,10 +56,10 @@ body:
       label: Traceback (if any)
       render: shell
   - type: checkboxes
-    id: testbench
+    id: benchmark
     attributes:
-      label: testBench check
-      description: Does your file already fail `make testbench`? If so, please note which group.
+      label: Benchmark check
+      description: Did your file surface in `make bench-robust` (SpreadsheetBench)?
       options:
-        - label: "I ran `make testbench` and my file failed (attach `metrics/testbench/failures.json`)."
-        - label: "The file is not in the bench; I can contribute it as a new fixture."
+        - label: "I ran `make bench-robust` and my file failed (attach the row from results.csv if you can)."
+        - label: "The file is from outside SpreadsheetBench; I can attach a minimal reproducer."

@@ -37,9 +37,6 @@ jobs:
       - name: Build wheel + sdist
         run: python -m build
 
-      - name: Build testBench zip
-        run: make testbench-zip
-
       - name: Upload distribution artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -47,7 +44,6 @@ jobs:
           path: |
             dist/*.whl
             dist/*.tar.gz
-            dist/testBench-v*.zip
 
   github-release:
     needs: build
@@ -81,7 +77,6 @@ jobs:
           files: |
             dist/*.whl
             dist/*.tar.gz
-            dist/testBench-v*.zip
           body_path: ${{ steps.notes.outputs.path }}
           generate_release_notes: ${{ steps.notes.outputs.auto == 'true' }}
 
@@ -96,9 +91,6 @@ jobs:
         with:
           name: dist
           path: dist
-
-      - name: Strip non-PyPI artifacts
-        run: rm -f dist/testBench-v*.zip
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1

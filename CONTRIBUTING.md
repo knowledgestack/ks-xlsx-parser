@@ -13,12 +13,12 @@ bug or send a small PR. If that's you, thank you.
 
 ## Ways to help (in order of preference for first-time contributors)
 
-1. **Run `make testbench` and report a file that breaks.** We actively want
-   edge-case `.xlsx` fixtures — use the
+1. **Run `make bench-robust` on SpreadsheetBench and report a file that
+   breaks.** We actively want edge-case `.xlsx` fixtures — use the
    [Parser edge case issue template](https://github.com/knowledgestack/ks-xlsx-parser/issues/new?template=parser_edge_case.yml).
-2. **Add a new workbook to `testBench/`.** Either drop a file under
-   `testBench/stress/` or add a builder to `scripts/build_testbench.py`. If
-   the parser crashes on it, even better.
+2. **Submit an adversarial workbook.** Attach a `.xlsx` (or a generator
+   that builds one) to a Parser edge case issue. If the parser crashes
+   on it, even better.
 3. **Fix one of the flagged issues** in [`docs/PARSER_KNOWN_ISSUES.md`](docs/PARSER_KNOWN_ISSUES.md).
 4. **Improve docs.** The README, the architecture diagram, the examples —
    if something confused you, it confuses everyone.
@@ -32,8 +32,9 @@ git clone https://github.com/knowledgestack/ks-xlsx-parser.git
 cd ks-xlsx-parser
 make install               # pip install -e ".[dev,api]"
 make test                  # fast, default suite
-make testbench-build       # regenerate 1000-file stress corpus (~1 min)
-make testbench             # round-trip every workbook; parallel
+make corpus-download       # fetch SpreadsheetBench (5,458 real-world xlsx)
+make bench-robust          # parse-success + structural counts vs Docling
+make bench-retrieval       # retrieval recall@k vs Docling
 ```
 
 Prerequisites: Python 3.10+, `pip`, optionally `make`. We use `ruff` for
@@ -44,7 +45,8 @@ linting/formatting — install it with the `[dev]` extra.
 Your PR should:
 
 1. Have tests. `pytest` must stay green: `make test`.
-2. Keep `make testbench` at 1054/1054 (or explain the delta in the PR description).
+2. If touching parser or chunker internals, run `make bench-robust` against
+   SpreadsheetBench and call out any regressions in the PR description.
 3. Pass `ruff check` (`make lint`) and be formatted with `make format`.
 4. Include one sentence in the PR description that starts with *"This change…"*.
 5. Use [conventional-commit style](https://www.conventionalcommits.org/)
@@ -74,7 +76,7 @@ Helpful things to include:
 - Type hints everywhere that's practical.
 - Tests live in `tests/`; programmatic workbook fixtures live in `tests/conftest.py`.
 - Cross-validation against calamine uses the `crossval` marker.
-- Long-running bench tests use `@pytest.mark.testbench` and are skipped by default.
+- The benchmark harness (`tests/benchmarks/`) lives outside `pytest` — invoke via `make bench-robust` / `make bench-retrieval`.
 - Keep public-API changes additive; if you can't, note it in the PR and the
   maintainers will line up the deprecation.
 

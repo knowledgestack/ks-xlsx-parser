@@ -24,8 +24,8 @@ ecosystem. Now open for the rest of the world.
   asset attached to this release.
 - ⚡ **Parser perf fixes** — real-world workbooks that used to hang now
   finish in under a second.
-  - Cached `detect_circular_refs()` per workbook: Walbridge Coatings
-    **307 s → 4.6 s (66×)**.
+  - Cached `detect_circular_refs()` per workbook: real 21k-cell financial
+    model **307 s → 4.6 s (66×)**.
   - Sparse-cell iteration: files with two non-empty cells at `A1` and
     `XFD1048576` drop from 60 s timeout → **135 ms**.
 - 🧰 **Framework-agnostic** — drops straight into

@@ -75,10 +75,8 @@ markers = [
     "invariant: structural invariant tests",
     "corpus: external corpus tests (skipped by default)",
     "slow: tests taking >10 seconds",
-    "enterprise: enterprise scorecard benchmarks",
-    "testbench: 1000-file testBench round-trip (skipped by default; run with -m testbench)",
 ]
-addopts = "-m 'not corpus and not testbench'"
+addopts = "-m 'not corpus'"
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -86,7 +84,7 @@ where = ["src"]
 [tool.ruff]
 line-length = 110
 target-version = "py310"
-extend-exclude = ["testBench", "examples/stress_test", "dist", "build"]
+extend-exclude = ["examples/stress_test", "dist", "build"]
 
 [tool.ruff.lint]
 select = [

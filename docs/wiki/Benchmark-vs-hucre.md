@@ -24,7 +24,12 @@ Pick `ks-xlsx-parser` for Python LLM / RAG / auditing pipelines.
 
 ---
 
-## Performance — 1053-workbook testBench corpus
+## Performance — historical 1053-workbook curated corpus
+
+> *This page reflects the v0.1.x benchmark run on a curated stress corpus that
+> shipped with earlier releases. Current head benchmarks SpreadsheetBench
+> (5,458 real-world workbooks); see
+> [COMPARISON.md](https://github.com/knowledgestack/ks-xlsx-parser/blob/main/tests/benchmarks/reports/COMPARISON.md).*
 
 Same machine, same run, same OS page cache. `parse_workbook(mode="fast")`
 is the apples-to-apples configuration for hucre's read-only path (it skips
@@ -38,7 +43,7 @@ metadata feature hucre extracts).
 | P99 parse time | **30.2 ms** | 469 ms | 246 ms |
 | mean parse time | **2.7 ms** | 73.9 ms | 39.5 ms |
 | total wall-clock | **2.8 s** | 77.8 s | 41.6 s |
-| Walbridge Coatings<br>(17.6k formulas, worst real-world file) | **139 ms** | 1413 ms | 686 ms |
+| Worst real-world file<br>(17.6k formulas) | **139 ms** | 1413 ms | 686 ms |
 
 ### Ratio to hucre
 
@@ -101,9 +106,9 @@ On every feature **both** parsers extract, the drift is zero or near-zero:
 | comments | 486 | 486 | **0** |
 | named ranges | 822 | 809 | 1.6% (tracked) |
 
-The 22-formula disagreement is dominated by one workbook
-(`real_world/Walbridge Coatings 8.9.23.xlsx`) where we parse 16 formulas
-that hucre misses — we surface this in the drift report, not hide it.
+The 22-formula disagreement is dominated by one real-world workbook where
+we parse 16 formulas that hucre misses — we surface this in the drift
+report, not hide it.
 
 The cell-count difference on adversarial merge-heavy files (we emit ~50%
 more rows) is a **methodology difference**: `ks-xlsx-parser` counts every
@@ -119,7 +124,7 @@ Every perf change in `ks-xlsx-parser` has to pass, in order:
 
 1. The **1631-test pytest suite** (unit + integration + corpus-slice)
 2. **Cross-validation** against [`calamine`](https://github.com/tafia/calamine) — the Rust reference parser — on a golden fixture set
-3. **Zero regressions** on the 1053-file testBench across eight sub-corpora (`real_world/`, `enterprise/`, `github_datasets/`, `stress/curated/`, `stress/merges/`, `generated/matrix/`, `generated/combo/`, `generated/adversarial/`)
+3. **Zero regressions** on the SpreadsheetBench robustness baseline (5,458 real-world workbooks)
 4. **Feature-count stability** vs. the hucre benchmark above
 
 That's the order. If a perf change breaks any gate, we don't ship it.
@@ -144,12 +149,16 @@ but the short version:
 cd tests/benchmarks/hucre_node && pnpm install --frozen-lockfile
 cd ../../..
 
+# Download SpreadsheetBench once
+make corpus-download
+
 # Full mode (default)
-python -m tests.benchmarks.vs_hucre --corpus testBench --out tests/benchmarks/reports
+python -m tests.benchmarks.vs_hucre \
+    --corpus data/corpora/spreadsheetbench --out tests/benchmarks/reports
 
 # Fast mode
 KS_PARSE_MODE=fast python -m tests.benchmarks.vs_hucre \
-    --corpus testBench --out tests/benchmarks/reports
+    --corpus data/corpora/spreadsheetbench --out tests/benchmarks/reports
 ```
 
 Outputs (under `tests/benchmarks/reports/<timestamp>_<git-sha>/`):

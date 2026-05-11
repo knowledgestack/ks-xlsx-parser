@@ -160,7 +160,7 @@
         "name": "What file formats does ks-xlsx-parser support?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "ks-xlsx-parser supports .xlsx and .xlsm (OOXML). Legacy .xls (BIFF) is not supported — convert those externally first. The parser handles unicode content, very wide sheets, very tall sheets, sparse workbooks, 250-sheet workbooks, circular formula chains, and files with 32k-character cells, all covered in the 1054-workbook testBench that runs in CI."
+          "text": "ks-xlsx-parser supports .xlsx and .xlsm (OOXML). Legacy .xls (BIFF) is not supported — convert those externally first. The parser handles unicode content, very wide sheets, very tall sheets, sparse workbooks, 250-sheet workbooks, circular formula chains, and files with 32k-character cells, all benchmarked on the 5,458-workbook SpreadsheetBench corpus."
         }
       },
       {
@@ -168,7 +168,7 @@
         "name": "How fast is ks-xlsx-parser?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "The full 1054-workbook testBench round-trips in approximately 70 seconds on a single machine. A real-world 21k-cell, 13-sheet financial model parses in about 4.6 seconds (previously 307 seconds before a circular-ref caching fix). Sparse workbooks with extreme addresses parse in under 200 ms."
+          "text": "SpreadsheetBench's full 5,458-workbook corpus parses end-to-end in roughly 20 minutes on a single machine (low double-digit ms P50 parse time). A real-world 21k-cell, 13-sheet financial model parses in about 4.6 seconds (previously 307 seconds before a circular-ref caching fix). Sparse workbooks with extreme addresses parse in under 200 ms."
         }
       }
     ]
@@ -432,7 +432,7 @@
       <a class="link" href="#what-you-get">Features</a>
       <a class="link" href="#demo">Demo</a>
       <a class="link" href="#compare">Compare</a>
-      <a class="link" href="#bench">testBench</a>
+      <a class="link" href="#bench">Benchmarks</a>
       <a class="link" href="https://github.com/knowledgestack/ks-xlsx-parser/tree/main/docs/wiki">Docs</a>
       <a class="gh-btn" href="https://github.com/knowledgestack/ks-xlsx-parser" target="_blank" rel="noopener">⭐ Star on GitHub</a>
     </div>
@@ -551,14 +551,14 @@ result = <span class="fn">parse_workbook</span>(path=<span class="s">"q4_forecas
 <section id="bench">
   <div class="wrap">
     <div class="kicker">TESTED &amp; FAST</div>
-    <h2>1054-workbook stress corpus. Every commit.</h2>
-    <p class="lead">testBench ships with the repo and runs in CI. One-feature-per-file matrix, randomised density cocktails, and engineered adversarial files — unicode bombs, circular refs, sparse 1M-row sheets, 250-sheet workbooks.</p>
+    <h2>SpreadsheetBench: 5,458 real-world workbooks.</h2>
+    <p class="lead">We benchmark against the public SpreadsheetBench v0.1 corpus — 912 instruction tasks, 5,458 unique xlsx files spanning financial models, project trackers, HR records, and a long tail of small-business spreadsheets.</p>
 
     <div class="stats">
-      <div class="stat"><b>1054/1054</b><span>tests passing on every CI run</span></div>
-      <div class="stat"><b>~70s</b><span>end-to-end bench wall time</span></div>
-      <div class="stat"><b>66×</b><span>Walbridge financial model speedup (0.1.1)</span></div>
-      <div class="stat"><b>17 MB</b><span>dataset zip attached to each release</span></div>
+      <div class="stat"><b>5,455 / 5,458</b><span>parsed cleanly (99.945%)</span></div>
+      <div class="stat"><b>912</b><span>instruction × retrieval tasks measured</span></div>
+      <div class="stat"><b>66×</b><span>21k-cell financial model speedup (0.1.1)</span></div>
+      <div class="stat"><b>vs Docling</b><span>tied @1, +2.7pp @3, +1.8pp @5</span></div>
     </div>
   </div>
 </section>
@@ -684,7 +684,7 @@ result = <span class="fn">parse_workbook</span>(path=<span class="s">"q4_forecas
 
     <details style="background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;margin-top:10px">
       <summary style="font-weight:600;cursor:pointer">How fast is it?</summary>
-      <p style="color:var(--ink-dim);margin:10px 0 0">The full 1054-workbook testBench round-trips in about 70 seconds. A real 21k-cell, 13-sheet financial model parses in ~4.6 s. Sparse workbooks with extreme addresses parse in under 200 ms. Details in the <a href="https://github.com/knowledgestack/ks-xlsx-parser/blob/main/CHANGELOG.md">CHANGELOG</a>.</p>
+      <p style="color:var(--ink-dim);margin:10px 0 0">SpreadsheetBench's full 5,458-workbook corpus parses end-to-end in roughly 20 minutes on a single machine. A real 21k-cell, 13-sheet financial model parses in ~4.6 s. Sparse workbooks with extreme addresses parse in under 200 ms. Details in the <a href="https://github.com/knowledgestack/ks-xlsx-parser/blob/main/CHANGELOG.md">CHANGELOG</a>.</p>
     </details>
   </div>
 </section>

@@ -20,7 +20,7 @@ from openpyxl.workbook.defined_name import DefinedName
 from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.worksheet.table import Table, TableStyleInfo
 
-EXAMPLES_DIR = Path(__file__).parent.parent / "testBench" / "real_world"
+EXAMPLES_DIR = Path(__file__).parent / "fixtures"
 EXAMPLES_DIR.mkdir(parents=True, exist_ok=True)
 
 

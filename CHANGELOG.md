@@ -45,7 +45,28 @@ Template for a new release (copy this block, fill in, move Unreleased items in):
 
 ## [Unreleased]
 
-Nothing yet. Open a PR and add your entry under the appropriate heading.
+### ⚠️ BREAKING
+- Retired the in-tree `testBench/` corpus. The 1054-workbook stress dataset
+  and `make testbench*` targets are gone — benchmarks now run against the
+  public SpreadsheetBench v0.1 corpus, downloaded on demand to `data/corpora/`
+  (gitignored). See `docs/corpora.md`.
+
+### Removed
+- `testBench/` directory and all bundled real-world / generated workbooks.
+- `make testbench-build`, `make testbench`, `make testbench-zip` targets.
+- `testbench` job in `.github/workflows/ci.yml`.
+- `testBench-vX.Y.Z.zip` release asset from the release workflow.
+- `tests/test_testbench_roundtrip.py`, `tests/test_enterprise_scoring.py`,
+  `tests/test_real_world_datasets.py`, `tests/test_cross_validation.py`.
+- `scripts/build_testbench.py`, `scripts/generate_enterprise_fixtures.py`.
+- `static_xlsx` pytest fixture (the test bench it iterated is gone).
+
+### Changed
+- README, wiki, examples, and contributor docs now point at SpreadsheetBench
+  (`make bench-robust` / `make bench-retrieval`) as the canonical benchmark.
+- `examples/demo.py` + `examples/generate_examples.py` now write/read fixtures
+  under `examples/fixtures/` instead of the (removed) `testBench/real_world/`.
+
 
 ## [0.2.0] — 2026-05-11
 
@@ -173,7 +194,7 @@ announcement: [`docs/launch/RELEASE_NOTES_v0.1.1.md`](docs/launch/RELEASE_NOTES_
 
 ### Performance
 - Chunk builder caches `detect_circular_refs()` per workbook instead of
-  re-running it per block. Real 21k-cell financial model (Walbridge):
+  re-running it per block. Real 21k-cell financial model:
   **307 s → 4.6 s (66×)**.
 - Sheet parser iterates openpyxl's `_cells` dict instead of `iter_rows()`
   over the full bounding box. Workbooks with extreme sparse addresses
@@ -185,9 +206,8 @@ announcement: [`docs/launch/RELEASE_NOTES_v0.1.1.md`](docs/launch/RELEASE_NOTES_
   non-existent `dxfId=0` in generated fixtures, so openpyxl can load them
   back without an `IndexError`.
 - `test_formula_cached_values_match` now applies a 15 % threshold for
-  workbooks with known openpyxl `data_only` caching gaps (Walbridge),
-  5 % everywhere else. See
-  [`docs/PARSER_KNOWN_ISSUES.md`](docs/PARSER_KNOWN_ISSUES.md).
+  workbooks with known openpyxl `data_only` caching gaps, 5 % everywhere
+  else. See [`docs/PARSER_KNOWN_ISSUES.md`](docs/PARSER_KNOWN_ISSUES.md).
 
 ### Docs
 - New README positioned as *"Make XLSX LLM Ready"* with architecture

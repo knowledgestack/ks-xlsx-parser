@@ -4,7 +4,7 @@ Two benchmarks, both reproducible:
 
 | Benchmark | What it measures | Corpus | Cost |
 |---|---|---|---|
-| `vs_hucre.py` (structural) | Parse-success rate + structural counts (cells, formulas, tables, merges, etc.) across many files | `testBench/` (53 curated) or `data/corpora/spreadsheetbench/` (5,458 real-world) | Cheap — 1–20 min |
+| `vs_hucre.py` (structural) | Parse-success rate + structural counts (cells, formulas, tables, merges, etc.) across many files | `data/corpora/spreadsheetbench/` (5,458 real-world) | Cheap — 1–20 min |
 | `scripts/eval_retrieval.py` (chunk quality) | Recall@k for retrieving the relevant chunk given a natural-language instruction, + table-integrity fragmentation rate | SpreadsheetBench `dataset.json` (912 instruction + position pairs) | Medium — 10 min on 100 instances |
 
 ## 1. Structural benchmark — `vs_hucre.py`
@@ -18,9 +18,9 @@ Long-running NDJSON-protocol workers, per-file timeout, batch respawn, randomize
 Supported parsers today: `ks` (ks-xlsx-parser), `hucre` (TypeScript, requires `pnpm install` under `hucre_node/`), `docling` (IBM Docling — `uv pip install docling`).
 
 ```bash
-# Quick smoke (50 random files from testBench)
+# Quick smoke (50 random files from SpreadsheetBench)
 PYTHONPATH=src uv run python -m tests.benchmarks.vs_hucre \
-    --corpus testBench --sample 50 --parsers ks
+    --corpus data/corpora/spreadsheetbench --sample 50 --parsers ks
 
 # Robustness on full SpreadsheetBench (5,458 files, ~20 min)
 PYTHONPATH=src uv run python -m tests.benchmarks.vs_hucre \

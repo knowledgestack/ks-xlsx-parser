@@ -81,9 +81,9 @@ class WorkbookParser:
             max_workers: Number of parallel workers.
             build_dep_graph: Build the formula dependency graph + run cycle
                 detection. Fast mode sets this False — on formula-heavy
-                workbooks (Walbridge: 17.6k formulas → 48k edges) the dep
-                graph is one of the largest remaining costs and nothing in
-                fast mode consumes it.
+                workbooks (17k formulas → 48k edges is typical for a real
+                financial model) the dep graph is one of the largest
+                remaining costs and nothing in fast mode consumes it.
         """
         if path is None and content is None:
             raise ValueError("Either path or content must be provided")
@@ -249,8 +249,8 @@ class WorkbookParser:
 
         # Build dependency graph (skippable in fast mode — this stage scans
         # every formula, runs the parser, creates thousands of edges, and
-        # then runs cycle detection; on Walbridge alone it accounts for
-        # ~25% of the full-mode wall clock).
+        # then runs cycle detection; on a 17k-formula real-world workbook it
+        # accounts for ~25% of the full-mode wall clock).
         if self._build_dep_graph:
             try:
                 from formula.dependency_builder import DependencyBuilder
