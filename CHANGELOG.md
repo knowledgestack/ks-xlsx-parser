@@ -45,6 +45,8 @@ Template for a new release (copy this block, fill in, move Unreleased items in):
 
 ## [Unreleased]
 
+## [0.2.1] — 2026-05-19
+
 ### ⚠️ BREAKING (Fixed — see also #ks-xlsx-parser channel report)
 - Repository layout flattened on `src/` was leaking 13 generic top-level
   packages (`models`, `utils`, `parsers`, …) into installed wheels and

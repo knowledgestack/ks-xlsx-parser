@@ -43,9 +43,11 @@ failures in the seed=1337 sample:
   `answer_position` cell range in `input.xlsx` is empty by design. A
   parser cannot retrieve what isn't there. These instances need to be
   filtered from the headline metric (TODO 05).
-* **30 are truly actionable** parser failures, clustering into 4 named
-  buckets (TODOs 00, 01, 02, 03, 04 in
-  [docs/planning/recall-90/](./planning/recall-90/)).
+* **30 are truly actionable** parser failures, clustering into a small
+  number of named buckets (benchmark-spec parser bugs in
+  `scripts/eval_retrieval.py`; array-formula rendering; chunk range vs
+  text mismatch; cell-drop / uncached-formula rendering; single-chunk
+  dilution).
 * Zero of the 30 are `present_but_ranked_low`. Chunk-size dilution
   may matter on the full 912-corpus but is NOT the dominant problem
   on the 200-sample.
@@ -59,9 +61,6 @@ ground truth — exactly **H3** ("range-bookkeeping drift").
 When the in-scope filter is applied, real `recall_text@5` is
 **0.59**, not 0.635. Closing the 30 actionable failures gets us
 near 0.90 on the in-scope metric.
-
-See [docs/planning/recall-90/](./planning/recall-90/) for the
-ranked TODO list.
 
 ## A priori hypotheses (now confirmed/refuted; left as history)
 

@@ -71,5 +71,8 @@ rust/**/Cargo.lock.bak
 # Downloaded benchmark corpora (see scripts/download_corpora.sh)
 data/corpora/
 
+# Internal planning notes (kept locally, not published to the open-source repo)
+docs/planning/
+
 # Conductor / Claude Code transient state
 .claude/
