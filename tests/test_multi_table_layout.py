@@ -8,11 +8,10 @@ across various spatial arrangements.
 
 import pytest
 
-from chunking.segmenter import LayoutSegmenter
-from models import BlockType
-from parsers import WorkbookParser
-from pipeline import parse_workbook
-
+from ks_xlsx_parser.chunking.segmenter import LayoutSegmenter
+from ks_xlsx_parser.models import BlockType
+from ks_xlsx_parser.parsers import WorkbookParser
+from ks_xlsx_parser.pipeline import parse_workbook
 
 # ---------------------------------------------------------------------------
 # Helpers

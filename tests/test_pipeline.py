@@ -7,9 +7,7 @@ rendered content, dependency summaries, and deterministic hashes.
 
 import json
 
-import pytest
-
-from pipeline import parse_workbook
+from ks_xlsx_parser.pipeline import parse_workbook
 
 
 class TestEndToEndPipeline:

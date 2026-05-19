@@ -5,16 +5,15 @@ Verifies sheet summary detection, entity extraction, KPI identification,
 and reading-order linearization using programmatic fixtures.
 """
 
-import pytest
 
-from analysis import (
+from ks_xlsx_parser.analysis import (
     EntityIndexBuilder,
     KpiCatalogBuilder,
     ReadingOrderLinearizer,
     SheetSummaryAnalyzer,
 )
-from models.common import SheetPurpose
-from parsers import WorkbookParser
+from ks_xlsx_parser.models.common import SheetPurpose
+from ks_xlsx_parser.parsers import WorkbookParser
 
 
 class TestSheetSummaryAnalyzer:

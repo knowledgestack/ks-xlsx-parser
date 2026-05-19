@@ -8,16 +8,13 @@ reports with metrics, gaps, and recommendations.
 
 import json
 
-import pytest
-
-from verification import (
+from ks_xlsx_parser.verification import (
     ExcellentStage,
     ImplementationStatus,
     StageResult,
     StageVerifier,
     VerificationReport,
 )
-
 
 # ---------------------------------------------------------------------------
 # Model tests

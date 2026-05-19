@@ -6,9 +6,8 @@ correct extraction of values, formulas, styles, merges,
 tables, comments, data validations, and sheet properties.
 """
 
-import pytest
 
-from parsers import WorkbookParser
+from ks_xlsx_parser.parsers import WorkbookParser
 
 
 class TestSimpleWorkbook:

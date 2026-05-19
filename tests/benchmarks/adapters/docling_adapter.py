@@ -41,7 +41,7 @@ _HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(_HERE.parent.parent.parent))  # repo root
 
 from tests.benchmarks._mem import peak_rss_mb  # noqa: E402
-from tests.benchmarks._schema import BenchmarkRecord, SCHEMA_VERSION  # noqa: E402
+from tests.benchmarks._schema import SCHEMA_VERSION, BenchmarkRecord  # noqa: E402
 
 PARSER_NAME = "docling"
 MAX_ERR_LEN = 500

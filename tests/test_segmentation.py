@@ -5,11 +5,10 @@ Verifies that the segmenter correctly identifies tables, calculation blocks,
 assumption blocks, result blocks, and text headers.
 """
 
-import pytest
 
-from chunking.segmenter import LayoutSegmenter
-from models import BlockType
-from parsers import WorkbookParser
+from ks_xlsx_parser.chunking.segmenter import LayoutSegmenter
+from ks_xlsx_parser.models import BlockType
+from ks_xlsx_parser.parsers import WorkbookParser
 
 
 class TestSegmentation:

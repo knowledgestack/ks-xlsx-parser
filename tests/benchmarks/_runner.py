@@ -18,7 +18,7 @@ import sys
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Iterator
+from typing import Any
 
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parent.parent

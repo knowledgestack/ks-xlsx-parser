@@ -5,11 +5,10 @@ Verifies that charts are extracted from the ZIP archive with correct
 type, series, axes, title, and position anchor.
 """
 
-import pytest
 
-from charts.chart_extractor import ChartExtractor
-from models import ChartType
-from parsers import WorkbookParser
+from ks_xlsx_parser.charts.chart_extractor import ChartExtractor
+from ks_xlsx_parser.models import ChartType
+from ks_xlsx_parser.parsers import WorkbookParser
 
 
 class TestChartExtraction:

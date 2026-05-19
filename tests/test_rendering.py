@@ -5,12 +5,11 @@ Verifies correct rendering of merged cells, formatting,
 headers, and coordinate annotations.
 """
 
-import pytest
 
-from chunking.segmenter import LayoutSegmenter
-from parsers import WorkbookParser
-from rendering.html_renderer import HtmlRenderer
-from rendering.text_renderer import TextRenderer
+from ks_xlsx_parser.chunking.segmenter import LayoutSegmenter
+from ks_xlsx_parser.parsers import WorkbookParser
+from ks_xlsx_parser.rendering.html_renderer import HtmlRenderer
+from ks_xlsx_parser.rendering.text_renderer import TextRenderer
 
 
 class TestHtmlRendering:
@@ -112,11 +111,10 @@ class TestTextRendering:
         sci-notation fallback (``1.272000e+03``) once the ``[=]`` formula
         marker pushed the rendered string past col_width — this test
         guards against that regression."""
-        from models.sheet import SheetDTO
-        from models.cell import CellDTO
-        from models.common import CellCoord, CellRange
-        from models.block import BlockDTO
-        from models.common import BlockType
+        from ks_xlsx_parser.models.block import BlockDTO
+        from ks_xlsx_parser.models.cell import CellDTO
+        from ks_xlsx_parser.models.common import BlockType, CellCoord, CellRange
+        from ks_xlsx_parser.models.sheet import SheetDTO
 
         coord = CellCoord(row=1, col=1)
         cell = CellDTO(

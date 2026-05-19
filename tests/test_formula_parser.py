@@ -5,10 +5,9 @@ Covers A1 refs, ranges, cross-sheet refs, external refs, structured refs,
 and circular reference detection.
 """
 
-import pytest
 
-from formula.formula_parser import FormulaParser
-from models import CellCoord, DependencyGraph, DependencyEdgeDTO, EdgeType
+from ks_xlsx_parser.formula.formula_parser import FormulaParser
+from ks_xlsx_parser.models import CellCoord, DependencyEdgeDTO, DependencyGraph, EdgeType
 
 
 class TestFormulaParser:

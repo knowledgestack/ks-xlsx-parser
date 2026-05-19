@@ -1,25 +1,27 @@
 """
 ks_xlsx_parser — public API entry point for the ks-xlsx-parser package.
 
-The source tree is flat: top-level modules at ``src/`` (``pipeline``,
+All modules live under the ``ks_xlsx_parser`` package (``pipeline``,
 ``models``, ``analysis``, ``verification``, etc.). This module re-exports
 the stable, user-facing names so callers can do::
 
     from ks_xlsx_parser import parse_workbook, ParseResult
 
-regardless of internal layout.
+and submodules remain importable directly::
+
+    from ks_xlsx_parser.pipeline import parse_workbook
 """
 from __future__ import annotations
 
 __version__ = "0.2.0"
 
-from pipeline import (  # noqa: F401
+from .pipeline import (  # noqa: F401
     ParseResult,
     compare_workbooks,
     export_importer,
     parse_workbook,
 )
-from verification import (  # noqa: F401
+from .verification import (  # noqa: F401
     ExcellentStage,
     StageVerifier,
     VerificationReport,

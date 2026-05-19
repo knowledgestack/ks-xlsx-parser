@@ -23,22 +23,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: pip
-          cache-dependency-path: pyproject.toml
 
       - name: Install
-        run: |
-          python -m pip install --upgrade pip
-          pip install -e ".[dev,api]"
-
-      - name: Ruff lint
-        run: |
-          pip install ruff
-          ruff check src/ tests/ scripts/ || true  # non-blocking until cleanup PR lands
+        run: uv pip install --system -e ".[dev,api]"
 
       - name: Run test suite
         run: make test-ci
@@ -50,3 +48,56 @@ jobs:
           name: junit-${{ matrix.os }}-py${{ matrix.python-version }}
           path: reports/junit.xml
           if-no-files-found: ignore
+
+  # Builds the wheel and proves it installs + imports in a CLEAN venv.
+  # The matrix `test` job runs against an editable install, which exposes the
+  # whole src/ tree on sys.path and therefore CANNOT catch a broken wheel —
+  # exactly how the v0.2.0 "pipeline.py missing from wheel" bug shipped.
+  # This job is the regression guard. Keep it required.
+  wheel-check:
+    name: wheel install smoke test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build wheel
+        run: |
+          python -m pip install --upgrade pip build
+          python -m build --wheel
+
+      - name: Verify wheel installs and imports in a clean venv
+        run: python scripts/verify_wheel.py
+
+  lint:
+    name: ruff lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Ruff lint
+        run: |
+          python -m pip install --upgrade pip ruff
+          # TODO(cleanup): 45 pre-existing findings (E402/B905/SIM*). Drop the
+          # `|| true` once the lint-cleanup PR lands so this job gates merges.
+          ruff check src/ tests/ scripts/ || true
+
+  typecheck:
+    name: mypy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: mypy
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev,api]"
+          # TODO(cleanup): 59 pre-existing findings. Drop `|| true` once typed.
+          python -m mypy src/ks_xlsx_parser || true
