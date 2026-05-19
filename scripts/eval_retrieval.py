@@ -34,13 +34,16 @@ import re
 import signal
 import sys
 import time
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
+# Keep ``import scripts.X`` style imports working when invoked as
+# ``python scripts/eval_retrieval.py``. We no longer need ``src`` on the
+# path — ks_xlsx_parser is a properly-installed package now.
 sys.path.insert(0, str(REPO_ROOT))
-sys.path.insert(0, str(REPO_ROOT / "src"))
 
 
 def _normalize_value_for_match(s: str) -> set[str]:
@@ -254,7 +257,7 @@ def parse_position_spec(
 
 
 def extract_chunks_ks(path: Path) -> list[Chunk]:
-    from pipeline import parse_workbook
+    from ks_xlsx_parser.pipeline import parse_workbook
 
     result = parse_workbook(path=str(path))
     out: list[Chunk] = []
@@ -442,6 +445,62 @@ class InstanceResult:
     extra: dict[str, Any] = field(default_factory=dict)
 
 
+# ────────────────────────────────────────────────────────── failure triage
+#
+# recall@5 sitting at ~0.70 means ~30% of questions miss. A single recall
+# number can't tell you WHY — and the fix is completely different per cause:
+#
+#   * answer_absent_from_chunks → the answer value is in NO chunk at all.
+#     The parser dropped/garbled the cell. Fix the EXTRACTION pipeline.
+#   * present_but_ranked_low    → a chunk DOES contain the answer, but the
+#     embedding model ranked it past k. Fix CHUNKING (smaller/cleaner
+#     chunks rank better) or the embedding step — NOT the parser.
+#   * wrong_sheet               → answer is on a sheet we produced no chunk
+#     for, or mis-attributed the sheet. Fix sheet enumeration.
+#   * geometric_no_overlap      → no chunk's A1 range overlaps ground truth
+#     even though text may match. Fix RANGE bookkeeping (top_left /
+#     bottom_right anchors drift during merge/split).
+#   * no_chunks / parse_error   → upstream parser failure.
+#
+# Splitting the miss population into these buckets turns "recall is low"
+# into a ranked, actionable worklist. This is the single most useful thing
+# for an agent iterating on recall — see scripts/triage_recall.py.
+
+FAILURE_BUCKETS = (
+    "answer_absent_from_chunks",
+    "present_but_ranked_low",
+    "wrong_sheet",
+    "geometric_no_overlap",
+    "no_chunks",
+    "parse_error",
+    "unparseable_ground_truth",
+)
+
+
+def classify_text_failure(rec: dict[str, Any]) -> str | None:
+    """Bucket a single result record for the TEXT-match recall@5 metric.
+
+    Returns None if the instance was a recall@5 hit (rank ≤ 5) or was not
+    scoreable (no ground-truth values to match against).
+    """
+    if rec.get("error"):
+        return "no_chunks" if rec.get("n_chunks", 0) == 0 else "parse_error"
+    if not rec.get("had_answer_values", True):
+        return None  # not scoreable for text-match — exclude, don't penalise
+    if rec.get("n_chunks", 0) == 0:
+        return "no_chunks"
+    rank = rec.get("rank_of_text_match")
+    if rank is not None and rank <= 5:
+        return None  # hit
+    if rank is None:
+        # Not in any chunk. Distinguish "value never extracted" from
+        # "value extracted but on a sheet we never chunked".
+        if rec.get("answer_on_unchunked_sheet"):
+            return "wrong_sheet"
+        return "answer_absent_from_chunks"
+    return "present_but_ranked_low"  # rank > 5
+
+
 def score_instance(
     *,
     parser_name: str,
@@ -452,8 +511,10 @@ def score_instance(
     answer_position: str,
     default_sheet: str | None,
     answer_cell_values: list[str],
+    answer_regions: list[tuple[str | None, tuple[int, int, int, int]]] | None = None,
     model,
     per_parser_timeout_s: float = 60.0,
+    emit_failures: bool = False,
 ) -> InstanceResult:
     import numpy as np
 
@@ -547,6 +608,38 @@ def score_instance(
                 rank_text = r
                 break
 
+    # Did the parser produce ANY chunk on the sheet(s) the answer lives on?
+    # If not, a text miss is a sheet-enumeration bug, not a cell-drop bug.
+    answer_on_unchunked_sheet = False
+    if answer_regions:
+        gt_sheets = {s for s, _ in answer_regions if s}
+        chunk_sheets = {c.sheet for c in chunks if c.sheet}
+        if gt_sheets and chunk_sheets and not (gt_sheets & chunk_sheets):
+            answer_on_unchunked_sheet = True
+
+    extra: dict[str, Any] = {
+        "answer_on_unchunked_sheet": answer_on_unchunked_sheet,
+        "had_answer_values": bool(answer_cell_values),
+    }
+    if emit_failures:
+        # Dump the top-8 ranked chunks so a human/agent can eyeball WHY the
+        # answer was missed without re-running the (expensive) benchmark.
+        top: list[dict[str, Any]] = []
+        for r, idx in enumerate(ranking[:8], start=1):
+            c = chunks[idx]
+            top.append({
+                "rank": r,
+                "sheet": c.sheet,
+                "range": (
+                    f"{c.top_left}:{c.bottom_right}"
+                    if c.top_left else None
+                ),
+                "contains_answer": _matches_chunk_text(answer_cell_values, c.text or ""),
+                "text": (c.text or "")[:280],
+            })
+        extra["top_chunks"] = top
+        extra["answer_values"] = answer_cell_values[:20]
+
     return InstanceResult(
         instance_id=inst_id,
         parser=parser_name,
@@ -558,6 +651,7 @@ def score_instance(
         chunks_overlapping_data=len(overlap_idxs),
         rank_of_first_overlap=rank_overlap,
         rank_of_text_match=rank_text,
+        extra=extra,
     )
 
 
@@ -650,6 +744,21 @@ def aggregate(results: list[InstanceResult]) -> dict[str, Any]:
 
         parse_times = [r.parse_ms for r in recs if not r.error]
 
+        # Failure-bucket histogram for the text-match recall@5 metric.
+        # Only counts instances that HAD ground-truth values to match
+        # against (others aren't scoreable). See classify_text_failure.
+        buckets = dict.fromkeys(FAILURE_BUCKETS, 0)
+        for r in recs:
+            bucket = classify_text_failure({
+                "error": r.error,
+                "n_chunks": r.n_chunks,
+                "rank_of_text_match": r.rank_of_text_match,
+                "had_answer_values": r.extra.get("had_answer_values", True),
+                "answer_on_unchunked_sheet": r.extra.get("answer_on_unchunked_sheet"),
+            })
+            if bucket is not None:
+                buckets[bucket] += 1
+
         summary[parser] = {
             "instances": total,
             "ok": ok,
@@ -667,6 +776,9 @@ def aggregate(results: list[InstanceResult]) -> dict[str, Any]:
             if parse_times else None,
             "p50_parse_ms": round(sorted(parse_times)[len(parse_times) // 2], 2)
             if parse_times else None,
+            # Why the text-match recall@5 misses happen, bucketed. The
+            # biggest bucket is the highest-leverage thing to fix next.
+            "failure_buckets": buckets,
         }
 
     return summary
@@ -701,6 +813,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--test-case", type=int, default=1,
                         help="Which of the (typically 3) test cases per instance "
                              "to score on. We use one to keep eval costs bounded.")
+    parser.add_argument("--emit-failures", action="store_true",
+                        help="Also write failures.ndjson — one row per "
+                             "recall@5 miss with the top-8 ranked chunks and "
+                             "ground-truth values, for failure triage.")
     parser.add_argument("--per-parser-timeout", type=float, default=60.0,
                         help="Wall-clock seconds before a parser is "
                              "considered hung on a single file (docling can "
@@ -736,6 +852,7 @@ def main(argv: list[str] | None = None) -> int:
     ndjson_path = out_dir / "results.ndjson"
 
     results: list[InstanceResult] = []
+    failure_rows: list[dict[str, Any]] = []
     n = len(instances) * len(parser_fns)
     done = 0
 
@@ -786,10 +903,20 @@ def main(argv: list[str] | None = None) -> int:
                     answer_position=answer_pos,
                     default_sheet=default_sheet,
                     answer_cell_values=answer_values,
+                    answer_regions=answer_regions,
                     model=model,
                     per_parser_timeout_s=args.per_parser_timeout,
+                    emit_failures=args.emit_failures,
                 )
                 results.append(res)
+                bucket = classify_text_failure({
+                    "error": res.error,
+                    "n_chunks": res.n_chunks,
+                    "rank_of_text_match": res.rank_of_text_match,
+                    "had_answer_values": res.extra.get("had_answer_values", True),
+                    "answer_on_unchunked_sheet": res.extra.get(
+                        "answer_on_unchunked_sheet"),
+                })
                 f.write(json.dumps({
                     "instance_id": res.instance_id,
                     "parser": res.parser,
@@ -801,14 +928,35 @@ def main(argv: list[str] | None = None) -> int:
                     "chunks_overlapping_data": res.chunks_overlapping_data,
                     "rank_of_first_overlap": res.rank_of_first_overlap,
                     "rank_of_text_match": res.rank_of_text_match,
+                    "failure_bucket": bucket,
                     "error": res.error,
                 }, separators=(",", ":")) + "\n")
+                if args.emit_failures and bucket is not None:
+                    failure_rows.append({
+                        "instance_id": res.instance_id,
+                        "parser": res.parser,
+                        "failure_bucket": bucket,
+                        "instruction": instr,
+                        "answer_position": answer_pos,
+                        "answer_values": res.extra.get("answer_values", []),
+                        "rank_of_text_match": res.rank_of_text_match,
+                        "n_chunks": res.n_chunks,
+                        "top_chunks": res.extra.get("top_chunks", []),
+                        "error": res.error,
+                    })
                 done += 1
                 if done % 10 == 0:
                     sys.stderr.write(f"\r[{done}/{n}] ")
                     sys.stderr.flush()
 
     sys.stderr.write(f"\nWrote {ndjson_path}\n")
+
+    if args.emit_failures:
+        fail_path = out_dir / "failures.ndjson"
+        with fail_path.open("w") as ff:
+            for row in failure_rows:
+                ff.write(json.dumps(row, separators=(",", ":")) + "\n")
+        sys.stderr.write(f"Wrote {fail_path} ({len(failure_rows)} failure rows)\n")
 
     summary = aggregate(results)
     summary_path = out_dir / "summary.json"
@@ -852,6 +1000,20 @@ def main(argv: list[str] | None = None) -> int:
                     "ground-truth `answer_position`. Requires the parser to surface "
                     "(sheet, range) per chunk — docling does not, so its geometric "
                     "recall is structurally 0.")
+    md_lines.append("")
+    md_lines.append("## Failure buckets (text-match recall@5 misses)")
+    md_lines.append("")
+    md_lines.append("Why each miss happened — the biggest bucket is the highest-")
+    md_lines.append("leverage fix. `answer_absent_from_chunks` → fix extraction; ")
+    md_lines.append("`present_but_ranked_low` → fix chunking/embedding.")
+    md_lines.append("")
+    md_lines.append("| Bucket | " + " | ".join(parsers) + " |")
+    md_lines.append("|---|" + "|".join(["---"] * len(parsers)) + "|")
+    for b in FAILURE_BUCKETS:
+        row = [b]
+        for p in parsers:
+            row.append(str(summary[p].get("failure_buckets", {}).get(b, 0)))
+        md_lines.append("| " + " | ".join(row) + " |")
     md_lines.append("")
     md_lines.append("**Text-match** = the answer cell's actual string value appears "
                     "as a substring of the chunk's text. Parser-agnostic; this is "

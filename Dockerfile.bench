@@ -1,0 +1,49 @@
+# Benchmark image for ks-xlsx-parser.
+#
+# Builds once, then on each run downloads SpreadsheetBench (if not cached),
+# parses the corpus, embeds chunks with a small sentence-transformer, and
+# emits a recall@k report + failure-bucket triage. The output lands in
+# tests/benchmarks/reports/ — mount that path as a volume to persist results.
+#
+# Usage:
+#   docker build -f Dockerfile.bench -t ks-xlsx-parser-bench .
+#   docker run --rm \
+#       -v "$PWD/tests/benchmarks/reports:/app/tests/benchmarks/reports" \
+#       -v "$PWD/data:/app/data" \
+#       ks-xlsx-parser-bench
+#
+#   # Quick sanity run on 20 instances:
+#   docker run --rm -e BENCH_SAMPLE=20 ks-xlsx-parser-bench
+
+FROM python:3.12-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        curl unzip ca-certificates git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install deps first to keep layers cacheable across code edits.
+COPY pyproject.toml README.md ./
+COPY src ./src
+RUN pip install -e ".[dev,bench]"
+
+# Pre-warm the embedding model so the first ``docker run`` doesn't pay the
+# ~80 MB download. Same model name eval_retrieval.py defaults to.
+RUN python -c "from sentence_transformers import SentenceTransformer; \
+SentenceTransformer('BAAI/bge-small-en-v1.5')"
+
+COPY scripts ./scripts
+COPY tests ./tests
+COPY Makefile ./
+
+ENV BENCH_SAMPLE=0 \
+    BENCH_PARSERS=ks \
+    BENCH_TIMEOUT=120
+
+ENTRYPOINT ["bash", "scripts/run_bench.sh"]

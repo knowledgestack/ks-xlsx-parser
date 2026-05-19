@@ -37,6 +37,12 @@ jobs:
       - name: Build wheel + sdist
         run: python -m build
 
+      # Gate the release on a clean-venv install of the freshly built wheel.
+      # Prevents shipping a wheel that drops modules or leaks top-level
+      # packages (the v0.2.0 packaging regression).
+      - name: Verify wheel
+        run: python scripts/verify_wheel.py
+
       - name: Upload distribution artifacts
         uses: actions/upload-artifact@v4
         with:

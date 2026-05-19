@@ -45,6 +45,52 @@ Template for a new release (copy this block, fill in, move Unreleased items in):
 
 ## [Unreleased]
 
+### ⚠️ BREAKING (Fixed — see also #ks-xlsx-parser channel report)
+- Repository layout flattened on `src/` was leaking 13 generic top-level
+  packages (`models`, `utils`, `parsers`, …) into installed wheels and
+  silently dropping `pipeline.py` and `api.py` (setuptools `packages.find`
+  only finds *packages*, not top-level modules). Users hitting
+  `from ks_xlsx_parser.pipeline import ...` on 0.2.0 from PyPI got
+  `ModuleNotFoundError`. **All modules now live under
+  `src/ks_xlsx_parser/`**; the wheel's `top_level.txt` contains only
+  `ks_xlsx_parser`. Imports inside the package switched from
+  `from pipeline import` to `from ks_xlsx_parser.pipeline import`.
+  Downstream code that imported the leaked generics
+  (`from models import …`) MUST migrate to `from ks_xlsx_parser.models …`.
+
+### Added
+- `scripts/verify_wheel.py` — builds the wheel, installs it in a fresh
+  venv, and asserts the public import surface resolves. Wired into a
+  new `wheel-check` job in `.github/workflows/ci.yml` and a `Verify wheel`
+  step in `release.yml`. Regression guard for the packaging bug above.
+- `scripts/triage_recall.py` + `scripts/append_bench_history.py` — turn
+  `failures.ndjson` into a ranked bucket histogram with exemplar
+  failures, and append each benchmark run to
+  `tests/benchmarks/reports/history.jsonl` so recall is tracked
+  commit-over-commit. Goal: text recall@5 > 0.90.
+- `eval_retrieval.py --emit-failures` — dumps top-8 ranked chunks per
+  miss with a `failure_bucket` (answer_absent_from_chunks /
+  present_but_ranked_low / wrong_sheet / geometric_no_overlap / …) for
+  triage. Summary JSON gains a `failure_buckets` histogram.
+- `Dockerfile.bench` + `.github/workflows/benchmark.yml` — reproducible
+  benchmark image; PR sample run (60 instances), weekly full corpus run.
+- `make install-dev` alias and `make wheel-check` / `make bench-track`
+  / `make docker-bench` targets.
+- New `bench` optional-dependency group (`sentence-transformers`,
+  `numpy`) — only the benchmark needs these.
+- `docs/recall-investigation.md` documenting the diagnosis framework and
+  three named hypotheses (chunk-size dilution, formula-expression
+  rendering, range-bookkeeping drift).
+- `.claude/skills/recall-failure-triage/SKILL.md` — agent skill that
+  consumes the bucket output and proposes ranked fixes.
+
+### Changed
+- Dropped `PYTHONPATH=src` from Makefile benchmark targets — the
+  package is now properly installable so callers don't need it.
+- `pyproject.toml`: `packages.find` constrained to `ks_xlsx_parser*`,
+  `py.typed` declared as package data, `xlsx-parser-api` console script
+  updated to `ks_xlsx_parser.api:main`.
+
 ### ⚠️ BREAKING
 - Retired the in-tree `testBench/` corpus. The 1054-workbook stress dataset
   and `make testbench*` targets are gone — benchmarks now run against the

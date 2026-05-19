@@ -1,5 +1,5 @@
 """
-Structural invariant tests for the xlsx_parser.
+Structural invariant tests for the ks_xlsx_parser.
 
 Tests properties that must always hold for any valid parse output,
 regardless of the input file: merge structure, used range bounds,
@@ -13,11 +13,8 @@ import re
 
 import pytest
 
-from pipeline import parse_workbook
-from models.common import EdgeType
-
-from tests.helpers.invariant_checker import check_invariants
-
+from ks_xlsx_parser.models.common import EdgeType
+from ks_xlsx_parser.pipeline import parse_workbook
 
 # ---------------------------------------------------------------------------
 # Invariant tests on programmatic fixtures

@@ -28,10 +28,10 @@ _HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(_HERE.parent.parent.parent))  # repo root
 sys.path.insert(0, str(_HERE.parent.parent.parent / "src"))  # src layout
 
-from tests.benchmarks._mem import peak_rss_mb  # noqa: E402
-from tests.benchmarks._schema import BenchmarkRecord, SCHEMA_VERSION  # noqa: E402
 from ks_xlsx_parser import __version__ as KS_VERSION  # noqa: E402
 from ks_xlsx_parser import parse_workbook  # noqa: E402
+from tests.benchmarks._mem import peak_rss_mb  # noqa: E402
+from tests.benchmarks._schema import SCHEMA_VERSION, BenchmarkRecord  # noqa: E402
 
 MAX_ERR_LEN = 500
 

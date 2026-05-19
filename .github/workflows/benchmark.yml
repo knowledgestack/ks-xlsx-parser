@@ -1,0 +1,85 @@
+name: Benchmark
+
+# Tracks ks-xlsx-parser retrieval recall on SpreadsheetBench over time.
+# The headline goal: text recall@5 > 0.90 (currently ~0.70).
+#
+#   * Pull requests run a fast SAMPLE (60 instances) as a regression smoke
+#     test — keeps the signal without a 40-minute wait.
+#   * The weekly schedule + manual dispatch run the FULL 912-instance
+#     corpus and publish the recall trend.
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "scripts/eval_retrieval.py"
+      - "scripts/triage_recall.py"
+      - "Dockerfile.bench"
+      - ".github/workflows/benchmark.yml"
+  schedule:
+    - cron: "0 6 * * 1" # Mondays 06:00 UTC
+  workflow_dispatch:
+    inputs:
+      sample:
+        description: "Instances to sample (0 = full 912 corpus)"
+        default: "0"
+
+concurrency:
+  group: benchmark-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      # PRs use a 60-instance sample; scheduled/dispatch runs use the full
+      # corpus (or whatever the dispatch input requests).
+      - name: Resolve sample size
+        id: cfg
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "sample=60" >> "$GITHUB_OUTPUT"
+          else
+            echo "sample=${{ github.event.inputs.sample || 0 }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Cache SpreadsheetBench corpus
+        uses: actions/cache@v4
+        with:
+          path: data/corpora/spreadsheetbench
+          key: spreadsheetbench-912-v0.1
+
+      - name: Build benchmark image
+        run: docker build -f Dockerfile.bench -t ks-xlsx-parser-bench .
+
+      - name: Run benchmark
+        run: |
+          mkdir -p tests/benchmarks/reports data
+          docker run --rm \
+            -e BENCH_SAMPLE=${{ steps.cfg.outputs.sample }} \
+            -v "$PWD/tests/benchmarks/reports:/app/tests/benchmarks/reports" \
+            -v "$PWD/data:/app/data" \
+            ks-xlsx-parser-bench | tee bench.log
+
+      - name: Publish recall to job summary
+        if: always()
+        run: |
+          {
+            echo '## ks-xlsx-parser retrieval benchmark'
+            echo ''
+            echo '```'
+            tail -n 40 bench.log || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload benchmark reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-reports-${{ github.run_number }}
+          path: tests/benchmarks/reports/
+          if-no-files-found: warn

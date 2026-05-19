@@ -8,7 +8,6 @@ cross-sheet references, conditional formatting, data validation, etc.
 
 
 
-import os
 import tempfile
 from pathlib import Path
 
@@ -17,7 +16,6 @@ from openpyxl import Workbook
 from openpyxl.chart import BarChart, Reference
 from openpyxl.formatting.rule import CellIsRule, ColorScaleRule, IconSetRule
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
-from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.worksheet.table import Table, TableStyleInfo
 

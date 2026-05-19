@@ -18,10 +18,8 @@ import statistics
 import subprocess
 import sys
 from collections import defaultdict
-from dataclasses import asdict
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Iterable
 
 from ._runner import Runner
 from ._schema import CSV_FIELDS, BenchmarkRecord, record_to_csv_row, validate_record
@@ -344,7 +342,7 @@ def generate_drift(out_dir: Path) -> None:
                 short = Path(fname).name
                 lines.append(f"| {short} | {va} | {vb} | {va - vb:+d} |")
         if n_drift == 0:
-            lines.append(f"| _no drift_ | | | |")
+            lines.append("| _no drift_ | | | |")
         elif n_drift > 50:
             lines.append(f"| … {n_drift - 50} more rows truncated | | | |")
         lines.append("")
