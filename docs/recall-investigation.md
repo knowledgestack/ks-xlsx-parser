@@ -32,7 +32,38 @@ fixing the biggest one.
 | `geometric_no_overlap`      | No chunk's A1 range overlaps ground truth. Range bookkeeping drifts during merge/split. | `annotation/block_splitter.py`, `analysis/pattern_splitter.py` |
 | `no_chunks` / `parse_error` | Upstream parser failure. | The parse exception — fix the crash. |
 
-## A priori hypotheses (to be confirmed by the next benchmark run)
+## First-run findings (200-sample seed=1337, May 2026)
+
+Headline numbers refuted my **H1** ("present_but_ranked_low dominates")
+and surfaced something the original analysis missed entirely. Of 157
+failures in the seed=1337 sample:
+
+* **127 (81%) are `instruction_requires_execution`** — the benchmark
+  is asking the system to *compute and write* the answer. The
+  `answer_position` cell range in `input.xlsx` is empty by design. A
+  parser cannot retrieve what isn't there. These instances need to be
+  filtered from the headline metric (TODO 05).
+* **30 are truly actionable** parser failures, clustering into 4 named
+  buckets (TODOs 00, 01, 02, 03, 04 in
+  [docs/planning/recall-90/](./planning/recall-90/)).
+* Zero of the 30 are `present_but_ranked_low`. Chunk-size dilution
+  may matter on the full 912-corpus but is NOT the dominant problem
+  on the 200-sample.
+
+The dominant **citation-grade killer** turned out to be
+`text_hit_geom_miss` (84 of 200, mostly inside the 127 execution
+instances; 9 are actionable parser bugs). The chunk text contains
+the answer string, but the chunk's claimed A1 range doesn't overlap
+ground truth — exactly **H3** ("range-bookkeeping drift").
+
+When the in-scope filter is applied, real `recall_text@5` is
+**0.59**, not 0.635. Closing the 30 actionable failures gets us
+near 0.90 on the in-scope metric.
+
+See [docs/planning/recall-90/](./planning/recall-90/) for the
+ranked TODO list.
+
+## A priori hypotheses (now confirmed/refuted; left as history)
 
 ### H1 — `present_but_ranked_low` is the biggest bucket
 
