@@ -66,6 +66,11 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--bucket", help="only show examples for this bucket")
     ap.add_argument("--examples", type=int, default=3,
                     help="example failures to print per bucket (default 3)")
+    ap.add_argument("--include-out-of-scope", action="store_true",
+                    help="include execution-required instances (cluster 05); "
+                         "default omits them since no parser can satisfy "
+                         "them — they would dominate the histogram with "
+                         "noise.")
     args = ap.parse_args(argv)
 
     path = find_failures_file(args.path)
@@ -74,8 +79,25 @@ def main(argv: list[str] | None = None) -> int:
         print(f"{path} is empty — no failures recorded (or run was a no-op).")
         return 0
 
+    # Default to filtering out the out-of-scope (execution-required) rows so
+    # the bucket histogram surfaces ACTIONABLE parser problems. Read the
+    # adjacent out_of_scope.txt for the canonical filter list. See
+    # docs/planning/recall-90/05-out-of-scope-execution-instances.md.
+    out_of_scope: set[str] = set()
+    if not args.include_out_of_scope:
+        oos_path = path.parent / "out_of_scope.txt"
+        if oos_path.exists():
+            out_of_scope = {
+                ln.strip() for ln in oos_path.read_text().splitlines()
+                if ln.strip() and not ln.startswith("#")
+            }
+    pre_filter = len(rows)
+    rows = [r for r in rows if str(r.get("instance_id")) not in out_of_scope]
+
     print(f"# Recall failure triage — {path}")
-    print(f"# {len(rows)} total failure rows\n")
+    print(f"# {len(rows)} actionable failure rows "
+          f"({pre_filter - len(rows)} execution-required excluded; "
+          "pass --include-out-of-scope to keep them)\n")
 
     hist = Counter(r.get("failure_bucket") for r in rows)
     print("## Bucket histogram (ranked by count — fix the top one first)\n")

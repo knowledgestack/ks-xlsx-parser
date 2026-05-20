@@ -178,46 +178,64 @@ def enrich(run_dir: Path, corpus: Path, out_path: Path) -> None:
                                  if answer_regions else answer_sheet)
         answer_range_bbox = answer_regions[0][1] if answer_regions else None
         n_input_cells_in_answer_range = 0
-        if (wb_d and answer_sheet_resolved and answer_range_bbox
-                and answer_sheet_resolved in wb_d.sheetnames):
-            try:
+        # When the dataset has no `answer_sheet` (561/912 instances) the
+        # answer_position is a bare range — fall back to the first
+        # worksheet, same as the harness scoring path. Without this fallback
+        # the flag is a false positive for ~470 of 912 instances.
+        if wb_d and answer_range_bbox:
+            ws = None
+            if answer_sheet_resolved and answer_sheet_resolved in wb_d.sheetnames:
                 ws = wb_d[answer_sheet_resolved]
-                r0, c0, r1, c1 = answer_range_bbox
-                for row in ws.iter_rows(min_row=r0, max_row=r1, min_col=c0,
-                                        max_col=c1, values_only=True):
-                    for v in row:
-                        if v is not None and str(v).strip():
-                            n_input_cells_in_answer_range += 1
-            except Exception:
-                pass
+            elif wb_d.worksheets:
+                ws = wb_d.worksheets[0]
+            if ws is not None:
+                try:
+                    r0, c0, r1, c1 = answer_range_bbox
+                    for row in ws.iter_rows(min_row=r0, max_row=r1, min_col=c0,
+                                            max_col=c1, values_only=True):
+                        for v in row:
+                            if v is not None and str(v).strip():
+                                n_input_cells_in_answer_range += 1
+                except Exception:
+                    pass
 
         gt_cell_raw = None
         gt_cell_formula = None
         gt_cell_data_only = None
         n_workbook_cells_in_gt = 0
-        if wb_f and gt_sheet and gt_sheet in wb_f.sheetnames and gt_range_bbox:
-            ws_f = wb_f[gt_sheet]
-            ws_d = wb_d[gt_sheet]
-            r0, c0, r1, c1 = gt_range_bbox
-            # First cell only — enough to know "formula vs. value".
-            try:
-                tl_cell_f = ws_f.cell(row=r0, column=c0)
-                tl_cell_d = ws_d.cell(row=r0, column=c0)
-                gt_cell_raw = tl_cell_f.value
-                if isinstance(gt_cell_raw, str) and gt_cell_raw.startswith("="):
-                    gt_cell_formula = gt_cell_raw
-                gt_cell_data_only = tl_cell_d.value
-            except Exception:
-                pass
-            # Count non-empty cells across the range
-            try:
-                for row in ws_d.iter_rows(min_row=r0, max_row=r1, min_col=c0,
-                                          max_col=c1, values_only=True):
-                    for v in row:
-                        if v is not None and str(v).strip():
-                            n_workbook_cells_in_gt += 1
-            except Exception:
-                pass
+        # Same first-worksheet fallback as the answer-range block above.
+        # Without it, every instance with no explicit `answer_sheet` (561 / 912
+        # in the v0.1 corpus) trips the `gt_range_empty_in_workbook` flag
+        # spuriously.
+        if wb_f and gt_range_bbox:
+            ws_f = ws_d = None
+            if gt_sheet and gt_sheet in wb_f.sheetnames:
+                ws_f = wb_f[gt_sheet]
+                ws_d = wb_d[gt_sheet]
+            elif wb_f.worksheets:
+                ws_f = wb_f.worksheets[0]
+                ws_d = wb_d.worksheets[0]
+            if ws_f is not None and ws_d is not None:
+                r0, c0, r1, c1 = gt_range_bbox
+                # First cell only — enough to know "formula vs. value".
+                try:
+                    tl_cell_f = ws_f.cell(row=r0, column=c0)
+                    tl_cell_d = ws_d.cell(row=r0, column=c0)
+                    gt_cell_raw = tl_cell_f.value
+                    if isinstance(gt_cell_raw, str) and gt_cell_raw.startswith("="):
+                        gt_cell_formula = gt_cell_raw
+                    gt_cell_data_only = tl_cell_d.value
+                except Exception:
+                    pass
+                # Count non-empty cells across the range
+                try:
+                    for row in ws_d.iter_rows(min_row=r0, max_row=r1, min_col=c0,
+                                              max_col=c1, values_only=True):
+                        for v in row:
+                            if v is not None and str(v).strip():
+                                n_workbook_cells_in_gt += 1
+                except Exception:
+                    pass
 
         chunks_on_gt = [c for c in chunks if gt_sheet and c.sheet_name == gt_sheet]
         gt_chunk_bbox = chunk_bbox(chunks_on_gt)
