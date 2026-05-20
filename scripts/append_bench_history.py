@@ -66,10 +66,15 @@ def main(argv: list[str] | None = None) -> int:
         "parser": args.parser,
         "run": summary_path.parent.name,
         "instances": metrics.get("instances"),
+        "in_scope_instances": metrics.get("in_scope_instances"),
+        "out_of_scope_instances": metrics.get("out_of_scope_instances"),
         "recall_text@1": metrics.get("recall_text@1"),
         "recall_text@3": metrics.get("recall_text@3"),
         "recall_text@5": metrics.get("recall_text@5"),
         "recall_geometric@5": metrics.get("recall_geometric@5"),
+        # In-scope numbers are the gate per the recall-90 roadmap.
+        "recall_text@5_in_scope": metrics.get("recall_text@5_in_scope"),
+        "recall_geometric@5_in_scope": metrics.get("recall_geometric@5_in_scope"),
         "table_fragmentation_rate": metrics.get("table_fragmentation_rate"),
         "mean_parse_ms": metrics.get("mean_parse_ms"),
         "errors": metrics.get("errors"),
@@ -82,13 +87,14 @@ def main(argv: list[str] | None = None) -> int:
 
     print(f"appended to {HISTORY.relative_to(ROOT)}:")
     print(f"  commit {row['commit']}  recall_text@5={row['recall_text@5']}  "
-          f"recall_text@1={row['recall_text@1']}")
+          f"in_scope={row['recall_text@5_in_scope']}")
 
     # Show the trend if there's history to compare against.
     rows = [json.loads(ln) for ln in HISTORY.read_text().splitlines() if ln.strip()]
     if len(rows) >= 2:
         prev, cur = rows[-2], rows[-1]
-        for k in ("recall_text@5", "recall_text@1"):
+        for k in ("recall_text@5", "recall_text@5_in_scope",
+                  "recall_geometric@5", "recall_geometric@5_in_scope"):
             p, c = prev.get(k), cur.get(k)
             if isinstance(p, int | float) and isinstance(c, int | float):
                 delta = c - p

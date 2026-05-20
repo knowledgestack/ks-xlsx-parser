@@ -198,8 +198,15 @@ def parse_a1(a1: str) -> tuple[int, int] | None:
 
 
 def parse_range(rng: str) -> tuple[int, int, int, int] | None:
-    """Parse 'A1:D10' → (r0, c0, r1, c1). Single cell 'A1' → (1,1,1,1)."""
-    rng = rng.strip()
+    """Parse 'A1:D10' → (r0, c0, r1, c1). Single cell 'A1' → (1,1,1,1).
+
+    Tolerates whitespace around the colon ('A1: D10') and the fullwidth
+    colon ('A1：D10') — both shapes appear in SpreadsheetBench
+    `data_position` / `answer_position` strings.
+    """
+    rng = rng.strip().replace("：", ":")
+    # Collapse any whitespace around the colon: 'A1 : D10' -> 'A1:D10'
+    rng = re.sub(r"\s*:\s*", ":", rng)
     m = RANGE_RE.match(rng)
     if m:
         r0 = int(m.group(2))
@@ -221,35 +228,52 @@ def parse_position_spec(
     Examples that appear in the wild:
       "A1:D10"                            → [(default_sheet, A1:D10)]
       "'Sheet1'!A1:D10"                   → [("Sheet1", A1:D10)]
-      "Sheet1'!A1:D10"                    → [("Sheet1", A1:D10)]   (typo in dataset)
+      "Sheet1'!A1:D10"                    → [("Sheet1", A1:D10)]   (typo)
+      "'Sheet1!'A1:D10"                   → [("Sheet1", A1:D10)]   (typo)
       "'A'!B2:C3,'B'!D4"                  → [("A", B2:C3), ("B", D4:D4)]
       "Sheet1!A1:B2,Sheet2!C3:D4"         → [("Sheet1",…), ("Sheet2",…)]
+      "G12：J15"                          → [(default_sheet, G12:J15)]  (CJK colon)
 
     Returns a list of (sheet_or_None, range_box). Empty list if unparseable.
     """
     if not spec:
         return []
-    spec = spec.strip()
+    # Fullwidth colon `：` (U+FF1A) appears in a handful of CJK-locale dataset
+    # entries where Excel/WPS substituted it for the ASCII `:`.
+    spec = spec.strip().replace("：", ":")
 
     out: list[tuple[str | None, tuple[int, int, int, int]]] = []
 
-    # First try to extract any Sheet!Range patterns.
-    matched_any = False
+    # First try the strict regex — handles `'Sheet'!A1:B2` and bare
+    # `Sheet!A1:B2` cleanly. If it covers the whole spec we're done.
     for m in SHEET_RANGE_RE.finditer(spec):
-        matched_any = True
         sheet = m.group("sheet").strip().strip("'")
         rng = parse_range(m.group("range"))
         if rng is not None:
             out.append((sheet or default_sheet, rng))
 
-    if matched_any:
+    if out:
         return out
 
-    # No sheet-prefixed pieces — try a bare range or comma-separated bare ranges.
+    # Fallback for malformed quoted forms the strict regex rejects:
+    #   "Sheet1'!A1"        — stray closing quote, no opening
+    #   "'Sheet1!'A1"       — quote placed AFTER the `!` separator
+    # Split on `,` for multi-region, then on `!` for sheet/range, then
+    # strip stray apostrophes adjacent to either side of the separator.
     for piece in spec.split(","):
-        rng = parse_range(piece.strip().strip("'"))
+        piece = piece.strip()
+        if not piece:
+            continue
+        if "!" in piece:
+            sheet_part, _, range_part = piece.partition("!")
+            sheet = sheet_part.strip().strip("'").strip() or None
+            range_str = range_part.strip().strip("'").strip()
+        else:
+            sheet = None
+            range_str = piece.strip("'").strip()
+        rng = parse_range(range_str)
         if rng is not None:
-            out.append((default_sheet, rng))
+            out.append((sheet or default_sheet, rng))
     return out
 
 
@@ -658,6 +682,56 @@ def score_instance(
 # ────────────────────────────────────────────────────────────── answer values
 
 
+def classify_execution_required(
+    input_xlsx: Path,
+    answer_regions: list[tuple[str | None, tuple[int, int, int, int]]],
+) -> bool:
+    """Return True if the INPUT spreadsheet has no non-empty cells in any
+    `answer_regions` cell — i.e. the question is asking the system to
+    *compute and write* the answer, not retrieve it.
+
+    Parser-independent: only depends on the dataset + input.xlsx. Mirrors
+    the `instruction_requires_execution` flag emitted by enrich_failures.py
+    so the two stay consistent.
+
+    Returns False when in doubt (unreadable workbook, missing sheet) — the
+    in-scope number is the one we want to inflate the LEAST, so we err
+    toward "scoreable, even if dubious".
+    """
+    if not answer_regions:
+        return False
+    try:
+        from openpyxl import load_workbook
+
+        # data_only=True so the classifier matches the
+        # `instruction_requires_execution` flag emitted by
+        # ``scripts/enrich_failures.py`` (which uses the cached-value pass).
+        # An uncached formula at the answer cell means the parser has no
+        # value to retrieve — the question genuinely requires execution.
+        # See docs/planning/recall-90/05-out-of-scope-execution-instances.md
+        # acceptance criterion (2): "classifier reproducibly identifies
+        # ≥ 120 of the 127 currently-flagged instances".
+        wb = load_workbook(str(input_xlsx), data_only=True, read_only=True)
+        try:
+            for sheet_name, (r0, c0, r1, c1) in answer_regions:
+                if sheet_name and sheet_name in wb.sheetnames:
+                    ws = wb[sheet_name]
+                elif wb.worksheets:
+                    ws = wb.worksheets[0]
+                else:
+                    continue
+                for row in ws.iter_rows(min_row=r0, max_row=r1, min_col=c0,
+                                        max_col=c1, values_only=True):
+                    for v in row:
+                        if v is not None and str(v).strip():
+                            return False
+            return True
+        finally:
+            wb.close()
+    except Exception:
+        return False
+
+
 def read_answer_cell_values(
     answer_xlsx: Path,
     regions: list[tuple[str | None, tuple[int, int, int, int]]],
@@ -703,7 +777,20 @@ def read_answer_cell_values(
 # ────────────────────────────────────────────────────────────── aggregation
 
 
-def aggregate(results: list[InstanceResult]) -> dict[str, Any]:
+def aggregate(
+    results: list[InstanceResult],
+    execution_required: dict[str, bool] | None = None,
+) -> dict[str, Any]:
+    """Aggregate per-instance results into per-parser headline metrics.
+
+    When ``execution_required`` is supplied, emit *both* `recall_*@k` (all
+    instances — the long-standing number) and `recall_*@k_in_scope`
+    (denominator excludes instances the parser cannot possibly satisfy
+    because the answer cells are empty in the input). The latter is the
+    metric the recall-90 roadmap actually gates on. See
+    `docs/planning/recall-90/05-out-of-scope-execution-instances.md`.
+    """
+    exec_map = execution_required or {}
     by_parser: dict[str, list[InstanceResult]] = {}
     for r in results:
         by_parser.setdefault(r.parser, []).append(r)
@@ -713,11 +800,17 @@ def aggregate(results: list[InstanceResult]) -> dict[str, Any]:
         total = len(recs)
         errors = sum(1 for r in recs if r.error)
         ok = total - errors
+        n_out_of_scope = sum(
+            1 for r in recs if exec_map.get(str(r.instance_id))
+        )
+        in_scope_recs = [
+            r for r in recs if not exec_map.get(str(r.instance_id))
+        ]
 
-        def _recall_at(k: int, key: str) -> float:
+        def _recall_at(k: int, key: str, subset: list[InstanceResult]) -> float:
             hits = 0
             denom = 0
-            for r in recs:
+            for r in subset:
                 if r.error:
                     continue
                 rank = getattr(r, key)
@@ -763,12 +856,29 @@ def aggregate(results: list[InstanceResult]) -> dict[str, Any]:
             "instances": total,
             "ok": ok,
             "errors": errors,
-            "recall_geometric@1": _recall_at(1, "rank_of_first_overlap"),
-            "recall_geometric@3": _recall_at(3, "rank_of_first_overlap"),
-            "recall_geometric@5": _recall_at(5, "rank_of_first_overlap"),
-            "recall_text@1": _recall_at(1, "rank_of_text_match"),
-            "recall_text@3": _recall_at(3, "rank_of_text_match"),
-            "recall_text@5": _recall_at(5, "rank_of_text_match"),
+            "out_of_scope_instances": n_out_of_scope,
+            "in_scope_instances": total - n_out_of_scope,
+            "recall_geometric@1": _recall_at(1, "rank_of_first_overlap", recs),
+            "recall_geometric@3": _recall_at(3, "rank_of_first_overlap", recs),
+            "recall_geometric@5": _recall_at(5, "rank_of_first_overlap", recs),
+            "recall_text@1": _recall_at(1, "rank_of_text_match", recs),
+            "recall_text@3": _recall_at(3, "rank_of_text_match", recs),
+            "recall_text@5": _recall_at(5, "rank_of_text_match", recs),
+            # Recall over the subset of instances the parser can possibly
+            # satisfy (execution-required questions excluded). This is the
+            # metric the recall-90 roadmap gates on; see cluster-05 doc.
+            "recall_geometric@1_in_scope":
+                _recall_at(1, "rank_of_first_overlap", in_scope_recs),
+            "recall_geometric@3_in_scope":
+                _recall_at(3, "rank_of_first_overlap", in_scope_recs),
+            "recall_geometric@5_in_scope":
+                _recall_at(5, "rank_of_first_overlap", in_scope_recs),
+            "recall_text@1_in_scope":
+                _recall_at(1, "rank_of_text_match", in_scope_recs),
+            "recall_text@3_in_scope":
+                _recall_at(3, "rank_of_text_match", in_scope_recs),
+            "recall_text@5_in_scope":
+                _recall_at(5, "rank_of_text_match", in_scope_recs),
             "table_integrity_clean": n_clean,
             "table_integrity_fragmented": n_frag,
             "table_fragmentation_rate": round(frag_rate, 4),
@@ -853,6 +963,10 @@ def main(argv: list[str] | None = None) -> int:
 
     results: list[InstanceResult] = []
     failure_rows: list[dict[str, Any]] = []
+    # Map instance_id → True if input.xlsx has nothing at answer_position
+    # (i.e. the question asks the system to compute and write a value).
+    # Classified once per instance — parser-independent, cheap reuse.
+    execution_required: dict[str, bool] = {}
     n = len(instances) * len(parser_fns)
     done = 0
 
@@ -891,6 +1005,13 @@ def main(argv: list[str] | None = None) -> int:
             answer_values = (
                 read_answer_cell_values(answer_path, answer_regions)
                 if answer_regions else []
+            )
+
+            # Cluster-05 in-scope classifier: if the *input* spreadsheet has
+            # nothing at answer_position the question requires execution and
+            # no parser can retrieve the answer.
+            execution_required[inst_id] = classify_execution_required(
+                input_path, answer_regions
             )
 
             for parser_name, extract_fn in parser_fns.items():
@@ -958,10 +1079,23 @@ def main(argv: list[str] | None = None) -> int:
                 ff.write(json.dumps(row, separators=(",", ":")) + "\n")
         sys.stderr.write(f"Wrote {fail_path} ({len(failure_rows)} failure rows)\n")
 
-    summary = aggregate(results)
+    summary = aggregate(results, execution_required=execution_required)
     summary_path = out_dir / "summary.json"
     summary_path.write_text(json.dumps(summary, indent=2))
     sys.stderr.write(f"Wrote {summary_path}\n")
+
+    # Audit log of which instances the in-scope filter excluded. Diff this
+    # across runs to spot classifier drift; argue with it if you disagree.
+    out_of_scope_ids = sorted(
+        iid for iid, is_exec in execution_required.items() if is_exec
+    )
+    (out_dir / "out_of_scope.txt").write_text(
+        f"# {len(out_of_scope_ids)} instances classified as "
+        "instruction_requires_execution\n"
+        "# (input.xlsx has no non-empty cells at answer_position — "
+        "answer must be computed, not retrieved)\n"
+        + "\n".join(out_of_scope_ids) + ("\n" if out_of_scope_ids else "")
+    )
 
     # Human-readable summary
     md_lines = ["# Retrieval-recall benchmark (SpreadsheetBench)\n"]
@@ -973,12 +1107,16 @@ def main(argv: list[str] | None = None) -> int:
     md_lines.append("| Metric | " + " | ".join(parsers) + " |")
     md_lines.append("|---|" + "|".join(["---"] * len(parsers)) + "|")
     metrics = [
-        ("recall_geometric@1", "Recall@1 (geometric)"),
-        ("recall_geometric@3", "Recall@3 (geometric)"),
-        ("recall_geometric@5", "Recall@5 (geometric)"),
-        ("recall_text@1", "Recall@1 (text-match)"),
-        ("recall_text@3", "Recall@3 (text-match)"),
-        ("recall_text@5", "Recall@5 (text-match)"),
+        ("recall_geometric@1", "Recall@1 (geometric, all)"),
+        ("recall_geometric@3", "Recall@3 (geometric, all)"),
+        ("recall_geometric@5", "Recall@5 (geometric, all)"),
+        ("recall_text@1", "Recall@1 (text-match, all)"),
+        ("recall_text@3", "Recall@3 (text-match, all)"),
+        ("recall_text@5", "Recall@5 (text-match, all)"),
+        ("recall_geometric@5_in_scope", "Recall@5 (geometric, in-scope) **"),
+        ("recall_text@5_in_scope", "Recall@5 (text-match, in-scope) **"),
+        ("in_scope_instances", "In-scope instances"),
+        ("out_of_scope_instances", "Out-of-scope (execution-required)"),
         ("table_fragmentation_rate", "Fragmentation rate"),
         ("mean_parse_ms", "Mean parse ms"),
         ("p50_parse_ms", "P50 parse ms"),
@@ -1000,6 +1138,12 @@ def main(argv: list[str] | None = None) -> int:
                     "ground-truth `answer_position`. Requires the parser to surface "
                     "(sheet, range) per chunk — docling does not, so its geometric "
                     "recall is structurally 0.")
+    md_lines.append("")
+    md_lines.append("** **In-scope** excludes instances where the input spreadsheet "
+                    "has nothing at `answer_position` (the question asks the system to "
+                    "*compute and write* the answer; a retrieval parser cannot help). "
+                    "The recall-90 roadmap gates on the in-scope number. See "
+                    "`docs/planning/recall-90/05-out-of-scope-execution-instances.md`.")
     md_lines.append("")
     md_lines.append("## Failure buckets (text-match recall@5 misses)")
     md_lines.append("")
