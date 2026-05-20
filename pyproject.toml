@@ -70,6 +70,15 @@ bench = [
     "sentence-transformers>=2.2.0",
     "numpy>=1.24.0",
 ]
+# Optional ML augmentation for segmentation / chunking decisions.
+# `pip install ks-xlsx-parser[ml]` adds a small open-source LLM
+# (Qwen2.5-1.5B-Instruct Q4_K_M, Apache 2.0) for boundary / header /
+# role / self-containment classification. Disabled by default; opt
+# in at runtime via `KS_ML=1`. See `src/ks_xlsx_parser/ml/`.
+ml = [
+    "llama-cpp-python>=0.3.0",
+    "huggingface-hub>=0.20",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -919,6 +919,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--sample", type=int, default=None,
                         help="Random-sample N instances (seeded).")
     parser.add_argument("--seed", type=int, default=1337)
+    parser.add_argument("--instance-ids", type=str, default=None,
+                        help="Comma-separated instance ids OR a path to a "
+                             "JSON file with {\"instance_ids\": [...]}. "
+                             "Used by the ML iteration loop to bench only "
+                             "the 50-sheet stratified sample. Overrides "
+                             "--sample/--seed.")
     parser.add_argument("--model", type=str, default="BAAI/bge-small-en-v1.5")
     parser.add_argument("--test-case", type=int, default=1,
                         help="Which of the (typically 3) test cases per instance "
@@ -934,7 +940,21 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     instances = list(iter_instances(args.corpus))
-    if args.sample is not None and args.sample < len(instances):
+    if args.instance_ids:
+        # Explicit id list — used by the ML 50-sample iteration loop.
+        # Accepts either a comma-separated string or a JSON file path.
+        raw = args.instance_ids
+        if Path(raw).exists():
+            payload = json.loads(Path(raw).read_text())
+            keep = set(str(i) for i in payload.get("instance_ids", []))
+        else:
+            keep = set(s.strip() for s in raw.split(",") if s.strip())
+        instances = [i for i in instances if str(i["id"]) in keep]
+        sys.stderr.write(
+            f"Filtered by --instance-ids: {len(instances)} kept "
+            f"(asked for {len(keep)})\n"
+        )
+    elif args.sample is not None and args.sample < len(instances):
         import random
         rng = random.Random(args.seed)
         instances = rng.sample(instances, args.sample)

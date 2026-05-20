@@ -1,0 +1,2 @@
+# 0 instances classified as instruction_requires_execution
+# (input.xlsx has no non-empty cells at answer_position — answer must be computed, not retrieved)
