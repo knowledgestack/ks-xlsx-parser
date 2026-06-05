@@ -61,6 +61,27 @@ class TestHtmlRendering:
 
         assert 'data-ref="A1"' in html
 
+    def test_hidden_cells_included_and_flagged(self, hidden_rows_cols_workbook):
+        """Hidden rows/columns are emitted in the HTML (flagged
+        `data-hidden`) rather than dropped — matching the text renderer."""
+        from ks_xlsx_parser.pipeline import parse_workbook
+
+        html = "\n".join(
+            c.render_html for c in parse_workbook(str(hidden_rows_cols_workbook)).chunks
+        )
+        assert 'data-hidden="true"' in html
+        assert "R3C1" in html  # content of hidden row 3
+        assert "R1C2" in html  # content of hidden column B
+
+    def test_hidden_sheet_flagged_on_table(self, multi_sheet_workbook):
+        """Tables from a hidden worksheet carry `data-sheet-hidden`."""
+        from ks_xlsx_parser.pipeline import parse_workbook
+
+        chunks = parse_workbook(str(multi_sheet_workbook)).chunks
+        hidden_html = [c.render_html for c in chunks if c.sheet_name == "Hidden"]
+        assert hidden_html
+        assert all('data-sheet-hidden="true"' in h for h in hidden_html)
+
 
 class TestTextRendering:
     """Test plain text / markdown rendering."""
@@ -150,3 +171,64 @@ class TestTextRendering:
         assert "0.002668" in text
         assert "e-03" not in text
         assert "e+03" not in text
+
+    def test_table_header_uses_real_names_not_column_letters(self, table_workbook):
+        """Option A: the grid header holds the table's real column names while
+        Excel column letters move to a `cols:` map on the bracket line, with a
+        leading `row` gutter — so downstream 'find the real header' logic sees
+        'Product', not 'A'."""
+        from ks_xlsx_parser.pipeline import parse_workbook
+
+        chunks = parse_workbook(str(table_workbook)).chunks
+        text = next(c.render_text for c in chunks if "Product" in c.render_text)
+
+        grid_lines = [ln for ln in text.splitlines() if ln.startswith("|")]
+        header_cells = [c.strip() for c in grid_lines[0].split("|")[1:-1]]
+        # Gutter first, then the *real* header names — not bare column letters.
+        assert header_cells[0] == "row"
+        assert header_cells[1] == "Product"
+        # Column letters are published as a name→letter map instead.
+        assert "cols: A=Product" in text
+
+    def test_hidden_rows_and_cols_are_extracted_and_flagged(
+        self, hidden_rows_cols_workbook
+    ):
+        """Hidden rows/columns are rendered (not dropped) and flagged
+        `[hidden]` — in the `cols:` map for columns, the gutter for rows."""
+        from ks_xlsx_parser.pipeline import parse_workbook
+
+        text = "\n".join(
+            c.render_text for c in parse_workbook(str(hidden_rows_cols_workbook)).chunks
+        )
+        assert "R1C2" in text  # a cell in hidden column B
+        assert "R3C1" in text  # a cell in hidden row 3
+        assert "[hidden]" in text
+
+    def test_hidden_rows_and_cols_recorded_in_chunk_metadata(
+        self, hidden_rows_cols_workbook
+    ):
+        """Hidden rows/columns are stored as structured chunk metadata
+        (scoped to the chunk's range), not just inline text markers."""
+        from ks_xlsx_parser.pipeline import parse_workbook
+
+        chunks = parse_workbook(str(hidden_rows_cols_workbook)).chunks
+        hidden_rows = {r for c in chunks for r in c.metadata.get("hidden_rows", [])}
+        hidden_cols = {col for c in chunks for col in c.metadata.get("hidden_cols", [])}
+        assert 3 in hidden_rows  # row 3 is hidden
+        assert "B" in hidden_cols  # column B is hidden
+
+    def test_hidden_sheet_marked_in_metadata_and_render(self, multi_sheet_workbook):
+        """A hidden worksheet is still parsed and chunked, and every chunk
+        from it carries `sheet_hidden` metadata and a `[hidden sheet]` render
+        marker; visible-sheet chunks carry neither."""
+        from ks_xlsx_parser.pipeline import parse_workbook
+
+        chunks = parse_workbook(str(multi_sheet_workbook)).chunks
+        hidden = [c for c in chunks if c.sheet_name == "Hidden"]
+        visible = [c for c in chunks if c.sheet_name != "Hidden"]
+
+        assert hidden, "hidden sheet should still be parsed and chunked"
+        assert all(c.metadata.get("sheet_hidden") is True for c in hidden)
+        assert all("[hidden sheet]" in c.render_text for c in hidden)
+        assert all("sheet_hidden" not in c.metadata for c in visible)
+        assert all("[hidden sheet]" not in c.render_text for c in visible)

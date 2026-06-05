@@ -14,7 +14,7 @@ from __future__ import annotations
 import logging
 
 from ks_xlsx_parser.models.block import BlockDTO, ChunkDTO, DependencySummary
-from ks_xlsx_parser.models.common import CellCoord, EdgeType
+from ks_xlsx_parser.models.common import CellCoord, EdgeType, col_number_to_letter
 from ks_xlsx_parser.models.sheet import SheetDTO
 from ks_xlsx_parser.models.workbook import WorkbookDTO
 from ks_xlsx_parser.rendering.html_renderer import HtmlRenderer
@@ -154,6 +154,28 @@ class ChunkBuilder:
             for coord in block.key_cells
         ]
 
+        # Hidden-content provenance: record which parts of this chunk Excel
+        # hides — the whole sheet, specific rows, or specific columns — so
+        # downstream consumers can flag or filter hidden data instead of
+        # silently treating it as visible. Rows/cols are scoped to this
+        # chunk's range; the renderers also mark them inline ([hidden]).
+        rng = block.cell_range
+        metadata: dict[str, object] = {}
+        if sheet.properties.is_hidden:
+            metadata["sheet_hidden"] = True
+        hidden_rows = sorted(
+            r for r in sheet.hidden_rows
+            if rng.top_left.row <= r <= rng.bottom_right.row
+        )
+        if hidden_rows:
+            metadata["hidden_rows"] = hidden_rows
+        hidden_cols = sorted(
+            c for c in sheet.hidden_cols
+            if rng.top_left.col <= c <= rng.bottom_right.col
+        )
+        if hidden_cols:
+            metadata["hidden_cols"] = [col_number_to_letter(c) for c in hidden_cols]
+
         return ChunkDTO(
             sheet_name=block.sheet_name,
             block_type=block.block_type,
@@ -166,6 +188,7 @@ class ChunkBuilder:
             render_html=render_html,
             render_text=render_text,
             token_count=token_count,
+            metadata=metadata,
         )
 
     def _chart_to_chunk(self, chart) -> ChunkDTO:

@@ -101,37 +101,78 @@ class TextRenderer:
 
     def render_block(self, block: BlockDTO) -> str:
         """
-        Render a block as plain text with coordinate context.
+        Render a block as a plain-text / Markdown table with coordinate
+        context.
 
-        Format:
-            [Sheet1!A1:D10] (table: "SalesData")
-            | A        | B       | C      | D       |
-            |----------|---------|--------|---------|
-            | Product  | Q1      | Q2     | Q3      |
-            | Widget A | 100     | 150    | 200     |
-            ...
+        The grid is a *standard* Markdown table whose header row holds the
+        block's real column names (for ``TABLE`` / ``ASSUMPTIONS_TABLE``
+        blocks, mirroring :class:`HtmlRenderer`'s ``<thead>`` behaviour).
+        Excel column letters are published on the bracket line as a
+        ``cols:`` map rather than occupying the header row, and a leading
+        ``row`` gutter carries the Excel row number of every line. Together
+        the ``cols:`` map and the row gutter let an agent reconstruct a full
+        A1 reference (column ``Amount`` + row ``3`` → ``B3``) without the
+        column letters masquerading as the table's headers and defeating
+        downstream header detection.
+
+        Hidden rows and columns are *included* (not dropped) and flagged
+        ``[hidden]`` — in the gutter for rows, in the ``cols:`` map for
+        columns.
+
+        Format::
+
+            [Sheet1!A1:D3] (table) cols: A=Product, B=Q1, C=Q2, D=Q3
+            | row | Product  | Q1  | Q2  | Q3  |
+            |-----|----------|-----|-----|-----|
+            | 2   | Widget A | 100 | 150 | 200 |
         """
         rng = block.cell_range
-        rows = range(rng.top_left.row, rng.bottom_right.row + 1)
-        cols = range(rng.top_left.col, rng.bottom_right.col + 1)
+        rows = list(range(rng.top_left.row, rng.bottom_right.row + 1))
+        cols = list(range(rng.top_left.col, rng.bottom_right.col + 1))
+
+        # Mirror HtmlRenderer: for these block types the first row carries the
+        # real column names, so it becomes the Markdown header row.
+        first_row_is_header = block.block_type in (
+            BlockType.TABLE,
+            BlockType.ASSUMPTIONS_TABLE,
+        )
 
         lines: list[str] = []
 
-        # Header with location and type
+        # --- Bracket line + column-letter map ------------------------------
         type_label = block.block_type.value.replace("_", " ")
         header = f"[{block.sheet_name}!{rng.to_a1()}] ({type_label})"
+        if self._sheet.properties.is_hidden:
+            header += " [hidden sheet]"
         if block.table_name:
             header += f' table: "{block.table_name}"'
+
+        # Column letters live here (not as a grid row) so the grid header is
+        # free to hold real names while an agent can still map name → letter.
+        col_descs: list[str] = []
+        for col in cols:
+            desc = col_number_to_letter(col)
+            if first_row_is_header:
+                name_cell = self._sheet.get_cell(rng.top_left.row, col)
+                name = (
+                    _flatten_cell_text(_cell_render_value(name_cell))
+                    if name_cell
+                    else ""
+                )
+                if name:
+                    desc = f"{desc}={name}"
+            if col in self._sheet.hidden_cols:
+                desc += " [hidden]"
+            col_descs.append(desc)
+        header += " cols: " + ", ".join(col_descs)
         lines.append(header)
 
         # Compute column widths using the SAME rendering rules the data
         # rows will use, including the trailing `[=]` formula marker.
-        # Otherwise `[=]` inflates a cell past col_width post-hoc and
-        # spuriously triggers the long-value fallback below.
+        # Otherwise `[=]` inflates a cell past col_width post-hoc.
         col_widths: dict[int, int] = {}
         for col in cols:
-            col_letter = col_number_to_letter(col)
-            max_width = len(col_letter)
+            max_width = len(col_number_to_letter(col))
             for row in rows:
                 cell = self._sheet.get_cell(row, col)
                 if cell is None:
@@ -143,63 +184,55 @@ class TextRenderer:
                 max_width = max(max_width, len(val))
             col_widths[col] = min(max_width, 30)  # Cap at 30 for alignment; text may overflow
 
-        # Column header row
-        col_headers = []
-        for col in cols:
-            if col in self._sheet.hidden_cols:
-                continue
-            letter = col_number_to_letter(col)
-            col_headers.append(letter.ljust(col_widths[col]))
-        lines.append("| " + " | ".join(col_headers) + " |")
-        lines.append(
-            "|-" + "-|-".join("-" * col_widths[c] for c in cols if c not in self._sheet.hidden_cols) + "-|"
-        )
-
-        # Data rows
-        is_first_data = True
+        # Row-number gutter: gives every value a row coordinate so an agent
+        # can form a full A1 reference. Hidden rows are flagged here.
+        gutter_header = "row"
+        gutter: dict[int, str] = {}
         for row in rows:
+            label = str(row)
             if row in self._sheet.hidden_rows:
-                continue
+                label += " [hidden]"
+            gutter[row] = label
+        gutter_width = max([len(gutter_header), *(len(g) for g in gutter.values())])
 
+        def _row(gutter_cell: str, values: list[str]) -> str:
+            return "| " + " | ".join([gutter_cell.ljust(gutter_width), *values]) + " |"
+
+        def _sep() -> str:
+            return (
+                "|-"
+                + "-|-".join(["-" * gutter_width, *("-" * col_widths[c] for c in cols)])
+                + "-|"
+            )
+
+        def _cells(row: int) -> list[str]:
             values = []
             for col in cols:
-                if col in self._sheet.hidden_cols:
-                    continue
                 cell = self._sheet.get_cell(row, col)
                 val = _cell_render_value(cell) if cell else ""
-
                 if cell and cell.formula and not val.startswith("="):
                     val = f"{val} [=]"
-
-                # Markdown table rows are single-line; collapse embedded newlines
+                # Markdown rows are single-line; collapse embedded newlines
                 # (common in headers like "租金\n天数") so they don't break the grid.
                 val = _flatten_cell_text(val)
-
-                # Long-value fallback: only triggers if the rendered string
-                # genuinely exceeds the (now consistently-computed) column
-                # width — i.e. the column was capped at 30. We still emit
-                # the full retrieval value (no truncation) and let the
-                # alignment overflow; truncating destroys retrievability.
+                # Full retrieval value (no truncation); alignment may overflow.
                 values.append(val.ljust(col_widths[col]))
+            return values
 
-            line = "| " + " | ".join(values) + " |"
-            lines.append(line)
+        # Header row: real first row for tables, else Excel column letters.
+        if first_row_is_header:
+            lines.append(_row(gutter_header, _cells(rng.top_left.row)))
+            lines.append(_sep())
+            data_rows = rows[1:]
+        else:
+            letters = [col_number_to_letter(c).ljust(col_widths[c]) for c in cols]
+            lines.append(_row(gutter_header, letters))
+            lines.append(_sep())
+            data_rows = rows
 
-            # Add separator after first row if it looks like a header
-            if is_first_data and block.block_type in (
-                BlockType.TABLE,
-                BlockType.ASSUMPTIONS_TABLE,
-            ):
-                lines.append(
-                    "|-"
-                    + "-|-".join(
-                        "-" * col_widths[c]
-                        for c in cols
-                        if c not in self._sheet.hidden_cols
-                    )
-                    + "-|"
-                )
-            is_first_data = False
+        # Data rows (hidden rows/cols included; hidden rows flagged in gutter).
+        for row in data_rows:
+            lines.append(_row(gutter[row], _cells(row)))
 
         return "\n".join(lines)
 
