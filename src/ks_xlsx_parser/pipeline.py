@@ -195,6 +195,7 @@ class ParseResult:
                     "cells": _chunk_cells(c, self.workbook),
                     "key_cells": c.key_cells,
                     "named_ranges": c.named_ranges,
+                    "metadata": c.metadata,
                     "dependency_summary": {
                         "upstream_refs": c.dependency_summary.upstream_refs,
                         "downstream_refs": c.dependency_summary.downstream_refs,

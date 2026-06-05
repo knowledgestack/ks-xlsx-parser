@@ -67,30 +67,30 @@ class HtmlRenderer:
             BlockType.ASSUMPTIONS_TABLE,
         )
 
+        sheet_hidden_attr = (
+            ' data-sheet-hidden="true"' if self._sheet.properties.is_hidden else ""
+        )
         parts: list[str] = []
         parts.append(
             f'<table data-sheet="{html.escape(block.sheet_name)}" '
             f'data-range="{rng.to_a1()}" '
-            f'data-block-type="{block.block_type.value}">'
+            f'data-block-type="{block.block_type.value}"{sheet_hidden_attr}>'
         )
 
         for row_idx, row in enumerate(rows):
-            if row in self._sheet.hidden_rows:
-                continue
+            # Hidden rows are emitted (flagged data-hidden) rather than dropped.
+            row_hidden = row in self._sheet.hidden_rows
 
             is_header_row = row_idx == 0 and is_first_row_header
             tag = "th" if is_header_row else "td"
-            wrapper = "thead" if is_header_row else "tbody"
 
             if row_idx == 0 and is_header_row:
                 parts.append("<thead>")
             elif row_idx == 1 and is_first_row_header:
                 parts.append("<tbody>")
 
-            parts.append("<tr>")
+            parts.append('<tr data-hidden="true">' if row_hidden else "<tr>")
             for col in cols:
-                if col in self._sheet.hidden_cols:
-                    continue
                 if (row, col) in skip_cells:
                     continue
 
@@ -106,6 +106,8 @@ class HtmlRenderer:
 
                 # Build cell attributes
                 attrs = [f'data-ref="{cell_ref}"']
+                if row_hidden or col in self._sheet.hidden_cols:
+                    attrs.append('data-hidden="true"')
                 if rowspan > 1:
                     attrs.append(f'rowspan="{rowspan}"')
                 if colspan > 1:
