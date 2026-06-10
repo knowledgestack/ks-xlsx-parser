@@ -227,10 +227,10 @@ def _blank_record(path: Path, parser: str, version: str | None, status: str, err
 # ------------------------------------------------------------------ factories
 
 def ks_runner(python_bin: str | None = None, timeout_s: float = 120.0) -> Runner:
-    """Runner for the ks-xlsx-parser Python adapter."""
+    """Runner for the excel-parser Python adapter."""
     py = python_bin or sys.executable
     return Runner(RunnerConfig(
-        name="ks-xlsx-parser",
+        name="excel-parser",
         cmd=[py, "-m", "tests.benchmarks.adapters.ks_adapter"],
         cwd=REPO_ROOT,
         per_file_timeout_s=timeout_s,

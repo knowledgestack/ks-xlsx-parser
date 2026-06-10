@@ -10,19 +10,19 @@ extending the parser or hunting a regression.
 .xlsx bytes
     │
     ▼
-1. Parse         ── src/xlsx_parser/parsers/            openpyxl + lxml → WorkbookDTO
-2. Analyse       ── src/xlsx_parser/formula/            tokenise, resolve refs
-                   src/xlsx_parser/analysis/            build dependency graph
-3. Annotate      ── src/xlsx_parser/annotation/         semantic roles, KPIs
-4. Segment       ── src/xlsx_parser/chunking/           sheets → logical blocks
-5. Render        ── src/xlsx_parser/rendering/          HTML + pipe-text
-6. Serialise     ── src/xlsx_parser/storage/            to_json, DB rows, vectors
-7. Verify        ── src/xlsx_parser/verification/       stage-level assertions
-8. Compare/Export── src/xlsx_parser/comparison/         multi-workbook templates
-                   src/xlsx_parser/export/              generated importer classes
+1. Parse         ── src/excel_parser/parsers/            openpyxl + lxml → WorkbookDTO
+2. Analyse       ── src/excel_parser/formula/            tokenise, resolve refs
+                   src/excel_parser/analysis/            build dependency graph
+3. Annotate      ── src/excel_parser/annotation/         semantic roles, KPIs
+4. Segment       ── src/excel_parser/chunking/           sheets → logical blocks
+5. Render        ── src/excel_parser/rendering/          HTML + pipe-text
+6. Serialise     ── src/excel_parser/storage/            to_json, DB rows, vectors
+7. Verify        ── src/excel_parser/verification/       stage-level assertions
+8. Compare/Export── src/excel_parser/comparison/         multi-workbook templates
+                   src/excel_parser/export/              generated importer classes
 ```
 
-The entry point is `src/xlsx_parser/pipeline.py`. Each stage is an
+The entry point is `src/excel_parser/pipeline.py`. Each stage is an
 independent module you can unit-test in isolation.
 
 ## 1. Parse
@@ -41,7 +41,7 @@ as a ZIP and parsing the raw OOXML XML with `lxml` (see
 rather than `ws.iter_rows()`, because the latter walks the full
 bounding box — a single `XFD1048576` cell otherwise forces a ~17 B
 empty-cell walk. See
-[`CHANGELOG.md`](https://github.com/knowledgestack/ks-xlsx-parser/blob/main/CHANGELOG.md#performance).
+[`CHANGELOG.md`](https://github.com/knowledgestack/excel-parser/blob/main/CHANGELOG.md#performance).
 
 ## 2. Analyse
 

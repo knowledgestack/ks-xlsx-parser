@@ -1,4 +1,4 @@
-// hucre worker for the ks-xlsx-parser benchmark harness.
+// hucre worker for the excel-parser benchmark harness.
 //
 // Field names pinned against hucre 0.3.0's `_types.d.mts`:
 //   sheet.rows: CellValue[][]            primitive-valued 2D array (all cells)

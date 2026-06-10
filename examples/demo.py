@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Demo script showing the xlsx_parser in action on example workbooks.
+Demo script showing the excel_parser in action on example workbooks.
 
 Run: python examples/demo.py
 """
@@ -12,8 +12,8 @@ from pathlib import Path
 # Add src to path for development
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from ks_xlsx_parser.pipeline import parse_workbook
-from ks_xlsx_parser.utils.logging_config import configure_logging
+from excel_parser.pipeline import parse_workbook
+from excel_parser.utils.logging_config import configure_logging
 
 EXAMPLES_DIR = Path(__file__).parent / "fixtures"
 
@@ -136,7 +136,7 @@ def demo_engineering_calcs():
     print(f"  Named Ranges: {[nr.name for nr in wb.named_ranges]}")
 
     # Show dependency chain for Design Moment (C15)
-    from ks_xlsx_parser.models import CellCoord
+    from excel_parser.models import CellCoord
     upstream = wb.dependency_graph.get_upstream(
         "Beam Design", CellCoord(row=15, col=3), max_depth=3
     )

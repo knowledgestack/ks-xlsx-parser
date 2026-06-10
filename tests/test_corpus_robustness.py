@@ -1,5 +1,5 @@
 """
-Corpus robustness tests for the ks_xlsx_parser.
+Corpus robustness tests for the excel_parser.
 
 Tests the parser against large sets of real-world .xlsx files to catch
 crashes, invariant violations, and regression. Corpus tests are skipped
@@ -15,8 +15,8 @@ from pathlib import Path
 
 import pytest
 
-from ks_xlsx_parser.models.common import Severity
-from ks_xlsx_parser.pipeline import parse_workbook
+from excel_parser.models.common import Severity
+from excel_parser.pipeline import parse_workbook
 from tests.helpers.corpus_downloader import (
     download_enron_corpus,
     download_euses_corpus,

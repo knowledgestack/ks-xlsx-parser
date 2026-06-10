@@ -7,9 +7,9 @@ five short snippets. Each one is runnable standalone against a real
 ## Install
 
 ```bash
-pip install ks-xlsx-parser                 # core library
-pip install "ks-xlsx-parser[api]"          # + FastAPI web server
-pip install "ks-xlsx-parser[dev]"          # + test tooling
+pip install excel-parser                 # core library
+pip install "excel-parser[api]"          # + FastAPI web server
+pip install "excel-parser[dev]"          # + test tooling
 ```
 
 Python 3.10+, tested on Ubuntu and macOS.
@@ -17,7 +17,7 @@ Python 3.10+, tested on Ubuntu and macOS.
 ## 1. Parse a workbook
 
 ```python
-from ks_xlsx_parser import parse_workbook
+from excel_parser import parse_workbook
 
 result = parse_workbook(path="workbook.xlsx")
 
@@ -54,7 +54,7 @@ Each chunk carries:
 ## 3. Walk the formula dependency graph
 
 ```python
-from ks_xlsx_parser.models import CellCoord
+from excel_parser.models import CellCoord
 
 upstream_edges = result.workbook.dependency_graph.get_upstream(
     sheet="Sheet1",
@@ -100,7 +100,7 @@ vectors = ser.to_vector_store_entries()
 ## 5. Parse from bytes (typical server path)
 
 ```python
-from ks_xlsx_parser import parse_workbook
+from excel_parser import parse_workbook
 
 with open("workbook.xlsx", "rb") as f:
     content = f.read()
@@ -137,7 +137,7 @@ def load_spreadsheet(path: str) -> list[dict]:
 
 def cite_cell(path: str, sheet: str, a1: str) -> dict:
     """Fetch one cell with its full context (value, formula, upstream deps)."""
-    from ks_xlsx_parser.models import CellCoord
+    from excel_parser.models import CellCoord
     from openpyxl.utils import coordinate_to_tuple
 
     row, col = coordinate_to_tuple(a1)

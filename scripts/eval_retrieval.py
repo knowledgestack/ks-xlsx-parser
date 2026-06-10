@@ -42,7 +42,7 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parent.parent
 # Keep ``import scripts.X`` style imports working when invoked as
 # ``python scripts/eval_retrieval.py``. We no longer need ``src`` on the
-# path — ks_xlsx_parser is a properly-installed package now.
+# path — excel_parser is a properly-installed package now.
 sys.path.insert(0, str(REPO_ROOT))
 
 
@@ -168,8 +168,14 @@ class Chunk:
     chunk_id: str = ""
 
     def overlaps(self, sheet: str, range_box: tuple[int, int, int, int]) -> bool:
-        """True if this chunk's range overlaps the given (r0,c0,r1,c1) on `sheet`."""
-        if self.sheet is not None and self.sheet != sheet:
+        """True if this chunk's range overlaps the given (r0,c0,r1,c1) on `sheet`.
+
+        When ``sheet`` is unspecified (None/empty) the match is geometry-only:
+        ~62% of SpreadsheetBench instances omit the sheet name (single-sheet
+        workbooks), and a real chunk's sheet name can never equal "". Requiring
+        equality there silently denied geometric credit to correct chunks.
+        """
+        if sheet and self.sheet is not None and self.sheet != sheet:
             return False
         if self.top_left is None or self.bottom_right is None:
             # Parser didn't surface a range — fall back to text match
@@ -281,7 +287,7 @@ def parse_position_spec(
 
 
 def extract_chunks_ks(path: Path) -> list[Chunk]:
-    from ks_xlsx_parser.pipeline import parse_workbook
+    from excel_parser.pipeline import parse_workbook
 
     result = parse_workbook(path=str(path))
     out: list[Chunk] = []
@@ -289,7 +295,7 @@ def extract_chunks_ks(path: Path) -> list[Chunk]:
         tl = parse_a1(c.top_left_cell) if c.top_left_cell else None
         br = parse_a1(c.bottom_right_cell) if c.bottom_right_cell else None
         out.append(Chunk(
-            parser="ks-xlsx-parser",
+            parser="excel-parser",
             sheet=c.sheet_name,
             top_left=tl,
             bottom_right=br,
@@ -807,11 +813,23 @@ def aggregate(
             r for r in recs if not exec_map.get(str(r.instance_id))
         ]
 
-        def _recall_at(k: int, key: str, subset: list[InstanceResult]) -> float:
+        def _recall_at(
+            k: int,
+            key: str,
+            subset: list[InstanceResult],
+            require_values: bool = False,
+        ) -> float:
             hits = 0
             denom = 0
             for r in subset:
                 if r.error:
+                    continue
+                # Text-match recall is undefined for instances whose answer
+                # region holds no scoreable values (empty / uncached-formula
+                # answer.xlsx cells). The bucket histogram already excludes
+                # these via `had_answer_values`; the recall denominator must be
+                # consistent and not count an unscoreable instance as a miss.
+                if require_values and not r.extra.get("had_answer_values", True):
                     continue
                 rank = getattr(r, key)
                 if rank is None:
@@ -861,9 +879,9 @@ def aggregate(
             "recall_geometric@1": _recall_at(1, "rank_of_first_overlap", recs),
             "recall_geometric@3": _recall_at(3, "rank_of_first_overlap", recs),
             "recall_geometric@5": _recall_at(5, "rank_of_first_overlap", recs),
-            "recall_text@1": _recall_at(1, "rank_of_text_match", recs),
-            "recall_text@3": _recall_at(3, "rank_of_text_match", recs),
-            "recall_text@5": _recall_at(5, "rank_of_text_match", recs),
+            "recall_text@1": _recall_at(1, "rank_of_text_match", recs, require_values=True),
+            "recall_text@3": _recall_at(3, "rank_of_text_match", recs, require_values=True),
+            "recall_text@5": _recall_at(5, "rank_of_text_match", recs, require_values=True),
             # Recall over the subset of instances the parser can possibly
             # satisfy (execution-required questions excluded). This is the
             # metric the recall-90 roadmap gates on; see cluster-05 doc.
@@ -874,11 +892,11 @@ def aggregate(
             "recall_geometric@5_in_scope":
                 _recall_at(5, "rank_of_first_overlap", in_scope_recs),
             "recall_text@1_in_scope":
-                _recall_at(1, "rank_of_text_match", in_scope_recs),
+                _recall_at(1, "rank_of_text_match", in_scope_recs, require_values=True),
             "recall_text@3_in_scope":
-                _recall_at(3, "rank_of_text_match", in_scope_recs),
+                _recall_at(3, "rank_of_text_match", in_scope_recs, require_values=True),
             "recall_text@5_in_scope":
-                _recall_at(5, "rank_of_text_match", in_scope_recs),
+                _recall_at(5, "rank_of_text_match", in_scope_recs, require_values=True),
             "table_integrity_clean": n_clean,
             "table_integrity_fragmented": n_frag,
             "table_fragmentation_rate": round(frag_rate, 4),
@@ -943,7 +961,7 @@ def main(argv: list[str] | None = None) -> int:
     selected = {p.strip() for p in args.parsers.split(",")}
     parser_fns: dict[str, Any] = {}
     if "ks" in selected:
-        parser_fns["ks-xlsx-parser"] = extract_chunks_ks
+        parser_fns["excel-parser"] = extract_chunks_ks
     if "docling" in selected:
         parser_fns["docling"] = extract_chunks_docling
     if not parser_fns:

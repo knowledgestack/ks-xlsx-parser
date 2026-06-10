@@ -6,8 +6,8 @@ and circular reference detection.
 """
 
 
-from ks_xlsx_parser.formula.formula_parser import FormulaParser
-from ks_xlsx_parser.models import CellCoord, DependencyEdgeDTO, DependencyGraph, EdgeType
+from excel_parser.formula.formula_parser import FormulaParser
+from excel_parser.models import CellCoord, DependencyEdgeDTO, DependencyGraph, EdgeType
 
 
 class TestFormulaParser:

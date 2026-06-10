@@ -7,7 +7,7 @@ rendered content, dependency summaries, and deterministic hashes.
 
 import json
 
-from ks_xlsx_parser.pipeline import parse_workbook
+from excel_parser.pipeline import parse_workbook
 
 
 class TestEndToEndPipeline:

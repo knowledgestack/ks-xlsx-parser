@@ -1,8 +1,8 @@
-# Retrieval-recall investigation — getting ks-xlsx-parser to >0.90
+# Retrieval-recall investigation — getting excel-parser to >0.90
 
 ## Where we are (v0.2.0 on SpreadsheetBench, 912 instances)
 
-| Metric                 | ks-xlsx-parser | docling 2.93 |
+| Metric                 | excel-parser | docling 2.93 |
 |------------------------|----------------|--------------|
 | Parse success          | 99.945%        | not run at scale |
 | Recall@1 (text-match)  | 0.580          | 0.579 |
@@ -138,16 +138,16 @@ that `block.cell_range` ⊆ `bounding_box(block.cells)`.
 
 ```bash
 # Build once
-docker build -f Dockerfile.bench -t ks-xlsx-parser-bench .
+docker build -f Dockerfile.bench -t excel-parser-bench .
 
 # Quick smoke (60 instances, < 2 min)
-docker run --rm -e BENCH_SAMPLE=60 ks-xlsx-parser-bench
+docker run --rm -e BENCH_SAMPLE=60 excel-parser-bench
 
 # Full corpus, persist reports + corpus cache
 docker run --rm \
   -v "$PWD/tests/benchmarks/reports:/app/tests/benchmarks/reports" \
   -v "$PWD/data:/app/data" \
-  ks-xlsx-parser-bench
+  excel-parser-bench
 ```
 
 The `Benchmark` GitHub workflow:

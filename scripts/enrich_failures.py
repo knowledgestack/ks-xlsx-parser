@@ -7,7 +7,7 @@ classify instances where the answer text is in some chunk but no chunk's
 A1 range covers the ground truth — those don't show up in failures.ndjson
 at all.
 
-This script re-parses each instance's input.xlsx with both ks-xlsx-parser
+This script re-parses each instance's input.xlsx with both excel-parser
 and openpyxl, then emits one row per FAILED instance (text-miss OR
 geometric-miss) with diagnostic columns chosen so post-hoc clustering is
 easy:
@@ -92,7 +92,7 @@ def chunk_bbox(chunks) -> tuple[int, int, int, int] | None:
 def enrich(run_dir: Path, corpus: Path, out_path: Path) -> None:
     from openpyxl import load_workbook
 
-    from ks_xlsx_parser.pipeline import parse_workbook
+    from excel_parser.pipeline import parse_workbook
 
     # Load dataset.json once — we need question text + the original
     # answer_sheet attribution for instances where the rank scoring

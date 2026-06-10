@@ -47,7 +47,7 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--reports-dir", type=Path,
                     default=ROOT / "tests" / "benchmarks" / "reports" / "retrieval")
-    ap.add_argument("--parser", default="ks-xlsx-parser",
+    ap.add_argument("--parser", default="excel-parser",
                     help="which parser's metrics to record")
     args = ap.parse_args(argv)
 

@@ -12,21 +12,21 @@ The release workflow's `pypi` job declares `environment: pypi`. That environment
 
 ```bash
 # Create the empty environment (idempotent)
-gh api -X PUT repos/knowledgestack/ks-xlsx-parser/environments/pypi
+gh api -X PUT repos/knowledgestack/excel-parser/environments/pypi
 ```
 
-Optional but recommended after creation: open https://github.com/knowledgestack/ks-xlsx-parser/settings/environments/pypi and add a **required reviewer** so a tag push needs explicit approval before the PyPI publish step runs. This is a safety net — once a tag is pushed the release workflow auto-fires; a reviewer gate gives you one last "are you sure?" before the irreversible PyPI publish.
+Optional but recommended after creation: open https://github.com/knowledgestack/excel-parser/settings/environments/pypi and add a **required reviewer** so a tag push needs explicit approval before the PyPI publish step runs. This is a safety net — once a tag is pushed the release workflow auto-fires; a reviewer gate gives you one last "are you sure?" before the irreversible PyPI publish.
 
 ### 2. PyPI Trusted Publisher binding
 
-This **cannot** be done via API or a PR — it requires logging into pypi.org as a maintainer of `ks-xlsx-parser`.
+This **cannot** be done via API or a PR — it requires logging into pypi.org as a maintainer of `excel-parser`.
 
-1. Go to https://pypi.org/manage/project/ks-xlsx-parser/settings/publishing/
+1. Go to https://pypi.org/manage/project/excel-parser/settings/publishing/
 2. Click **Add a new publisher** → **GitHub**
 3. Fill in:
-   - **PyPI Project Name:** `ks-xlsx-parser`
+   - **PyPI Project Name:** `excel-parser`
    - **Owner:** `knowledgestack`
-   - **Repository:** `ks-xlsx-parser`
+   - **Repository:** `excel-parser`
    - **Workflow filename:** `release.yml`
    - **Environment name:** `pypi`
 4. Save.
@@ -35,7 +35,7 @@ Verify with:
 
 ```bash
 # Should list any publishers tied to the project (requires you to be logged in)
-open "https://pypi.org/manage/project/ks-xlsx-parser/settings/publishing/"
+open "https://pypi.org/manage/project/excel-parser/settings/publishing/"
 ```
 
 If you're spinning up a new project that doesn't exist on PyPI yet, the publisher has to be configured as a **pending publisher** under your account first. Same form, accessible at https://pypi.org/manage/account/publishing/.
@@ -45,7 +45,7 @@ If you're spinning up a new project that doesn't exist on PyPI yet, the publishe
 CI on a PR validates {ubuntu, macOS} × Python {3.10, 3.11, 3.12} before merge. Add a branch protection rule on `main` requiring those status checks to pass before a PR is mergeable:
 
 ```bash
-gh api -X PUT repos/knowledgestack/ks-xlsx-parser/branches/main/protection \
+gh api -X PUT repos/knowledgestack/excel-parser/branches/main/protection \
   -F required_status_checks[strict]=true \
   -F 'required_status_checks[contexts][]=tests (ubuntu-latest / py3.10)' \
   -F 'required_status_checks[contexts][]=tests (ubuntu-latest / py3.11)' \
@@ -58,7 +58,7 @@ gh api -X PUT repos/knowledgestack/ks-xlsx-parser/branches/main/protection \
   -F restrictions= 2>/dev/null
 ```
 
-Or set in the UI: https://github.com/knowledgestack/ks-xlsx-parser/settings/branches
+Or set in the UI: https://github.com/knowledgestack/excel-parser/settings/branches
 
 ## Per-release checklist
 
@@ -67,7 +67,7 @@ For every new version `X.Y.Z`:
 1. **Decide the version number.** Follow [SemVer](https://semver.org/). Breaking API change → major bump. New feature, no breakage → minor. Bugfix only → patch.
 2. **Bump version in two places** (kept in sync to avoid drift):
    - `pyproject.toml` — `version = "X.Y.Z"`
-   - `src/ks_xlsx_parser/__init__.py` — `__version__ = "X.Y.Z"`
+   - `src/excel_parser/__init__.py` — `__version__ = "X.Y.Z"`
 3. **Write the CHANGELOG entry** under a new `## [X.Y.Z] — YYYY-MM-DD` heading in [`CHANGELOG.md`](../CHANGELOG.md). Use the section labels documented at the top of that file (Added / Changed / Fixed / Performance / Docs / Internal / ⚠️ BREAKING).
 4. **(Optional but recommended) Write hand-curated release notes** at `docs/launch/RELEASE_NOTES_vX.Y.Z.md`. If present, the release workflow picks it up automatically as the GitHub Release body; otherwise GitHub auto-generates from commits.
 5. **Run `make test` locally** and verify all tests pass.
@@ -78,10 +78,10 @@ For every new version `X.Y.Z`:
    git tag -a vX.Y.Z -m "vX.Y.Z — <short tagline>"
    git push origin vX.Y.Z
    ```
-8. **Watch the workflow.** https://github.com/knowledgestack/ks-xlsx-parser/actions — the `Release` workflow should run `build` → `github-release` → `pypi`. If the `pypi` job is gated on a reviewer, approve it in the Actions UI.
+8. **Watch the workflow.** https://github.com/knowledgestack/excel-parser/actions — the `Release` workflow should run `build` → `github-release` → `pypi`. If the `pypi` job is gated on a reviewer, approve it in the Actions UI.
 9. **Verify post-release:**
-   - PyPI: https://pypi.org/project/ks-xlsx-parser/X.Y.Z/ resolves and `pip install ks-xlsx-parser==X.Y.Z` works in a fresh venv.
-   - GitHub Release: https://github.com/knowledgestack/ks-xlsx-parser/releases/tag/vX.Y.Z shows the release notes + wheel + sdist.
+   - PyPI: https://pypi.org/project/excel-parser/X.Y.Z/ resolves and `pip install excel-parser==X.Y.Z` works in a fresh venv.
+   - GitHub Release: https://github.com/knowledgestack/excel-parser/releases/tag/vX.Y.Z shows the release notes + wheel + sdist.
    - The `[Unreleased]` heading at the top of `CHANGELOG.md` is reset to "Nothing yet" for the next cycle (manual; do this in a follow-up PR).
 
 ## Common failure modes
@@ -100,7 +100,7 @@ If a published release has a critical bug:
 
 ```bash
 # Yank from PyPI (hides from `pip install` but doesn't delete — required for cache-poisoning safety)
-# UI: https://pypi.org/manage/project/ks-xlsx-parser/release/X.Y.Z/
+# UI: https://pypi.org/manage/project/excel-parser/release/X.Y.Z/
 
 # Tag a hotfix
 git checkout main
@@ -109,7 +109,7 @@ git tag -a vX.Y.Z+1 -m "vX.Y.Z+1 — hotfix for <issue>"
 git push origin vX.Y.Z+1
 ```
 
-Yanked versions remain installable if pinned explicitly; `pip install ks-xlsx-parser` without a version constraint skips them. This is the safe default for accidental release of broken code.
+Yanked versions remain installable if pinned explicitly; `pip install excel-parser` without a version constraint skips them. This is the safe default for accidental release of broken code.
 
 ## Why we use Trusted Publishing instead of an API token
 

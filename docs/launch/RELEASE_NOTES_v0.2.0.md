@@ -1,6 +1,6 @@
-# ks-xlsx-parser v0.2.0 — Benchmark + Retrievability 📊
+# excel-parser v0.2.0 — Benchmark + Retrievability 📊
 
-**Headline:** ks-xlsx-parser now has a head-to-head benchmark against [Docling](https://github.com/DS4SD/docling) on the [SpreadsheetBench](https://github.com/RUCKBReasoning/SpreadsheetBench) corpus (912 task instances, 5,458 xlsx files). ks **parses 99.945%** of the corpus and **ties Docling at recall@1 / wins at recall@3 (+2.7 pp) and recall@5 (+1.8 pp)** on apples-to-apples retrieval, with **36.9% citation-grade geometric recall** that Docling structurally cannot achieve.
+**Headline:** excel-parser now has a head-to-head benchmark against [Docling](https://github.com/DS4SD/docling) on the [SpreadsheetBench](https://github.com/RUCKBReasoning/SpreadsheetBench) corpus (912 task instances, 5,458 xlsx files). ks **parses 99.945%** of the corpus and **ties Docling at recall@1 / wins at recall@3 (+2.7 pp) and recall@5 (+1.8 pp)** on apples-to-apples retrieval, with **36.9% citation-grade geometric recall** that Docling structurally cannot achieve.
 
 Plus three quiet RAG-breaking rendering bugs in 0.1.1 are gone.
 
@@ -10,7 +10,7 @@ Plus three quiet RAG-breaking rendering bugs in 0.1.1 are gone.
 
 A reproducible, parser-agnostic benchmark over real-world workbooks scraped from ExcelHome / Mr.Excel / r/excel:
 
-| Metric | **ks-xlsx-parser** | Docling 2.93 | Δ |
+| Metric | **excel-parser** | Docling 2.93 | Δ |
 |---|---:|---:|---:|
 | Parse success (5,458 files) | **99.945%** | not run at scale | — |
 | Recall@1 (text-match) | 0.580 | 0.579 | **+0.1 pp (tied)** |
@@ -23,7 +23,7 @@ A reproducible, parser-agnostic benchmark over real-world workbooks scraped from
 
 Marker is intentionally absent — its xlsx → HTML → PDF → layout-model pipeline clocks >30 min per workbook on CPU. The harness supports adding a Marker adapter (`tests/benchmarks/adapters/docling_adapter.py` as a template); the speed wall is the obstacle.
 
-Full methodology, capability matrix, and caveats: [`tests/benchmarks/reports/COMPARISON.md`](https://github.com/knowledgestack/ks-xlsx-parser/blob/main/tests/benchmarks/reports/COMPARISON.md).
+Full methodology, capability matrix, and caveats: [`tests/benchmarks/reports/COMPARISON.md`](https://github.com/knowledgestack/excel-parser/blob/main/tests/benchmarks/reports/COMPARISON.md).
 
 ### 🔧 Three rendering bugs that were silently torpedoing retrieval
 
@@ -51,9 +51,9 @@ Cells using `GradientFill` (rare but real — caught by SpreadsheetBench instanc
 ## Reproduce
 
 ```bash
-pip install -U ks-xlsx-parser==0.2.0      # or
-git clone https://github.com/knowledgestack/ks-xlsx-parser
-cd ks-xlsx-parser
+pip install -U excel-parser==0.2.0      # or
+git clone https://github.com/knowledgestack/excel-parser
+cd excel-parser
 make corpus-download                       # one-time, ~100 MB
 make bench                                 # ~30 min for both benchmarks
 open tests/benchmarks/reports/COMPARISON.md
@@ -63,7 +63,7 @@ open tests/benchmarks/reports/COMPARISON.md
 
 No breaking API changes. The only behavioral change is that **`render_text` on numeric cells now contains the raw value instead of the Excel-display-formatted string** (e.g. `1272` instead of `1,272.00`). If you were relying on display formatting in retrieval keys or downstream regex parsing, switch to the cell's `display_value` field on the `ChunkDTO`. For everything else, drop-in.
 
-Full changelog: [`CHANGELOG.md`](https://github.com/knowledgestack/ks-xlsx-parser/blob/main/CHANGELOG.md#020--2026-05-11).
+Full changelog: [`CHANGELOG.md`](https://github.com/knowledgestack/excel-parser/blob/main/CHANGELOG.md#020--2026-05-11).
 
 ## Thanks
 

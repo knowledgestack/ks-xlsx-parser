@@ -1,6 +1,6 @@
 # Corpus & Benchmarks
 
-ks-xlsx-parser benchmarks against public corpora that are downloaded on demand —
+excel-parser benchmarks against public corpora that are downloaded on demand —
 nothing large is committed to the repo.
 
 ## Primary corpus — SpreadsheetBench v0.1

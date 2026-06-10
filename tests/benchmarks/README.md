@@ -15,7 +15,7 @@ Long-running NDJSON-protocol workers, per-file timeout, batch respawn, randomize
 2. Add a runner factory in `_runner.py`.
 3. Wire it into `vs_hucre.py`'s `--parsers` handling.
 
-Supported parsers today: `ks` (ks-xlsx-parser), `hucre` (TypeScript, requires `pnpm install` under `hucre_node/`), `docling` (IBM Docling — `uv pip install docling`).
+Supported parsers today: `ks` (excel-parser), `hucre` (TypeScript, requires `pnpm install` under `hucre_node/`), `docling` (IBM Docling — `uv pip install docling`).
 
 ```bash
 # Quick smoke (50 random files from SpreadsheetBench)
@@ -71,10 +71,37 @@ PYTHONPATH=src uv run python scripts/eval_retrieval.py --parsers ks
 
 Outputs: `results.ndjson` (per-instance per-parser), `summary.json` (machine-readable aggregate), `summary.md` (human-readable table).
 
+## 3. Structural table/header benchmark — `scripts/eval_deco.py`
+
+Scores **table-boundary** and **header-row** detection against ground truth, which
+SpreadsheetBench cannot (it only has answer positions, not table/header regions).
+Uses [DECO](https://github.com/ddenron/deco_dataset) (Dresden Enron COrpus, ICDAR
+2019): 852 real `.xlsx` whose hidden `Range_Annotations_Data` sheet marks, per
+sheet, every table region and its header/data/derived row ranges.
+
+For each GT table we score:
+- **ks** — table-region IoU vs GT, fragmentation, and header-row precision/recall/F1
+  via the shipped `find_header_span`.
+- **docling** — tables-per-sheet vs GT count (its only measurable axis; it emits no
+  A1 coordinates, so it can't be scored on IoU or headers).
+
+Run one parser per process (memory isolation), then a report pass:
+
+```bash
+PYTHONPATH=src uv run python scripts/eval_deco.py --parser ks      --out tests/benchmarks/reports/deco/run
+PYTHONPATH=src uv run python scripts/eval_deco.py --parser docling --out tests/benchmarks/reports/deco/run
+PYTHONPATH=src uv run python scripts/eval_deco.py --report         --out tests/benchmarks/reports/deco/run
+```
+
+Outputs: `ks.ndjson` / `docling.ndjson` (per-table records), `summary.json`,
+`summary.md`. A per-file timeout (`--timeout`, default 60s) bounds pathological
+large sheets; reports give both micro (per-table) and macro (per-file) aggregates.
+
 ## Corpora
 
 Run `scripts/download_corpora.sh` once to populate `data/corpora/` (gitignored). Currently fetches:
 - SpreadsheetBench v0.1 (912 task instances × ~6 xlsx each = 5,458 files)
+- DECO (852 annotated `.xlsx` with table + header ground truth, under `deco/completed/`)
 - EUSES (mostly .xls)
 - Enron spreadsheets (mostly .xls)
 - A handful of SheetJS / openpyxl sample xlsx

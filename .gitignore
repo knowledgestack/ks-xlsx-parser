@@ -57,8 +57,10 @@ examples/stress_test/stress_results.json
 examples/stress_test/built_reference.json
 examples/stress_test/STRESS_TEST_RESULTS.md
 
-# Local benchmark harness (private, not pushed)
-tests/benchmarks/reports/
+# Local benchmark harness (private, not pushed) — run outputs stay private,
+# except the curated comparison the README links to.
+tests/benchmarks/reports/*
+!tests/benchmarks/reports/COMPARISON.md
 tests/benchmarks/hucre_node/node_modules/
 tests/benchmarks/hucre_node/.pnpm-store/
 

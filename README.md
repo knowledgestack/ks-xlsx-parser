@@ -1,9 +1,9 @@
-<img src="assets/readme-hero.png" alt="ks-xlsx-parser" width="100%">
+<img src="assets/readme-hero.png" alt="excel-parser" width="100%">
 
 <p align="center">
-  <a href="https://github.com/knowledgestack/ks-xlsx-parser"><img src="https://img.shields.io/badge/⭐%20Star%20on%20GitHub-Support%20the%20project-047857?style=for-the-badge&logo=github&logoColor=white" alt="Star on GitHub"></a>
-  <a href="https://github.com/knowledgestack/ks-xlsx-parser/fork"><img src="https://img.shields.io/badge/🍴%20Fork-Contribute-064E3B?style=for-the-badge&logo=github&logoColor=white" alt="Fork on GitHub"></a>
-  <a href="https://github.com/knowledgestack/ks-xlsx-parser/stargazers"><img src="https://img.shields.io/github/stars/knowledgestack/ks-xlsx-parser?style=for-the-badge&logo=github&logoColor=white&label=stargazers&color=22C55E" alt="GitHub stargazers"></a>
+  <a href="https://github.com/knowledgestack/excel-parser"><img src="https://img.shields.io/badge/⭐%20Star%20on%20GitHub-Support%20the%20project-047857?style=for-the-badge&logo=github&logoColor=white" alt="Star on GitHub"></a>
+  <a href="https://github.com/knowledgestack/excel-parser/fork"><img src="https://img.shields.io/badge/🍴%20Fork-Contribute-064E3B?style=for-the-badge&logo=github&logoColor=white" alt="Fork on GitHub"></a>
+  <a href="https://github.com/knowledgestack/excel-parser/stargazers"><img src="https://img.shields.io/github/stars/knowledgestack/excel-parser?style=for-the-badge&logo=github&logoColor=white&label=stargazers&color=22C55E" alt="GitHub stargazers"></a>
 </p>
 
 <p align="center">
@@ -13,23 +13,23 @@
 <h1 align="center">📊 Make XLSX LLM Ready 🤖</h1>
 
 <p align="center">
-  <b><code>ks-xlsx-parser</code> — the open-source Python library that parses Excel (.xlsx) files into citation-ready JSON for LLMs, RAG pipelines, and AI agents (LangChain, LangGraph, CrewAI, OpenAI Agents SDK, Claude, MCP).</b>
+  <b><code>excel-parser</code> — the open-source Python library that parses Excel (.xlsx) files into citation-ready JSON for LLMs, RAG pipelines, and AI agents (LangChain, LangGraph, CrewAI, OpenAI Agents SDK, Claude, MCP).</b>
 </p>
 
 <p align="center">
-  <a href="https://pypi.org/project/ks-xlsx-parser/"><img src="https://img.shields.io/pypi/v/ks-xlsx-parser.svg?style=flat-square&logo=pypi&logoColor=white&label=PyPI&color=047857" alt="PyPI"></a>
+  <a href="https://pypi.org/project/excel-parser/"><img src="https://img.shields.io/pypi/v/excel-parser.svg?style=flat-square&logo=pypi&logoColor=white&label=PyPI&color=047857" alt="PyPI"></a>
   <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/python-3.10%2B-065F46?style=flat-square&logo=python&logoColor=white" alt="Python 3.10+"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-64748B?style=flat-square" alt="MIT License"></a>
   <a href="tests/benchmarks/reports/COMPARISON.md"><img src="https://img.shields.io/badge/SpreadsheetBench-5%2C455%2F5%2C458%20parsed-22C55E?style=flat-square&logo=pytest&logoColor=white" alt="SpreadsheetBench"></a>
-  <a href="https://github.com/knowledgestack/ks-xlsx-parser/actions/workflows/ci.yml"><img src="https://github.com/knowledgestack/ks-xlsx-parser/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
+  <a href="https://github.com/knowledgestack/excel-parser/actions/workflows/ci.yml"><img src="https://github.com/knowledgestack/excel-parser/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
 </p>
 
 <p align="center">
   <a href="https://discord.gg/4uaGhJcx"><img src="https://img.shields.io/badge/Discord-join%20us-16A34A?style=flat-square&logo=discord&logoColor=white" alt="Discord"></a>
   <a href="https://github.com/knowledgestack"><img src="https://img.shields.io/badge/Knowledge%20Stack-ecosystem-059669?style=flat-square&logo=github&logoColor=white" alt="Knowledge Stack"></a>
-  <a href="https://github.com/knowledgestack/ks-xlsx-parser/discussions"><img src="https://img.shields.io/badge/discussions-open-15803D?style=flat-square&logo=github&logoColor=white" alt="Discussions"></a>
-  <a href="https://github.com/knowledgestack/ks-xlsx-parser/stargazers"><img src="https://img.shields.io/github/stars/knowledgestack/ks-xlsx-parser?style=flat-square&logo=github&label=stars&color=84CC16" alt="GitHub stars"></a>
-  <a href="https://knowledgestack.github.io/ks-xlsx-parser/"><img src="https://img.shields.io/badge/site-knowledgestack.github.io-22C55E?style=flat-square&logo=githubpages&logoColor=white" alt="Landing site"></a>
+  <a href="https://github.com/knowledgestack/excel-parser/discussions"><img src="https://img.shields.io/badge/discussions-open-15803D?style=flat-square&logo=github&logoColor=white" alt="Discussions"></a>
+  <a href="https://github.com/knowledgestack/excel-parser/stargazers"><img src="https://img.shields.io/github/stars/knowledgestack/excel-parser?style=flat-square&logo=github&label=stars&color=84CC16" alt="GitHub stars"></a>
+  <a href="https://knowledgestack.github.io/excel-parser/"><img src="https://img.shields.io/badge/site-knowledgestack.github.io-22C55E?style=flat-square&logo=githubpages&logoColor=white" alt="Landing site"></a>
 </p>
 
 <p align="center">
@@ -46,7 +46,7 @@
 > dependency graphs, and RAG-ready chunks — deterministic, fully tested, MIT.
 
 <p align="center">
-  <img src="assets/hero-highlight.png" alt="ks-xlsx-parser highlighting a financial model on the left and emitting typed, citation-linked chunks on the right" width="900">
+  <img src="assets/hero-highlight.png" alt="excel-parser highlighting a financial model on the left and emitting typed, citation-linked chunks on the right" width="900">
   <br>
   <sub><i>Raw workbook on the left (<code>financial_model.xlsx</code>) → parser output on the right: 4 chunks, each tied back to an exact sheet!range, ready to cite in an LLM response.</i></sub>
 </p>
@@ -54,7 +54,7 @@
 Spreadsheets are still the #1 unstructured data source in the enterprise.
 Feeding a `.xlsx` directly to an LLM loses structure (rows, formulas, merges),
 loses provenance (which cell said what), and blows through context windows.
-`ks-xlsx-parser` turns an Excel workbook into a token-counted, source-addressable
+`excel-parser` turns an Excel workbook into a token-counted, source-addressable
 graph that drops straight into [LangChain](https://www.langchain.com/),
 [LangGraph](https://langchain-ai.github.io/langgraph/),
 [CrewAI](https://www.crewai.com/), the
@@ -62,7 +62,7 @@ graph that drops straight into [LangChain](https://www.langchain.com/),
 [MCP](https://modelcontextprotocol.io/)-aware client (Claude Desktop, Cursor, Windsurf, Zed, …).
 
 <p align="center">
-  <a href="https://github.com/knowledgestack/ks-xlsx-parser"><img src="https://img.shields.io/badge/%E2%AD%90%20STAR%20THE%20REPO-it's%20how%20we%20justify%20maintaining%20this-047857?style=for-the-badge" alt="Star the repo"></a>
+  <a href="https://github.com/knowledgestack/excel-parser"><img src="https://img.shields.io/badge/%E2%AD%90%20STAR%20THE%20REPO-it's%20how%20we%20justify%20maintaining%20this-047857?style=for-the-badge" alt="Star the repo"></a>
   &nbsp;
   <a href="https://discord.gg/4uaGhJcx"><img src="https://img.shields.io/badge/%F0%9F%92%AC%20JOIN%20THE%20DISCORD-chat%20with%20the%20team%20%2B%20contributors-16A34A?style=for-the-badge&logo=discord&logoColor=white" alt="Join our Discord"></a>
 </p>
@@ -77,22 +77,22 @@ graph that drops straight into [LangChain](https://www.langchain.com/),
 
 ---
 
-## 🏁 Benchmark — ks-xlsx-parser vs Docling on SpreadsheetBench
+## 🏁 Benchmark — excel-parser vs Docling on SpreadsheetBench
 
 <p align="center">
   <a href="tests/benchmarks/reports/COMPARISON.md"><img src="https://img.shields.io/badge/SpreadsheetBench-912%20instances%20%C2%B7%205%2C458%20xlsx-047857?style=for-the-badge&logo=microsoftexcel&logoColor=white" alt="SpreadsheetBench"></a>
   <a href="tests/benchmarks/reports/COMPARISON.md"><img src="https://img.shields.io/badge/parse%20success-99.945%25-22C55E?style=for-the-badge&logo=checkmarx&logoColor=white" alt="Parse success"></a>
-  <a href="tests/benchmarks/reports/COMPARISON.md"><img src="https://img.shields.io/badge/recall%403%20vs%20Docling-%2B2.7%20pp-22C55E?style=for-the-badge&logo=target&logoColor=white" alt="Recall@3 vs Docling"></a>
+  <a href="tests/benchmarks/reports/COMPARISON.md"><img src="https://img.shields.io/badge/recall%403%20vs%20Docling-%2B2.8%20pp-22C55E?style=for-the-badge&logo=target&logoColor=white" alt="Recall@3 vs Docling"></a>
   <a href="tests/benchmarks/reports/COMPARISON.md"><img src="https://img.shields.io/badge/citation%20anchors-A1%20per%20chunk-047857?style=for-the-badge&logo=anchor&logoColor=white" alt="A1 anchors"></a>
 </p>
 
-Apples-to-apples on [SpreadsheetBench v0.1](https://github.com/RUCKBReasoning/SpreadsheetBench): 912 real-world task instances curated from ExcelHome / Mr.Excel / r/excel. For each instance we parse the input `.xlsx`, embed every chunk with `BAAI/bge-small-en-v1.5`, then check whether the chunk containing the ground-truth answer is in the top-k by similarity to the question.
+Apples-to-apples on [SpreadsheetBench v0.1](https://github.com/RUCKBReasoning/SpreadsheetBench): 912 real-world task instances curated from ExcelHome / Mr.Excel / r/excel. Both parsers are scored in the **same run on the same harness** — for each instance we parse the input `.xlsx`, embed every chunk with `BAAI/bge-small-en-v1.5`, then check whether the chunk containing the ground-truth answer is in the top-k by similarity to the question. Text-match recall is reported over the **scoreable** instances (the harness excludes instances whose answer cell is empty/uncached for *both* parsers equally).
 
 <table>
 <thead>
 <tr>
   <th align="left">Metric</th>
-  <th align="center" bgcolor="#047857"><span style="color:#FFFFFF"><b>🟢 ks-xlsx-parser</b></span></th>
+  <th align="center" bgcolor="#047857"><span style="color:#FFFFFF"><b>🟢 excel-parser</b></span></th>
   <th align="center" bgcolor="#475569"><span style="color:#FFFFFF"><b>⚪ Docling 2.93</b></span></th>
   <th align="center">Δ</th>
 </tr>
@@ -106,33 +106,33 @@ Apples-to-apples on [SpreadsheetBench v0.1](https://github.com/RUCKBReasoning/Sp
 </tr>
 <tr>
   <td><b>🎯 Recall@1</b><br/><sub>text-match</sub></td>
-  <td align="center" bgcolor="#D1FAE5"><img src="https://img.shields.io/badge/0.580-047857?style=flat-square" alt="0.580"></td>
-  <td align="center" bgcolor="#F1F5F9"><img src="https://img.shields.io/badge/0.579-64748B?style=flat-square" alt="0.579"></td>
-  <td align="center"><img src="https://img.shields.io/badge/tied-22C55E?style=flat-square" alt="tied"></td>
+  <td align="center" bgcolor="#F1F5F9"><img src="https://img.shields.io/badge/0.693-64748B?style=flat-square" alt="0.693"></td>
+  <td align="center" bgcolor="#E0E7FF"><img src="https://img.shields.io/badge/0.708-4F46E5?style=flat-square" alt="0.708"></td>
+  <td align="center"><img src="https://img.shields.io/badge/Docling%20%2B1.5%20pp-64748B?style=flat-square" alt="Docling +1.5 pp"></td>
 </tr>
 <tr>
   <td><b>🎯 Recall@3</b><br/><sub>text-match</sub></td>
-  <td align="center" bgcolor="#A7F3D0"><img src="https://img.shields.io/badge/0.697-047857?style=flat-square" alt="0.697"></td>
-  <td align="center" bgcolor="#F1F5F9"><img src="https://img.shields.io/badge/0.670-64748B?style=flat-square" alt="0.670"></td>
-  <td align="center"><img src="https://img.shields.io/badge/%2B2.7%20pp-22C55E?style=flat-square&logo=arrowup&logoColor=white" alt="+2.7 pp"></td>
+  <td align="center" bgcolor="#A7F3D0"><img src="https://img.shields.io/badge/0.848-047857?style=flat-square" alt="0.848"></td>
+  <td align="center" bgcolor="#F1F5F9"><img src="https://img.shields.io/badge/0.820-64748B?style=flat-square" alt="0.820"></td>
+  <td align="center"><img src="https://img.shields.io/badge/%2B2.8%20pp-22C55E?style=flat-square&logo=arrowup&logoColor=white" alt="+2.8 pp"></td>
 </tr>
 <tr>
   <td><b>🎯 Recall@5</b><br/><sub>text-match</sub></td>
-  <td align="center" bgcolor="#A7F3D0"><img src="https://img.shields.io/badge/0.704-047857?style=flat-square" alt="0.704"></td>
-  <td align="center" bgcolor="#F1F5F9"><img src="https://img.shields.io/badge/0.686-64748B?style=flat-square" alt="0.686"></td>
-  <td align="center"><img src="https://img.shields.io/badge/%2B1.8%20pp-22C55E?style=flat-square&logo=arrowup&logoColor=white" alt="+1.8 pp"></td>
+  <td align="center" bgcolor="#A7F3D0"><img src="https://img.shields.io/badge/0.859-047857?style=flat-square" alt="0.859"></td>
+  <td align="center" bgcolor="#F1F5F9"><img src="https://img.shields.io/badge/0.840-64748B?style=flat-square" alt="0.840"></td>
+  <td align="center"><img src="https://img.shields.io/badge/%2B1.9%20pp-22C55E?style=flat-square&logo=arrowup&logoColor=white" alt="+1.9 pp"></td>
 </tr>
 <tr>
   <td><b>📍 Geometric Recall@5</b><br/><sub>chunk's <code>sheet!A1:Z99</code> overlaps the ground-truth range</sub></td>
-  <td align="center" bgcolor="#6EE7B7"><img src="https://img.shields.io/badge/0.369-064E3B?style=flat-square" alt="0.369"></td>
+  <td align="center" bgcolor="#6EE7B7"><img src="https://img.shields.io/badge/0.889-064E3B?style=flat-square" alt="0.889"></td>
   <td align="center" bgcolor="#FEE2E2"><img src="https://img.shields.io/badge/0.000-991B1B?style=flat-square" alt="0.000"></td>
   <td align="center"><img src="https://img.shields.io/badge/citation--grade%20only-047857?style=flat-square&logo=anchor&logoColor=white" alt="citation-grade only"></td>
 </tr>
 <tr>
-  <td><b>⚡ Mean parse time</b><br/><sub>per file</sub></td>
-  <td align="center" bgcolor="#D1FAE5"><img src="https://img.shields.io/badge/251%20ms-047857?style=flat-square" alt="251 ms"></td>
-  <td align="center" bgcolor="#F1F5F9"><img src="https://img.shields.io/badge/265%20ms-64748B?style=flat-square" alt="265 ms"></td>
-  <td align="center"><img src="https://img.shields.io/badge/%7E5%25%20faster-22C55E?style=flat-square" alt="~5% faster"></td>
+  <td><b>⚡ Parse time</b><br/><sub>per file</sub></td>
+  <td align="center" bgcolor="#FFFFFF"><img src="https://img.shields.io/badge/349%20ms%20mean-64748B?style=flat-square" alt="349 ms mean"><br/><sub>11 ms median</sub></td>
+  <td align="center" bgcolor="#E0E7FF"><img src="https://img.shields.io/badge/238%20ms%20mean-4F46E5?style=flat-square" alt="238 ms mean"><br/><sub>13 ms median</sub></td>
+  <td align="center"><img src="https://img.shields.io/badge/mixed-64748B?style=flat-square" alt="mixed"></td>
 </tr>
 <tr>
   <td><b>🧱 Parser errors</b><br/><sub>across 912 instances</sub></td>
@@ -145,8 +145,10 @@ Apples-to-apples on [SpreadsheetBench v0.1](https://github.com/RUCKBReasoning/Sp
 
 ### 💡 What the numbers mean
 
-- **`ks-xlsx-parser` ties at recall@1 and wins recall@3 (+2.7 pp) and recall@5 (+1.8 pp).** Text-match recall is parser-agnostic — it asks whether *any* parser surfaced a chunk containing the answer string, after normalising commas, percent signs, ISO dates, and booleans on both sides.
-- **`ks-xlsx-parser` wins citation-grade (geometric) recall outright (0.369 vs 0.000).** Docling produces markdown without per-chunk `sheet!range` anchors, so it can't render a citation that points at the exact source cells. This is the difference between "the answer is somewhere in the workbook" and "the answer is in `Revenue!C7`."
+- **Text-match recall is a close race — call it honestly.** Docling edges `excel-parser` at recall@1 (0.708 vs 0.693, **+1.5 pp Docling**); `excel-parser` takes recall@3 (**+2.8 pp**) and recall@5 (**+1.9 pp**). Text-match is parser-agnostic — it asks whether *any* parser surfaced a chunk containing the answer string, after normalising commas, percent signs, ISO dates, and booleans on both sides. For retrieval *quality* alone, the two are roughly even.
+- **The real separation is citation-grade (geometric) recall: `0.889` vs `0.000`.** `excel-parser` emits a `sheet!A1:Z99` range on every chunk, so a top-k hit can cite the exact source cells; Docling produces markdown with **no cell coordinates**, so it structurally cannot — this is a *capability gap*, not an extraction-quality failure. It's the difference between "the answer is somewhere in the workbook" and "the answer is in `Revenue!C7`." (In-scope geometric recall@5 is **0.960** — see [`COMPARISON.md`](tests/benchmarks/reports/COMPARISON.md).)
+- **Parse time is mixed, and `excel-parser` is not uniformly faster.** Median per-file latency is comparable (~11–13 ms, `excel-parser` slightly ahead); on the **mean**, Docling is faster (238 ms vs 349 ms) because `excel-parser`'s large-table row-windowing renders big sheets more than once. Both parse 0 of 912 with errors.
+- **Harness honesty.** The geometric and text numbers above use a corrected harness vs. earlier releases: (1) geometric overlap now credits a match when the dataset omits the sheet name (~62% of instances are single-sheet) instead of comparing a real sheet name against `""` — this raised `excel-parser`'s geometric recall from the previously-reported 0.369 (the parser always pointed correctly; the old metric under-counted), and leaves Docling at 0.000; (2) instances whose answer cell is empty/uncached are excluded from the **text** denominator for *both* parsers. Both fixes are parser-independent and covered by unit tests.
 - **`Marker` is excluded by design.** Its xlsx → HTML → PDF → layout-recognition pipeline clocks >30 min per workbook on CPU. The benchmark framework supports adding a Marker adapter when GPU is available — see [`tests/benchmarks/adapters/docling_adapter.py`](tests/benchmarks/adapters/docling_adapter.py) as a template.
 
 ### 🔁 Reproduce
@@ -196,16 +198,16 @@ are all first-class ways to keep the lights on.
 **Jump into the community:**
 
 - 💬 **[Discord](https://discord.gg/4uaGhJcx)** — real-time help, roadmap conversations, show off what you're building. Drop in, say hi.
-- 🗣 [GitHub Discussions](https://github.com/knowledgestack/ks-xlsx-parser/discussions) — async Q&A, RFCs, and long-form ideas.
-- 🐞 [Issues](https://github.com/knowledgestack/ks-xlsx-parser/issues/new/choose) — report a bug, request a feature, or file a parser edge case.
-- 🎯 [Show & Tell](https://github.com/knowledgestack/ks-xlsx-parser/discussions/new?category=show-and-tell) — tell us about your production use.
-- 🔐 [Security](https://github.com/knowledgestack/ks-xlsx-parser/security/advisories/new) — private vulnerability disclosure.
+- 🗣 [GitHub Discussions](https://github.com/knowledgestack/excel-parser/discussions) — async Q&A, RFCs, and long-form ideas.
+- 🐞 [Issues](https://github.com/knowledgestack/excel-parser/issues/new/choose) — report a bug, request a feature, or file a parser edge case.
+- 🎯 [Show & Tell](https://github.com/knowledgestack/excel-parser/discussions/new?category=show-and-tell) — tell us about your production use.
+- 🔐 [Security](https://github.com/knowledgestack/excel-parser/security/advisories/new) — private vulnerability disclosure.
 - 🙌 [Contribute](CONTRIBUTING.md) — every PR is reviewed; `good-first-issue` labels live on Issues.
-- 🧰 [Knowledge Stack org](https://github.com/knowledgestack) — see the rest of the ecosystem (ks-cookbook, ks-xlsx-parser, more on the way).
+- 🧰 [Knowledge Stack org](https://github.com/knowledgestack) — see the rest of the ecosystem (ks-cookbook, excel-parser, more on the way).
 
 Not sure where to start? Run `make bench-robust` on SpreadsheetBench, find a
 file that breaks, open a
-[Parser edge case](https://github.com/knowledgestack/ks-xlsx-parser/issues/new?template=parser_edge_case.yml).
+[Parser edge case](https://github.com/knowledgestack/excel-parser/issues/new?template=parser_edge_case.yml).
 That's the fastest path to a merged PR.
 
 ---
@@ -213,11 +215,11 @@ That's the fastest path to a merged PR.
 ## 🚀 30-second demo
 
 ```bash
-pip install ks-xlsx-parser
+pip install excel-parser
 ```
 
 ```python
-from ks_xlsx_parser import parse_workbook
+from excel_parser import parse_workbook
 
 result = parse_workbook(path="q4_forecast.xlsx")
 
@@ -244,8 +246,8 @@ That's it. Every chunk has:
 
 ## 🗺️ Table of Contents
 
-- [🏁 Benchmark — vs Docling on SpreadsheetBench](#-benchmark--ks-xlsx-parser-vs-docling-on-spreadsheetbench)
-- [🤔 Why a dedicated XLSX parser for LLMs?](#-why-a-dedicated-xlsx-parser-for-llms)
+- [🏁 Benchmark — vs Docling on SpreadsheetBench](#-benchmark--excel-parser-vs-docling-on-spreadsheetbench)
+- [🤔 Why a dedicated XLSX parser for LLMs?](#-why-a-dedicated-excel-parser-for-llms)
 - [🏗️ Architecture](#️-architecture)
 - [📦 Installation](#-installation)
 - [📚 Documentation](#-documentation)
@@ -265,7 +267,7 @@ That's it. Every chunk has:
 
 Most Excel libraries answer one of two questions well: *"read a rectangle of
 values"* (pandas, openpyxl) or *"run Excel headless"* (xlwings, LibreOffice).
-`ks-xlsx-parser` answers a third one: **"give me a structured, inspectable,
+`excel-parser` answers a third one: **"give me a structured, inspectable,
 loss-minimising graph that an LLM or auditor can reason about."**
 
 | Output | Why an LLM cares |
@@ -288,7 +290,7 @@ corpus, and everything is open source.
 The pipeline runs **8 deterministic stages**: parse → analyse → annotate → segment → render → serialise → verify → compare/export. Full diagram, stage-by-stage breakdown, and module map in [**docs/wiki/Architecture.md**](docs/wiki/Architecture.md). Stage internals in [**Pipeline Internals**](docs/wiki/Pipeline-Internals.md).
 
 > [!NOTE]
-> The importable module is `xlsx_parser`; `ks_xlsx_parser` is a re-export
+> The importable module is `excel_parser`; `excel_parser` is a re-export
 > matching the PyPI package name. The package is fully type-annotated
 > (`py.typed` is shipped).
 
@@ -299,16 +301,16 @@ The pipeline runs **8 deterministic stages**: parse → analyse → annotate →
 Requires Python 3.10+.
 
 ```bash
-pip install ks-xlsx-parser                 # core library
-pip install "ks-xlsx-parser[api]"          # + FastAPI web server
-pip install "ks-xlsx-parser[dev]"          # + test tooling
+pip install excel-parser                 # core library
+pip install "excel-parser[api]"          # + FastAPI web server
+pip install "excel-parser[dev]"          # + test tooling
 ```
 
 From source:
 
 ```bash
-git clone https://github.com/knowledgestack/ks-xlsx-parser.git
-cd ks-xlsx-parser
+git clone https://github.com/knowledgestack/excel-parser.git
+cd excel-parser
 make install           # pip install -e ".[dev,api]"
 make test              # default suite
 make corpus-download   # fetch SpreadsheetBench (5,458 real-world xlsx)
@@ -323,7 +325,7 @@ Runtime deps: `openpyxl`, `pydantic`, `lxml`, `xxhash`, `tiktoken`.
 ## 📚 Documentation
 
 All implementation detail lives under [`docs/wiki/`](docs/wiki/) (mirrored
-to the [GitHub Wiki](https://github.com/knowledgestack/ks-xlsx-parser/wiki)
+to the [GitHub Wiki](https://github.com/knowledgestack/excel-parser/wiki)
 on each release) so this README stays scannable:
 
 - 🚀 [**Quick Start**](docs/wiki/Quick-Start.md) — parse, iterate chunks, walk the dep graph, serialise, parse from bytes. Five short snippets, ~90 % of real usage.
@@ -339,9 +341,9 @@ on each release) so this README stays scannable:
 
 ## ⚔️ How it compares
 
-This is the **structural** capability matrix. For head-to-head retrieval numbers (recall@k, geometric, latency) on a 912-instance real-world corpus, see [🏁 Benchmark — ks-xlsx-parser vs Docling on SpreadsheetBench](#-benchmark--ks-xlsx-parser-vs-docling-on-spreadsheetbench) up top.
+This is the **structural** capability matrix. For head-to-head retrieval numbers (recall@k, geometric, latency) on a 912-instance real-world corpus, see [🏁 Benchmark — excel-parser vs Docling on SpreadsheetBench](#-benchmark--excel-parser-vs-docling-on-spreadsheetbench) up top.
 
-| | pandas / openpyxl | Docling | `ks-xlsx-parser` |
+| | pandas / openpyxl | Docling | `excel-parser` |
 |---|:---:|:---:|:---:|
 | Reads values | ✅ | ✅ | ✅ |
 | Keeps **formulas** | ⚠️ raw string | ❌ | ✅ parsed + dependency graph |
@@ -356,7 +358,7 @@ This is the **structural** capability matrix. For head-to-head retrieval numbers
 | Deterministic **content hashes** | ❌ | ❌ | ✅ xxhash64 per cell / block / chunk |
 | Streaming `.xlsx` > 100 MB | ⚠️ | ❌ | ✅ (chunked parse) |
 
-Most tools give you a dataframe. `ks-xlsx-parser` gives you a **graph an LLM can cite**.
+Most tools give you a dataframe. `excel-parser` gives you a **graph an LLM can cite**.
 
 ---
 
@@ -365,7 +367,7 @@ Most tools give you a dataframe. `ks-xlsx-parser` gives you a **graph an LLM can
 > [**@productdevbook**](https://github.com/productdevbook). For an unbiased
 > head-to-head on the SpreadsheetBench corpus — perf numbers,
 > extraction-count parity, where each side wins — see the wiki:
-> [**`ks-xlsx-parser` vs `hucre`**](docs/wiki/Benchmark-vs-hucre.md).
+> [**`excel-parser` vs `hucre`**](docs/wiki/Benchmark-vs-hucre.md).
 
 ---
 
@@ -385,7 +387,7 @@ Teams shipping agents, RAG pipelines, or auditing tools that ingest Excel.
 
 > [!IMPORTANT]
 > **Not a fit** if you need to *execute* Excel (recalculate, run VBA, pivot-refresh).
-> Use xlwings or a headless Excel for that. `ks-xlsx-parser` reads; it doesn't run.
+> Use xlwings or a headless Excel for that. `excel-parser` reads; it doesn't run.
 
 ---
 
@@ -409,7 +411,7 @@ nothing is committed to the repo.
 
 ## 🚧 Limitations
 
-- **`.xls` not supported** — only `.xlsx` and `.xlsm` (OOXML). Convert legacy files externally.
+- **Legacy `.xls` (BIFF)** — supported via in-memory conversion to `.xlsx`. If **LibreOffice** is installed (auto-detected, headless), conversion is **full-fidelity**: formula text, cached values, charts, shapes, and styling are all preserved. Without LibreOffice, a pure-Python `xlrd` fallback preserves values, types, number formats, merges, and basic styling, but **not** formula text or charts (cached formula values still survive). Disable the LibreOffice path with `EXCEL_PARSER_DISABLE_SOFFICE=1`.
 - **Pivot tables** — detected but not fully parsed.
 - **Sparklines** — not extracted.
 - **VBA macros** — flagged but never executed or analysed.
@@ -424,7 +426,7 @@ Full list in [`docs/PARSER_KNOWN_ISSUES.md`](docs/PARSER_KNOWN_ISSUES.md).
 
 ## 🧰 Knowledge Stack ecosystem
 
-`ks-xlsx-parser` is one piece of the [**Knowledge Stack**](https://github.com/knowledgestack)
+`excel-parser` is one piece of the [**Knowledge Stack**](https://github.com/knowledgestack)
 open-source family — *document intelligence for agents*, built so that
 engineering teams can focus on agents and we handle the messy parts of
 enterprise data.
@@ -432,11 +434,11 @@ enterprise data.
 | Repo | What it does |
 |------|--------------|
 | [**ks-cookbook**](https://github.com/knowledgestack/ks-cookbook) | 32 production-style flagship agents + recipes for LangChain, LangGraph, CrewAI, Temporal, the OpenAI Agents SDK, and any [MCP](https://modelcontextprotocol.io/) client. |
-| [**ks-xlsx-parser**](https://github.com/knowledgestack/ks-xlsx-parser) (this repo) | Turn `.xlsx` into LLM-ready JSON with citations and dependency graphs. |
+| [**excel-parser**](https://github.com/knowledgestack/excel-parser) (this repo) | Turn `.xlsx` into LLM-ready JSON with citations and dependency graphs. |
 | [@knowledgestack](https://github.com/knowledgestack) | Follow the org for upcoming repos — parsers, extractors, and MCP servers for PDF, DOCX, PPTX, HTML, and more. |
 
 Building on top of the stack? Tell us about it in
-[Show & Tell](https://github.com/knowledgestack/ks-xlsx-parser/discussions/new?category=show-and-tell)
+[Show & Tell](https://github.com/knowledgestack/excel-parser/discussions/new?category=show-and-tell)
 or the [#showcase](https://discord.gg/4uaGhJcx) channel on Discord.
 
 ---
@@ -446,12 +448,12 @@ or the [#showcase](https://discord.gg/4uaGhJcx) channel on Discord.
 <p align="center">
   <a href="https://discord.gg/4uaGhJcx"><img src="https://img.shields.io/badge/Discord-Join%20the%20community-16A34A?style=for-the-badge&logo=discord&logoColor=white" alt="Discord"></a>
   <a href="https://github.com/knowledgestack"><img src="https://img.shields.io/badge/GitHub-Follow%20the%20org-047857?style=for-the-badge&logo=github" alt="Follow Knowledge Stack"></a>
-  <a href="https://github.com/knowledgestack/ks-xlsx-parser/discussions"><img src="https://img.shields.io/badge/Discussions-Ask%20a%20question-22C55E?style=for-the-badge&logo=github" alt="Discussions"></a>
+  <a href="https://github.com/knowledgestack/excel-parser/discussions"><img src="https://img.shields.io/badge/Discussions-Ask%20a%20question-22C55E?style=for-the-badge&logo=github" alt="Discussions"></a>
 </p>
 
 - 💬 **[Join the Discord](https://discord.gg/4uaGhJcx)** — our main real-time channel. Roadmap, help, job postings, show-and-tell, and the occasional meme.
 - 🐙 **[Follow @knowledgestack](https://github.com/knowledgestack)** on GitHub for new releases across the ecosystem.
-- 📣 Watch this repo (→ *Releases only*) to get pinged when `ks-xlsx-parser` ships an update.
+- 📣 Watch this repo (→ *Releases only*) to get pinged when `excel-parser` ships an update.
 
 If you'd rather just peek first — run the benchmark suite against the
 public SpreadsheetBench corpus (`make corpus-download && make bench-robust`)
@@ -465,7 +467,7 @@ We love contributions. Three paths, in order of speed-to-merge:
 
 1. **Report a benchmark failure** — run `make bench-robust` on SpreadsheetBench,
    find a file that breaks, attach it to a
-   [Parser edge case issue](https://github.com/knowledgestack/ks-xlsx-parser/issues/new?template=parser_edge_case.yml).
+   [Parser edge case issue](https://github.com/knowledgestack/excel-parser/issues/new?template=parser_edge_case.yml).
 2. **Submit an adversarial workbook** — open a Parser edge case issue with the
    file attached; we'll fold it into the suite.
 3. **Fix a flagged issue** — see [`docs/PARSER_KNOWN_ISSUES.md`](docs/PARSER_KNOWN_ISSUES.md).
@@ -475,7 +477,7 @@ See the [Code of Conduct](CODE_OF_CONDUCT.md) and
 [Security policy](SECURITY.md) before posting.
 
 If you don't have time to contribute but the project helped you, please
-**[star the repo](https://github.com/knowledgestack/ks-xlsx-parser)**. That's
+**[star the repo](https://github.com/knowledgestack/excel-parser)**. That's
 the main signal that keeps this maintained.
 
 ---
@@ -485,7 +487,7 @@ the main signal that keeps this maintained.
 <details>
 <summary><b>What is the best Python library to parse Excel (.xlsx) for LLMs?</b></summary>
 
-`ks-xlsx-parser` is purpose-built for it. Unlike pandas or openpyxl, it preserves formulas with a directed dependency graph, merged regions, tables, charts, and conditional formatting, and emits token-counted chunks with `source_uri` citations an LLM can quote. `pip install ks-xlsx-parser`.
+`excel-parser` is purpose-built for it. Unlike pandas or openpyxl, it preserves formulas with a directed dependency graph, merged regions, tables, charts, and conditional formatting, and emits token-counted chunks with `source_uri` citations an LLM can quote. `pip install excel-parser`.
 
 </details>
 
@@ -506,26 +508,26 @@ Same pattern — wrap `parse_workbook` in whatever tool abstraction your framewo
 <details>
 <summary><b>Can Claude Desktop, Cursor, Windsurf, or another MCP client read Excel files?</b></summary>
 
-Yes — run the bundled FastAPI server (`pip install ks-xlsx-parser[api]; xlsx-parser-api`) and call `POST /parse`. A native MCP server is on the [Knowledge Stack](https://github.com/knowledgestack) roadmap.
+Yes — run the bundled FastAPI server (`pip install excel-parser[api]; excel-parser-api`) and call `POST /parse`. A native MCP server is on the [Knowledge Stack](https://github.com/knowledgestack) roadmap.
 
 </details>
 
 <details>
 <summary><b>How do I build a RAG pipeline over Excel spreadsheets?</b></summary>
 
-Three steps: `pip install ks-xlsx-parser`, call `parse_workbook()` on each file, then `result.serializer.to_vector_store_entries()` to get `id + text + metadata` triples ready for Qdrant, pgvector, Weaviate, or Pinecone. Every entry has a `content_hash` for dedup and a `source_uri` the LLM cites in its answer.
+Three steps: `pip install excel-parser`, call `parse_workbook()` on each file, then `result.serializer.to_vector_store_entries()` to get `id + text + metadata` triples ready for Qdrant, pgvector, Weaviate, or Pinecone. Every entry has a `content_hash` for dedup and a `source_uri` the LLM cites in its answer.
 
 </details>
 
 <details>
-<summary><b>How is ks-xlsx-parser different from openpyxl or pandas?</b></summary>
+<summary><b>How is excel-parser different from openpyxl or pandas?</b></summary>
 
-openpyxl and pandas give you a rectangle of values. `ks-xlsx-parser` gives you the full workbook graph: parsed formulas with dependency edges, merged regions, Excel ListObjects, all 7 chart types, every conditional-formatting rule type, and LLM chunks with citation URIs + token counts. It wraps openpyxl and uses lxml for the bits openpyxl loses.
+openpyxl and pandas give you a rectangle of values. `excel-parser` gives you the full workbook graph: parsed formulas with dependency edges, merged regions, Excel ListObjects, all 7 chart types, every conditional-formatting rule type, and LLM chunks with citation URIs + token counts. It wraps openpyxl and uses lxml for the bits openpyxl loses.
 
 </details>
 
 <details>
-<summary><b>Does ks-xlsx-parser run Excel formulas or macros?</b></summary>
+<summary><b>Does excel-parser run Excel formulas or macros?</b></summary>
 
 No. The library reads `.xlsx` files; it never executes them. VBA macros are flagged but never run. External links are recorded but never resolved. ZIP-bomb and cell-count limits make it safe for untrusted uploads.
 
@@ -550,6 +552,6 @@ Search queries this library answers: *Python Excel parser for LLMs*, *XLSX to JS
 
 [MIT](LICENSE). Use it, fork it, ship it. Attribution appreciated but not required.
 
-If you ship something built on top of `ks-xlsx-parser`, we'd love a
-[Show & Tell](https://github.com/knowledgestack/ks-xlsx-parser/discussions/new?category=show-and-tell)
+If you ship something built on top of `excel-parser`, we'd love a
+[Show & Tell](https://github.com/knowledgestack/excel-parser/discussions/new?category=show-and-tell)
 post or a shoutout on [Discord](https://discord.gg/4uaGhJcx).

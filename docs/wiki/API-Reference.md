@@ -1,9 +1,9 @@
 # API Reference
 
-The public surface re-exported from both `xlsx_parser` and `ks_xlsx_parser`:
+The public surface re-exported from both `excel_parser` and `excel_parser`:
 
 ```python
-from ks_xlsx_parser import (
+from excel_parser import (
     parse_workbook,      # single file  → ParseResult
     compare_workbooks,   # N files      → GeneralizedTemplate
     export_importer,     # template     → generated Python class
@@ -79,7 +79,7 @@ def compare_workbooks(
 **Example:**
 
 ```python
-from ks_xlsx_parser import compare_workbooks
+from excel_parser import compare_workbooks
 
 template = compare_workbooks(
     ["report_q1.xlsx", "report_q2.xlsx", "report_q3.xlsx"],
@@ -110,7 +110,7 @@ def export_importer(
 **Example:**
 
 ```python
-from ks_xlsx_parser import compare_workbooks, export_importer
+from excel_parser import compare_workbooks, export_importer
 
 template = compare_workbooks(["q1.xlsx", "q2.xlsx", "q3.xlsx"])
 export_importer(template, "quarterly_importer.py",
@@ -126,7 +126,7 @@ the template.
 Step-by-step debugging of the parse pipeline.
 
 ```python
-from ks_xlsx_parser import StageVerifier, ExcellentStage
+from excel_parser import StageVerifier, ExcellentStage
 
 verifier = StageVerifier(path="workbook.xlsx")
 report = verifier.run()
@@ -150,15 +150,15 @@ print(report.to_markdown())   # human-readable summary
 
 ## CLI
 
-The package also installs an `xlsx-parser-api` console entry point that
+The package also installs an `excel-parser-api` console entry point that
 launches the FastAPI web server — see the [Web API](Web-API) page.
 
 ## Import paths
 
 Two module names point at the same package:
 
-- `from xlsx_parser import ...` — original import path.
-- `from ks_xlsx_parser import ...` — alias matching the PyPI
+- `from excel_parser import ...` — original import path.
+- `from excel_parser import ...` — alias matching the PyPI
   distribution name (dashes normalised to underscores).
 
 Use whichever reads better. Both will always work.

@@ -7,7 +7,7 @@ tables, comments, data validations, and sheet properties.
 """
 
 
-from ks_xlsx_parser.parsers import WorkbookParser
+from excel_parser.parsers import WorkbookParser
 
 
 class TestSimpleWorkbook:

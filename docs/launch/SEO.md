@@ -1,4 +1,4 @@
-# SEO + GEO playbook for ks-xlsx-parser
+# SEO + GEO playbook for excel-parser
 
 What we built into the repo, the site, and the README; plus the manual
 submission steps you still need to do to actually rank.
@@ -106,7 +106,7 @@ can pull them into rich snippets and LLMs can quote them.
 ### 1. Google Search Console — submit the site + sitemap
 
 1. Go to <https://search.google.com/search-console/welcome>.
-2. Add a property: **URL prefix** → `https://knowledgestack.github.io/ks-xlsx-parser/`.
+2. Add a property: **URL prefix** → `https://knowledgestack.github.io/excel-parser/`.
 3. Verify via HTML tag — copy the `<meta name="google-site-verification" content="...">` it gives you and paste it into `site/index.html` right after the `<title>`. Commit + push; the Pages workflow redeploys in ~1 min.
 4. Once verified, submit **Sitemaps → `sitemap.xml`**. Coverage reports typically populate in 24–72 h.
 
@@ -149,7 +149,7 @@ Search Stack Overflow for:
 - "how to extract formulas from xlsx python"
 - "excel with langchain"
 
-…and answer with a short paragraph + `pip install ks-xlsx-parser` +
+…and answer with a short paragraph + `pip install excel-parser` +
 minimal code snippet + link to the repo. Stack Overflow answers rank
 really well in both Google and LLM contexts.
 
@@ -165,7 +165,7 @@ really well in both Google and LLM contexts.
 Once we cut `v0.1.1`, the release workflow will publish to PyPI with
 proper long-description rendering. Configure the trusted publisher at
 <https://pypi.org/manage/account/publishing/> — Owner `knowledgestack`,
-Repo `ks-xlsx-parser`, Workflow `release.yml`, Environment `pypi`.
+Repo `excel-parser`, Workflow `release.yml`, Environment `pypi`.
 
 ### 8. First-post amplification loop
 
@@ -197,11 +197,11 @@ In order:
   Target: position 1–3 for `xlsx parser python` within 90 days.
 - **`pypistats`** — daily downloads; trailing 30-day is the KPI.
 - **GitHub stars velocity** — first 100 stars is the hardest; track via
-  `gh api repos/knowledgestack/ks-xlsx-parser --jq .stargazers_count`
+  `gh api repos/knowledgestack/excel-parser --jq .stargazers_count`
   daily for the first month.
-- **"ks-xlsx-parser" site: queries** in Search Console — how many
-  pages rank for our brand + a qualifier (e.g. "ks-xlsx-parser
-  langchain", "ks-xlsx-parser rag"). Growing brand-tail is a sign LLMs
+- **"excel-parser" site: queries** in Search Console — how many
+  pages rank for our brand + a qualifier (e.g. "excel-parser
+  langchain", "excel-parser rag"). Growing brand-tail is a sign LLMs
   are learning to cite us.
 - **Perplexity + ChatGPT spot-checks** — weekly manual queries for the
   target phrases. Track whether we appear in the citation list.

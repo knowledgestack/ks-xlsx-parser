@@ -6,9 +6,9 @@ assumption blocks, result blocks, and text headers.
 """
 
 
-from ks_xlsx_parser.chunking.segmenter import LayoutSegmenter
-from ks_xlsx_parser.models import BlockType
-from ks_xlsx_parser.parsers import WorkbookParser
+from excel_parser.chunking.segmenter import LayoutSegmenter
+from excel_parser.models import BlockType
+from excel_parser.parsers import WorkbookParser
 
 
 class TestSegmentation:

@@ -1,14 +1,14 @@
 """
 Tests for the Excellent Algorithm stage verification system.
 
-Verifies that the StageVerifier correctly maps ks-xlsx-parser output
+Verifies that the StageVerifier correctly maps excel-parser output
 to each of the 11 Excellent Algorithm stages and produces accurate
 reports with metrics, gaps, and recommendations.
 """
 
 import json
 
-from ks_xlsx_parser.verification import (
+from excel_parser.verification import (
     ExcellentStage,
     ImplementationStatus,
     StageResult,

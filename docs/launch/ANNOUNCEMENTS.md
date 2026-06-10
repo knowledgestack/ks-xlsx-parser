@@ -6,9 +6,9 @@ Copy-paste these. Tweak the tone to match the channel.
 
 ## 🎮 Discord — `#announcements`
 
-> **🚀 ks-xlsx-parser is now open source!**
+> **🚀 excel-parser is now open source!**
 >
-> We just shipped **ks-xlsx-parser v0.1.1** — the Knowledge Stack ETL layer
+> We just shipped **excel-parser v0.1.1** — the Knowledge Stack ETL layer
 > that turns `.xlsx` into LLM-ready JSON with proper citations, dependency
 > graphs, and per-chunk token counts.
 >
@@ -21,9 +21,9 @@ Copy-paste these. Tweak the tone to match the channel.
 > • A 1054-workbook stress corpus (`testBench/`) that we round-trip on every
 >   CI run — 1054/1054 passing in ~70s.
 >
-> **Install:** `pip install ks-xlsx-parser`
-> **Repo:** <https://github.com/knowledgestack/ks-xlsx-parser>
-> **Release:** <https://github.com/knowledgestack/ks-xlsx-parser/releases/tag/v0.1.1>
+> **Install:** `pip install excel-parser`
+> **Repo:** <https://github.com/knowledgestack/excel-parser>
+> **Release:** <https://github.com/knowledgestack/excel-parser/releases/tag/v0.1.1>
 >
 > ⭐ Star the repo if this saves you time, and drop your edge-case workbooks
 > in <#edge-cases> (or just DM us). Every `.xlsx` that breaks the parser
@@ -36,9 +36,9 @@ Copy-paste these. Tweak the tone to match the channel.
 
 ## 🎮 Discord — `#general` (shorter)
 
-> We just open-sourced **ks-xlsx-parser** 🎉
+> We just open-sourced **excel-parser** 🎉
 > Turn `.xlsx` into LLM-ready JSON with citations + dependency graphs.
-> `pip install ks-xlsx-parser` · <https://github.com/knowledgestack/ks-xlsx-parser>
+> `pip install excel-parser` · <https://github.com/knowledgestack/excel-parser>
 > Break it, star it, hang out here 🙌
 
 ---
@@ -47,13 +47,13 @@ Copy-paste these. Tweak the tone to match the channel.
 
 > Spreadsheets are still the #1 unstructured data source in the enterprise.
 >
-> We just open-sourced **ks-xlsx-parser** — turns `.xlsx` into
+> We just open-sourced **excel-parser** — turns `.xlsx` into
 > citation-ready JSON your agents can actually reason about.
 >
 > 1054 stress-test workbooks. 100% pass rate. MIT.
 >
-> `pip install ks-xlsx-parser`
-> 🔗 github.com/knowledgestack/ks-xlsx-parser
+> `pip install excel-parser`
+> 🔗 github.com/knowledgestack/excel-parser
 
 Follow-up tweet (thread):
 
@@ -61,13 +61,13 @@ Follow-up tweet (thread):
 > gives you prose. Neither gives you the *graph* an LLM needs: formulas,
 > merges, charts, dependency edges, and citation URIs per chunk.
 >
-> That's the gap ks-xlsx-parser fills.
+> That's the gap excel-parser fills.
 
 ---
 
 ## 💼 LinkedIn
 
-> We just open-sourced ks-xlsx-parser — the Knowledge Stack ETL layer for
+> We just open-sourced excel-parser — the Knowledge Stack ETL layer for
 > turning Excel workbooks into LLM-ready, citation-grounded JSON.
 >
 > Built for teams shipping agents and RAG pipelines that ingest real
@@ -83,16 +83,16 @@ Follow-up tweet (thread):
 >
 > MIT licensed. Part of the Knowledge Stack ecosystem (https://github.com/knowledgestack).
 >
-> `pip install ks-xlsx-parser`
+> `pip install excel-parser`
 >
-> ⭐ Star: https://github.com/knowledgestack/ks-xlsx-parser
+> ⭐ Star: https://github.com/knowledgestack/excel-parser
 > 💬 Discord: https://discord.gg/4uaGhJcx
 
 ---
 
 ## 🧡 Hacker News — "Show HN"
 
-**Title:** `Show HN: ks-xlsx-parser – turn .xlsx into citation-ready JSON for LLMs`
+**Title:** `Show HN: excel-parser – turn .xlsx into citation-ready JSON for LLMs`
 
 **Body:**
 
@@ -125,9 +125,9 @@ Follow-up tweet (thread):
 >    only non-empty cells are `A1` and `XFD1048576` was iterating ~17B
 >    empty cells before. Now 135ms.
 >
-> Install: `pip install ks-xlsx-parser`
+> Install: `pip install excel-parser`
 >
-> Repo: https://github.com/knowledgestack/ks-xlsx-parser
+> Repo: https://github.com/knowledgestack/excel-parser
 > Discord: https://discord.gg/4uaGhJcx
 >
 > Would love bug reports — especially `.xlsx` files that break it.
@@ -136,7 +136,7 @@ Follow-up tweet (thread):
 
 ## 🧵 Reddit (r/MachineLearning, r/LangChain, r/Python)
 
-**Title:** `[P] Open-sourced ks-xlsx-parser: turn .xlsx into citation-ready JSON for LLMs`
+**Title:** `[P] Open-sourced excel-parser: turn .xlsx into citation-ready JSON for LLMs`
 
 **Body:**
 
@@ -156,13 +156,13 @@ Follow-up tweet (thread):
 >   run. 1054/1054 pass in ~70s.
 > - Python 3.10+, MIT, no macro execution, no external-link resolution.
 >
-> `pip install ks-xlsx-parser`
+> `pip install excel-parser`
 >
-> Repo: https://github.com/knowledgestack/ks-xlsx-parser
+> Repo: https://github.com/knowledgestack/excel-parser
 >
 > Would genuinely love `.xlsx` files that break it — every edge-case
 > report becomes a new fixture in the next release. We have a
-> [Parser edge case](https://github.com/knowledgestack/ks-xlsx-parser/issues/new?template=parser_edge_case.yml)
+> [Parser edge case](https://github.com/knowledgestack/excel-parser/issues/new?template=parser_edge_case.yml)
 > issue template specifically for that.
 >
 > (Part of the wider Knowledge Stack open-source family —
@@ -173,7 +173,7 @@ Follow-up tweet (thread):
 
 ## 📢 Dev.to / Medium / blog post outline
 
-**Title:** `Make XLSX LLM Ready: why we built ks-xlsx-parser`
+**Title:** `Make XLSX LLM Ready: why we built excel-parser`
 
 **Outline** (use as prompt to yourself, then expand):
 

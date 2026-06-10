@@ -1,4 +1,4 @@
-# ks-xlsx-parser Wiki
+# excel-parser Wiki
 
 Welcome! This wiki holds the implementation detail we'd rather keep out of
 the front-page README so it stays scannable. The code-heavy stuff lives here.
@@ -27,28 +27,28 @@ the front-page README so it stays scannable. The code-heavy stuff lives here.
 
 ## Related docs in the main repo
 
-- [`README.md`](https://github.com/knowledgestack/ks-xlsx-parser#readme) —
+- [`README.md`](https://github.com/knowledgestack/excel-parser#readme) —
   hero page, architecture diagram, comparison table, community links.
-- [`docs/WORKBOOK_GRAPH_SPEC.md`](https://github.com/knowledgestack/ks-xlsx-parser/blob/main/docs/WORKBOOK_GRAPH_SPEC.md) —
+- [`docs/WORKBOOK_GRAPH_SPEC.md`](https://github.com/knowledgestack/excel-parser/blob/main/docs/WORKBOOK_GRAPH_SPEC.md) —
   the canonical specification for the extraction output.
-- [`docs/PARSER_KNOWN_ISSUES.md`](https://github.com/knowledgestack/ks-xlsx-parser/blob/main/docs/PARSER_KNOWN_ISSUES.md) —
+- [`docs/PARSER_KNOWN_ISSUES.md`](https://github.com/knowledgestack/excel-parser/blob/main/docs/PARSER_KNOWN_ISSUES.md) —
   known edge cases and how we handle them.
-- [`docs/corpora.md`](https://github.com/knowledgestack/ks-xlsx-parser/blob/main/docs/corpora.md) —
+- [`docs/corpora.md`](https://github.com/knowledgestack/excel-parser/blob/main/docs/corpora.md) —
   public benchmark corpora (SpreadsheetBench, EUSES, Enron).
-- [`CONTRIBUTING.md`](https://github.com/knowledgestack/ks-xlsx-parser/blob/main/CONTRIBUTING.md) —
+- [`CONTRIBUTING.md`](https://github.com/knowledgestack/excel-parser/blob/main/CONTRIBUTING.md) —
   dev loop, PR checklist, community channels.
-- [`CHANGELOG.md`](https://github.com/knowledgestack/ks-xlsx-parser/blob/main/CHANGELOG.md) —
+- [`CHANGELOG.md`](https://github.com/knowledgestack/excel-parser/blob/main/CHANGELOG.md) —
   release history.
 
 ## Community
 
 - 💬 [Discord](https://discord.gg/4uaGhJcx) — fastest way to get a real
   answer from a human.
-- 🗣 [GitHub Discussions](https://github.com/knowledgestack/ks-xlsx-parser/discussions) —
+- 🗣 [GitHub Discussions](https://github.com/knowledgestack/excel-parser/discussions) —
   async Q&A and RFCs.
-- 🐞 [Issues](https://github.com/knowledgestack/ks-xlsx-parser/issues/new/choose) —
+- 🐞 [Issues](https://github.com/knowledgestack/excel-parser/issues/new/choose) —
   bugs, feature requests, parser edge cases.
 
 Something in the wiki out of date or confusing? Open a PR against
-[`docs/wiki/`](https://github.com/knowledgestack/ks-xlsx-parser/tree/main/docs/wiki)
+[`docs/wiki/`](https://github.com/knowledgestack/excel-parser/tree/main/docs/wiki)
 — the wiki is rebuilt from that directory on every release.

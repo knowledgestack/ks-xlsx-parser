@@ -6,14 +6,14 @@ and reading-order linearization using programmatic fixtures.
 """
 
 
-from ks_xlsx_parser.analysis import (
+from excel_parser.analysis import (
     EntityIndexBuilder,
     KpiCatalogBuilder,
     ReadingOrderLinearizer,
     SheetSummaryAnalyzer,
 )
-from ks_xlsx_parser.models.common import SheetPurpose
-from ks_xlsx_parser.parsers import WorkbookParser
+from excel_parser.models.common import SheetPurpose
+from excel_parser.parsers import WorkbookParser
 
 
 class TestSheetSummaryAnalyzer:

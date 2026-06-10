@@ -6,9 +6,9 @@ type, series, axes, title, and position anchor.
 """
 
 
-from ks_xlsx_parser.charts.chart_extractor import ChartExtractor
-from ks_xlsx_parser.models import ChartType
-from ks_xlsx_parser.parsers import WorkbookParser
+from excel_parser.charts.chart_extractor import ChartExtractor
+from excel_parser.models import ChartType
+from excel_parser.parsers import WorkbookParser
 
 
 class TestChartExtraction:

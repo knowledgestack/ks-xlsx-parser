@@ -1,12 +1,12 @@
 # Web API
 
-`ks-xlsx-parser` ships a FastAPI application with a drag-and-drop UI, so
+`excel-parser` ships a FastAPI application with a drag-and-drop UI, so
 any service that can hit HTTP can use the parser without a Python dep.
 
 ## Install
 
 ```bash
-pip install "ks-xlsx-parser[api]"
+pip install "excel-parser[api]"
 ```
 
 The `[api]` extra pulls in `fastapi`, `uvicorn[standard]`, and
@@ -16,10 +16,10 @@ The `[api]` extra pulls in `fastapi`, `uvicorn[standard]`, and
 
 ```bash
 # console entry point, listens on :8080
-xlsx-parser-api
+excel-parser-api
 
 # or directly with uvicorn
-uvicorn xlsx_parser.api:app --reload --port 8080
+uvicorn excel_parser.api:app --reload --port 8080
 ```
 
 Open <http://localhost:8080> for the drag-and-drop UI.
@@ -106,7 +106,7 @@ Returns `{"status": "ok"}`. Point your load balancer here.
 
 ```python
 from fastapi import FastAPI
-from ks_xlsx_parser.api import app as xlsx_app
+from excel_parser.api import app as xlsx_app
 
 app = FastAPI()
 app.mount("/xlsx", xlsx_app)
@@ -120,9 +120,9 @@ The API respects a handful of environment variables:
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `XLSX_PARSER_MAX_CELLS` | `2000000` | Per-sheet cell cap passed to `parse_workbook`. |
-| `XLSX_PARSER_MAX_FILE_MB` | `100` | Reject uploads larger than this before parsing. |
-| `XLSX_PARSER_PORT` | `8080` | Port the console entry point listens on. |
+| `EXCEL_PARSER_MAX_CELLS` | `2000000` | Per-sheet cell cap passed to `parse_workbook`. |
+| `EXCEL_PARSER_MAX_FILE_MB` | `100` | Reject uploads larger than this before parsing. |
+| `EXCEL_PARSER_PORT` | `8080` | Port the console entry point listens on. |
 
 Production users typically front it with Nginx or Caddy for TLS + auth.
 
@@ -131,4 +131,4 @@ Production users typically front it with Nginx or Caddy for TLS + auth.
 An MCP server wrapping the same parse surface is on the roadmap so that
 Claude Desktop, Cursor, Windsurf, and Zed can call it without any glue
 code. Track progress or vote on the
-[roadmap discussion](https://github.com/knowledgestack/ks-xlsx-parser/discussions).
+[roadmap discussion](https://github.com/knowledgestack/excel-parser/discussions).

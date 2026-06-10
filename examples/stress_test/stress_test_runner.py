@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Stress Test Runner for XLSX Parser Pipeline.
+Stress Test Runner for Excel Parser Pipeline.
 
 Builds progressively complex Excel files, runs them through the parser,
 and documents any failures, errors, or unexpected behavior. Runs in a loop
@@ -18,7 +18,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
-from ks_xlsx_parser.pipeline import parse_workbook
+from excel_parser.pipeline import parse_workbook
 
 STRESS_DIR = Path(__file__).parent
 

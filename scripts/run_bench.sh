@@ -2,7 +2,7 @@
 # Entrypoint for the benchmark Docker image (Dockerfile.bench).
 #
 # Ensures the SpreadsheetBench corpus is present, runs the retrieval-recall
-# benchmark for ks-xlsx-parser, appends the result to history.jsonl, and
+# benchmark for excel-parser, appends the result to history.jsonl, and
 # prints a failure-bucket triage so accuracy can be tracked over time.
 #
 # Env vars:

@@ -1,6 +1,6 @@
-# ks-xlsx-parser v0.1.1 — Make XLSX LLM Ready 🚀
+# excel-parser v0.1.1 — Make XLSX LLM Ready 🚀
 
-**First public release** of `ks-xlsx-parser`, an open-source (MIT) ETL layer
+**First public release** of `excel-parser`, an open-source (MIT) ETL layer
 that turns `.xlsx` workbooks into structured, citation-ready JSON your agents
 and RAG pipelines can actually reason about.
 
@@ -20,7 +20,7 @@ ecosystem. Now open for the rest of the world.
   cocktails (400) + adversarial files (300) + 57 real-world and
   curated-stress workbooks. Round-trip gate in CI, **1054/1054 passing in
   ~70 s**. Ship fixtures in the
-  [`testBench-v0.1.1.zip`](https://github.com/knowledgestack/ks-xlsx-parser/releases/tag/v0.1.1)
+  [`testBench-v0.1.1.zip`](https://github.com/knowledgestack/excel-parser/releases/tag/v0.1.1)
   asset attached to this release.
 - ⚡ **Parser perf fixes** — real-world workbooks that used to hang now
   finish in under a second.
@@ -41,11 +41,11 @@ ecosystem. Now open for the rest of the world.
 ## 30-second demo
 
 ```bash
-pip install ks-xlsx-parser
+pip install excel-parser
 ```
 
 ```python
-from ks_xlsx_parser import parse_workbook
+from excel_parser import parse_workbook
 
 result = parse_workbook(path="q4_forecast.xlsx")
 
@@ -58,27 +58,27 @@ for chunk in result.chunks:
 ## Install
 
 ```bash
-pip install ks-xlsx-parser           # core library
-pip install ks-xlsx-parser[api]      # + FastAPI web server
-pip install ks-xlsx-parser[dev]      # + test tooling
+pip install excel-parser           # core library
+pip install excel-parser[api]      # + FastAPI web server
+pip install excel-parser[dev]      # + test tooling
 ```
 
 Python 3.10+, tested on Ubuntu and macOS.
 
 ## Artifacts attached
 
-- `ks_xlsx_parser-0.1.1-py3-none-any.whl` — wheel, published to
-  [PyPI](https://pypi.org/project/ks-xlsx-parser/)
-- `ks_xlsx_parser-0.1.1.tar.gz` — sdist
+- `excel_parser-0.1.1-py3-none-any.whl` — wheel, published to
+  [PyPI](https://pypi.org/project/excel-parser/)
+- `excel_parser-0.1.1.tar.gz` — sdist
 - `testBench-v0.1.1.zip` — 1053-workbook stress corpus (17 MB). Drop into
   any parser for a stiff regression test.
 
 ## Community
 
 - 💬 **Discord**: <https://discord.gg/4uaGhJcx>
-- 🗣 **Discussions**: <https://github.com/knowledgestack/ks-xlsx-parser/discussions>
-- 🐞 **Issues**: <https://github.com/knowledgestack/ks-xlsx-parser/issues>
-- ⭐ **Star the repo**: <https://github.com/knowledgestack/ks-xlsx-parser>
+- 🗣 **Discussions**: <https://github.com/knowledgestack/excel-parser/discussions>
+- 🐞 **Issues**: <https://github.com/knowledgestack/excel-parser/issues>
+- ⭐ **Star the repo**: <https://github.com/knowledgestack/excel-parser>
 - 🧰 **Knowledge Stack org**: <https://github.com/knowledgestack>
 
 ## What's next
@@ -92,7 +92,7 @@ Python 3.10+, tested on Ubuntu and macOS.
 
 Bug reports, edge-case workbooks, and PRs welcome — especially `.xlsx`
 files that break the parser. See
-[`CONTRIBUTING.md`](https://github.com/knowledgestack/ks-xlsx-parser/blob/main/CONTRIBUTING.md).
+[`CONTRIBUTING.md`](https://github.com/knowledgestack/excel-parser/blob/main/CONTRIBUTING.md).
 
 **Thanks to every team that filed an edge case during the private beta.**
 
