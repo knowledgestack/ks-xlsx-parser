@@ -154,26 +154,28 @@ class SheetParser:
             for (mr, mc), (master, _rs, _cs) in merge_masters.items():
                 merge_keys.add((mr, mc))
             cell_iter = [
-                self._ws.cell(row=r, column=c)
-                for (r, c) in sorted(set(stored_cells.keys()) | merge_keys)
+                self._ws.cell(row=r, column=c) for (r, c) in sorted(set(stored_cells.keys()) | merge_keys)
             ]
         else:
             cell_iter = (cell for row in self._ws.iter_rows() for cell in row)
 
         for cell in cell_iter:
             if cell_count >= self._max_cells:
-                sheet.errors.append(ParseError(
-                    severity=Severity.WARNING,
-                    stage="parse",
-                    message=f"Cell limit ({self._max_cells}) reached; truncating",
-                    sheet_name=self._sheet_name,
-                ))
+                sheet.errors.append(
+                    ParseError(
+                        severity=Severity.WARNING,
+                        stage="parse",
+                        message=f"Cell limit ({self._max_cells}) reached; truncating",
+                        sheet_name=self._sheet_name,
+                    )
+                )
                 return
 
             # Skip truly empty cells (no value, no formula, no style worth capturing)
             if cell.value is None and cell.data_type != "f" and not self._has_meaningful_style(cell):
                 # But still capture merged slaves
                 from openpyxl.cell.cell import MergedCell as MergedCellType
+
                 if not isinstance(cell, MergedCellType):
                     continue
 
@@ -186,9 +188,7 @@ class SheetParser:
                 computed_value = self._computed_values.get((cell.row, cell.column))
             elif self._computed_ws:
                 try:
-                    computed_cell = self._computed_ws.cell(
-                        row=cell.row, column=cell.column
-                    )
+                    computed_cell = self._computed_ws.cell(row=cell.row, column=cell.column)
                     computed_value = computed_cell.value
                 except Exception:
                     pass
@@ -244,17 +244,20 @@ class SheetParser:
     def _extract_properties(self) -> SheetProperties:
         """Extract sheet-level properties."""
         ws = self._ws
+        # getattr guards: chartsheets reach this parser too and lack most
+        # worksheet attributes (no freeze_panes/print_area/cells).
         freeze_pane = None
-        if ws.freeze_panes:
+        if getattr(ws, "freeze_panes", None):
             freeze_pane = str(ws.freeze_panes)
 
         print_area = None
-        if ws.print_area:
+        if getattr(ws, "print_area", None):
             print_area = str(ws.print_area)
 
         auto_filter = None
-        if ws.auto_filter and ws.auto_filter.ref:
-            auto_filter = str(ws.auto_filter.ref)
+        af = getattr(ws, "auto_filter", None)
+        if af is not None and af.ref:
+            auto_filter = str(af.ref)
 
         tab_color = None
         if ws.sheet_properties and ws.sheet_properties.tabColor:
@@ -264,15 +267,17 @@ class SheetParser:
         if hasattr(ws, "sheet_state"):
             is_hidden = ws.sheet_state == "hidden"
 
+        sheet_format = getattr(ws, "sheet_format", None)
+        protection = getattr(ws, "protection", None)
         return SheetProperties(
             is_hidden=is_hidden,
             tab_color=tab_color,
-            default_row_height=ws.sheet_format.defaultRowHeight if ws.sheet_format else None,
-            default_col_width=ws.sheet_format.defaultColWidth if ws.sheet_format else None,
+            default_row_height=sheet_format.defaultRowHeight if sheet_format else None,
+            default_col_width=sheet_format.defaultColWidth if sheet_format else None,
             freeze_pane=freeze_pane,
             print_area=print_area,
             auto_filter_range=auto_filter,
-            sheet_protection=bool(ws.protection and ws.protection.sheet),
+            sheet_protection=bool(protection and protection.sheet),
         )
 
     def _extract_dimensions(self, sheet: SheetDTO) -> None:
@@ -289,6 +294,7 @@ class SheetParser:
         for col_letter, cd in self._ws.column_dimensions.items():
             if cd.width:
                 from excel_parser.models.common import col_letter_to_number
+
                 col_num = col_letter_to_number(col_letter)
                 sheet.col_widths[col_num] = cd.width * 7.5  # chars to points approx
 
@@ -301,6 +307,7 @@ class SheetParser:
         for col_letter, cd in self._ws.column_dimensions.items():
             if cd.hidden:
                 from excel_parser.models.common import col_letter_to_number
+
                 col_num = col_letter_to_number(col_letter)
                 sheet.hidden_cols.add(col_num)
 
@@ -315,14 +322,16 @@ class SheetParser:
 
                 ranges = [str(r) for r in cf.cells.ranges] if hasattr(cf.cells, "ranges") else [str(cf.cells)]
 
-                rules.append(ConditionalFormatRule(
-                    ranges=ranges,
-                    rule_type=rule.type or "unknown",
-                    operator=rule.operator,
-                    formula=formula,
-                    priority=rule.priority,
-                    stop_if_true=bool(rule.stopIfTrue),
-                ))
+                rules.append(
+                    ConditionalFormatRule(
+                        ranges=ranges,
+                        rule_type=rule.type or "unknown",
+                        operator=rule.operator,
+                        formula=formula,
+                        priority=rule.priority,
+                        stop_if_true=bool(rule.stopIfTrue),
+                    )
+                )
         return rules
 
     def _extract_data_validations(self) -> list[DataValidationRule]:
@@ -331,20 +340,28 @@ class SheetParser:
         if not self._ws.data_validations:
             return rules
         for dv in self._ws.data_validations.dataValidation:
-            ranges = [str(r) for r in dv.cells.ranges] if hasattr(dv.cells, "ranges") else [str(dv.cells)] if dv.cells else []
-            rules.append(DataValidationRule(
-                ranges=ranges,
-                validation_type=dv.type or "none",
-                operator=dv.operator,
-                formula1=str(dv.formula1) if dv.formula1 else None,
-                formula2=str(dv.formula2) if dv.formula2 else None,
-                allow_blank=bool(dv.allow_blank) if dv.allow_blank is not None else True,
-                show_error_message=bool(dv.showErrorMessage),
-                error_title=dv.errorTitle,
-                error_message=dv.error,
-                prompt_title=dv.promptTitle,
-                prompt_message=dv.prompt,
-            ))
+            ranges = (
+                [str(r) for r in dv.cells.ranges]
+                if hasattr(dv.cells, "ranges")
+                else [str(dv.cells)]
+                if dv.cells
+                else []
+            )
+            rules.append(
+                DataValidationRule(
+                    ranges=ranges,
+                    validation_type=dv.type or "none",
+                    operator=dv.operator,
+                    formula1=str(dv.formula1) if dv.formula1 else None,
+                    formula2=str(dv.formula2) if dv.formula2 else None,
+                    allow_blank=bool(dv.allow_blank) if dv.allow_blank is not None else True,
+                    show_error_message=bool(dv.showErrorMessage),
+                    error_title=dv.errorTitle,
+                    error_message=dv.error,
+                    prompt_title=dv.promptTitle,
+                    prompt_message=dv.prompt,
+                )
+            )
         return rules
 
     def _extract_autofilter(self, sheet: SheetDTO) -> None:
@@ -354,6 +371,7 @@ class SheetParser:
             return
         try:
             from excel_parser.models.common import FilterCriteria
+
             ref = str(af.ref)
             parts = ref.split(":")
             if len(parts) == 2:
@@ -381,11 +399,13 @@ class SheetParser:
                             if hasattr(filt, "val") and filt.val:
                                 vals.append(str(filt.val))
                     if vals:
-                        sheet.autofilter_criteria.append(FilterCriteria(
-                            col_index=col_id,
-                            filter_type="values",
-                            values=vals,
-                        ))
+                        sheet.autofilter_criteria.append(
+                            FilterCriteria(
+                                col_index=col_id,
+                                filter_type="values",
+                                values=vals,
+                            )
+                        )
         except Exception as e:
             logger.debug("Could not fully parse autofilter: %s", e)
 
@@ -428,14 +448,17 @@ class SheetParser:
         except Exception as e:
             logger.warning(
                 "OOXML merge recovery failed for sheet %s: %s",
-                self._sheet_name, e,
+                self._sheet_name,
+                e,
             )
-            sheet.errors.append(ParseError(
-                severity=Severity.WARNING,
-                stage="parse",
-                message=f"Merge empty-master recovery failed: {e}",
-                sheet_name=self._sheet_name,
-            ))
+            sheet.errors.append(
+                ParseError(
+                    severity=Severity.WARNING,
+                    stage="parse",
+                    message=f"Merge empty-master recovery failed: {e}",
+                    sheet_name=self._sheet_name,
+                )
+            )
 
     def _do_xml_recovery(
         self,
@@ -473,7 +496,9 @@ class SheetParser:
                     self._update_master_cell(sheet, master_coord, value)
                     logger.debug(
                         "Recovered value for %s!%s from merged region %s",
-                        self._sheet_name, master_coord.to_a1(), cell_range.to_a1(),
+                        self._sheet_name,
+                        master_coord.to_a1(),
+                        cell_range.to_a1(),
                     )
 
     @staticmethod
@@ -487,8 +512,7 @@ class SheetParser:
 
         # Try all sheet files and pick by index
         sheet_files = sorted(
-            n for n in zf.namelist()
-            if n.startswith("xl/worksheets/sheet") and n.endswith(".xml")
+            n for n in zf.namelist() if n.startswith("xl/worksheets/sheet") and n.endswith(".xml")
         )
         if sheet_index < len(sheet_files):
             return sheet_files[sheet_index]

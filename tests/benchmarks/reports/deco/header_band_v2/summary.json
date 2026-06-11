@@ -1,0 +1,33 @@
+{
+  "n_tables": 1480,
+  "ks": {
+    "mean_best_iou": 0.5111728378378364,
+    "detect_at_0.5": 0.4885135135135135,
+    "detect_at_0.3": 0.6074324324324324,
+    "mean_fragments": 8.786486486486487,
+    "over_segmented_frac": 0.6189189189189189,
+    "header_tables": 1480,
+    "header_multirow": 534,
+    "header_e2e": {
+      "precision": 0.8173975557153127,
+      "recall": 0.36951576210594733,
+      "f1": 0.5089525514771709
+    },
+    "header_iso": {
+      "precision": 0.9358974358974359,
+      "recall": 0.6168345791355216,
+      "f1": 0.7435847208619001
+    },
+    "header_detected_e2e_frac": 0.6614864864864864,
+    "header_exact_iso_frac": 0.7162162162162162
+  },
+  "docling": {
+    "sheets": 0,
+    "mean_tables_per_sheet": null,
+    "mean_abs_table_count_err": null,
+    "exact_frac": null,
+    "over_segment_frac": null,
+    "under_count_frac": null,
+    "convert_errors": 0
+  }
+}
