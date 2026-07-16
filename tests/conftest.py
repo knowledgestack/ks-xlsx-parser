@@ -1,5 +1,5 @@
 """
-Pytest fixtures for xlsx_parser tests.
+Pytest fixtures for excel_parser tests.
 
 Provides programmatically generated .xlsx workbooks covering various
 edge cases: merged cells, formulas, tables, large sheets, sparse data,
@@ -1332,4 +1332,418 @@ def stress_tough(tmp_dir) -> Path:
     ws1.print_title_rows = "1:1"
 
     wb.save(path)
+    return path
+
+
+# ---------------------------------------------------------------------------
+# Vertical table-stitching fixtures (text-within-a-table fragmentation bug)
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture
+def section_note_table(tmp_dir) -> Path:
+    """A single table fragmented by a single-column section row + blank spacers.
+
+    Layout (the reproduced bug):
+        row1: Region | Q1 | Q2 | Q3      (bold header)
+        row2: Widget |  1 |  2 |  3
+        row3: (blank)
+        row4: "Section: South Region"    (col A only)
+        row5: (blank)
+        row6: Gadget |  4 |  5 | =B6+C6   (formula in body)
+        row7: Gizmo  |  7 |  8 |  9
+    Before the fix this shatters into TABLE A1:D2 + TEXT_BLOCK A4 + MIXED A6:D7.
+    After stitching it must be a single TABLE A1:D7 with the header intact.
+    """
+    from openpyxl import Workbook
+    from openpyxl.styles import Font
+
+    path = tmp_dir / "section_note_table.xlsx"
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Sales"
+
+    for ci, h in enumerate(["Region", "Q1", "Q2", "Q3"], 1):
+        ws.cell(row=1, column=ci, value=h).font = Font(bold=True)
+    ws.cell(row=2, column=1, value="Widget")
+    ws.cell(row=2, column=2, value=1)
+    ws.cell(row=2, column=3, value=2)
+    ws.cell(row=2, column=4, value=3)
+    # row 3 blank
+    ws.cell(row=4, column=1, value="Section: South Region")
+    # row 5 blank
+    ws.cell(row=6, column=1, value="Gadget")
+    ws.cell(row=6, column=2, value=4)
+    ws.cell(row=6, column=3, value=5)
+    ws.cell(row=6, column=4, value="=B6+C6")
+    ws.cell(row=7, column=1, value="Gizmo")
+    ws.cell(row=7, column=2, value=7)
+    ws.cell(row=7, column=3, value=8)
+    ws.cell(row=7, column=4, value=9)
+
+    wb.save(path)
+    return path
+
+
+@pytest.fixture
+def chained_fragments(tmp_dir) -> Path:
+    """Three body fragments separated by two single-column section rows.
+
+    Header row1 + body row2, note row4, body row6, note row8, body row10 —
+    each hop separated by a single blank row. Must stitch into one block.
+    """
+    from openpyxl import Workbook
+    from openpyxl.styles import Font
+
+    path = tmp_dir / "chained_fragments.xlsx"
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Chained"
+
+    for ci, h in enumerate(["Item", "Jan", "Feb"], 1):
+        ws.cell(row=1, column=ci, value=h).font = Font(bold=True)
+    ws.cell(row=2, column=1, value="Alpha")
+    ws.cell(row=2, column=2, value=10)
+    ws.cell(row=2, column=3, value=11)
+    ws.cell(row=4, column=1, value="Region: North")
+    ws.cell(row=6, column=1, value="Beta")
+    ws.cell(row=6, column=2, value=20)
+    ws.cell(row=6, column=3, value=21)
+    ws.cell(row=8, column=1, value="Region: South")
+    ws.cell(row=10, column=1, value="Gamma")
+    ws.cell(row=10, column=2, value=30)
+    ws.cell(row=10, column=3, value=31)
+
+    wb.save(path)
+    return path
+
+
+@pytest.fixture
+def terminal_footer(tmp_dir) -> Path:
+    """Table followed (after a blank row) by a lone single-column footer note.
+
+    The footer is a bridge with no continuation below it, so it must NOT be
+    absorbed — it stays a separate block.
+        row1: Category | Value   (bold header)
+        row2: Alpha    | 10
+        row3: Beta     | 20
+        row4: (blank)
+        row5: "Note: unaudited figures"   (col A only)
+    """
+    from openpyxl import Workbook
+    from openpyxl.styles import Font
+
+    path = tmp_dir / "terminal_footer.xlsx"
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Footer"
+
+    for ci, h in enumerate(["Category", "Value"], 1):
+        ws.cell(row=1, column=ci, value=h).font = Font(bold=True)
+    ws.cell(row=2, column=1, value="Alpha")
+    ws.cell(row=2, column=2, value=10)
+    ws.cell(row=3, column=1, value="Beta")
+    ws.cell(row=3, column=2, value=20)
+    # row 4 blank
+    ws.cell(row=5, column=1, value="Note: unaudited figures")
+
+    wb.save(path)
+    return path
+
+
+@pytest.fixture
+def far_offset_note(tmp_dir) -> Path:
+    """A contiguous table plus a note in a far-offset column (no col overlap).
+
+    The offset note (col G) must never be merged into the cols A-D table.
+        row1: Region | Q1 | Q2 | Q3   (bold header)
+        row2: Widget |  1 |  2 |  3
+        row3:                          G3="Footnote far right"
+        row4: Gadget |  4 |  5 |  6
+    """
+    from openpyxl import Workbook
+    from openpyxl.styles import Font
+
+    path = tmp_dir / "far_offset_note.xlsx"
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Offset"
+
+    for ci, h in enumerate(["Region", "Q1", "Q2", "Q3"], 1):
+        ws.cell(row=1, column=ci, value=h).font = Font(bold=True)
+    ws.cell(row=2, column=1, value="Widget")
+    ws.cell(row=2, column=2, value=1)
+    ws.cell(row=2, column=3, value=2)
+    ws.cell(row=2, column=4, value=3)
+    ws.cell(row=3, column=7, value="Footnote far right")
+    ws.cell(row=4, column=1, value="Gadget")
+    ws.cell(row=4, column=2, value=4)
+    ws.cell(row=4, column=3, value=5)
+    ws.cell(row=4, column=4, value=6)
+
+    wb.save(path)
+    return path
+
+
+@pytest.fixture
+def sparse_title_table(tmp_dir) -> Path:
+    """A non-bold single-column title row directly above the real bold header
+    (contiguous, no blank row between them).
+
+        row1: "Revenue by Region"     (col A only, NOT bold)
+        row2: Region | Q1 | Q2 | Q3   (bold header)
+        row3: Widget |  1 |  2 |  3
+        row4: Gadget |  4 |  5 |  6
+
+    Documents a header-detection blind spot: ``_classify_component`` only
+    inspects the component's first row for boldness, so the real header on
+    row 2 is missed and the block falls through to MIXED; and the renderer
+    assumes the header is the block's first row. See the xfail test.
+    """
+    from openpyxl import Workbook
+    from openpyxl.styles import Font
+
+    path = tmp_dir / "sparse_title_table.xlsx"
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Sales"
+
+    ws.cell(row=1, column=1, value="Revenue by Region")
+    for ci, h in enumerate(["Region", "Q1", "Q2", "Q3"], 1):
+        ws.cell(row=2, column=ci, value=h).font = Font(bold=True)
+    ws.cell(row=3, column=1, value="Widget")
+    ws.cell(row=3, column=2, value=1)
+    ws.cell(row=3, column=3, value=2)
+    ws.cell(row=3, column=4, value=3)
+    ws.cell(row=4, column=1, value="Gadget")
+    ws.cell(row=4, column=2, value=4)
+    ws.cell(row=4, column=3, value=5)
+    ws.cell(row=4, column=4, value=6)
+
+    wb.save(path)
+    return path
+
+
+@pytest.fixture
+def nonbold_header_table(tmp_dir) -> Path:
+    """A table whose header row is NOT bold (plain text labels over numbers)."""
+    from openpyxl import Workbook
+
+    path = tmp_dir / "nonbold_header.xlsx"
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Plain"
+    for ci, h in enumerate(["Region", "Q1", "Q2", "Q3"], 1):
+        ws.cell(row=1, column=ci, value=h)  # not bold
+    ws.cell(row=2, column=1, value="Widget")
+    ws.cell(row=2, column=2, value=1)
+    ws.cell(row=2, column=3, value=2)
+    ws.cell(row=2, column=4, value=3)
+    ws.cell(row=3, column=1, value="Gadget")
+    ws.cell(row=3, column=2, value=4)
+    ws.cell(row=3, column=3, value=5)
+    ws.cell(row=3, column=4, value=6)
+    wb.save(path)
+    return path
+
+
+@pytest.fixture
+def two_nonbold_stacked_tables(tmp_dir) -> Path:
+    """Two stacked tables, BOTH with non-bold headers, one blank row apart.
+
+    The generalized header detector must recognise the lower table's header so
+    the stitcher stops there — they must stay two separate blocks.
+    """
+    from openpyxl import Workbook
+
+    path = tmp_dir / "two_nonbold_stacked.xlsx"
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Two"
+    for ci, h in enumerate(["Region", "Q1", "Q2"], 1):
+        ws.cell(row=1, column=ci, value=h)
+    ws.cell(row=2, column=1, value="W")
+    ws.cell(row=2, column=2, value=1)
+    ws.cell(row=2, column=3, value=2)
+    # blank row 3
+    for ci, h in enumerate(["Product", "Price", "Stock"], 1):
+        ws.cell(row=4, column=ci, value=h)
+    ws.cell(row=5, column=1, value="Bolt")
+    ws.cell(row=5, column=2, value=9)
+    ws.cell(row=5, column=3, value=10)
+    wb.save(path)
+    return path
+
+
+@pytest.fixture
+def large_numeric_table(tmp_dir) -> Path:
+    """A 400-row table that exceeds the default per-chunk token budget."""
+    from openpyxl import Workbook
+    from openpyxl.styles import Font
+
+    path = tmp_dir / "large_numeric.xlsx"
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Big"
+    for ci, h in enumerate(["Item", "ColB", "ColC", "ColD"], 1):
+        ws.cell(row=1, column=ci, value=h).font = Font(bold=True)
+    for i in range(2, 402):
+        ws.cell(row=i, column=1, value=f"Item{i}")
+        ws.cell(row=i, column=2, value=i)
+        ws.cell(row=i, column=3, value=i * 2)
+        ws.cell(row=i, column=4, value=i * 3)
+    wb.save(path)
+    return path
+
+
+@pytest.fixture
+def large_titled_table(tmp_dir) -> Path:
+    """A 400-row table with a title row above the header (windowing must keep
+    the title on part 1)."""
+    from openpyxl import Workbook
+    from openpyxl.styles import Font
+
+    path = tmp_dir / "large_titled.xlsx"
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Big"
+    ws.cell(row=1, column=1, value="Annual Report 2024")  # title, not bold
+    for ci, h in enumerate(["Item", "ColB", "ColC"], 1):
+        ws.cell(row=2, column=ci, value=h).font = Font(bold=True)
+    for i in range(3, 403):
+        ws.cell(row=i, column=1, value=f"Item{i}")
+        ws.cell(row=i, column=2, value=i)
+        ws.cell(row=i, column=3, value=i * 2)
+    wb.save(path)
+    return path
+
+
+@pytest.fixture
+def financial_sections_table(tmp_dir) -> Path:
+    """A financial statement: bold single-column section headers (REVENUE,
+    EXPENSES, OTHER) interleave the body, each set off by blank spacer rows.
+
+    The bold section labels are single-cell rows, NOT multi-column headers, so
+    they must be treated as in-table bridges — the whole statement stitches
+    into one block rather than fragmenting at each section.
+    """
+    from openpyxl import Workbook
+    from openpyxl.styles import Font
+
+    path = tmp_dir / "financial_sections.xlsx"
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "PnL"
+
+    for ci, h in enumerate(["Line", "FY21", "FY22", "FY23"], 1):
+        ws.cell(row=1, column=ci, value=h).font = Font(bold=True)
+    r = 2
+    sections = [
+        ("REVENUE", [("Product", 10, 11, 12), ("Service", 5, 6, 7)]),
+        ("EXPENSES", [("COGS", 4, 4, 5), ("SG&A", 2, 2, 3)]),
+        ("OTHER", [("Tax", 1, 1, 1)]),
+    ]
+    for label, items in sections:
+        ws.cell(row=r, column=1, value=label).font = Font(bold=True)
+        r += 2  # blank spacer row after the section label
+        for name, *vals in items:
+            ws.cell(row=r, column=1, value=name)
+            for k, v in enumerate(vals, 2):
+                ws.cell(row=r, column=k, value=v)
+            r += 1
+        r += 1  # blank spacer row between sections
+
+    wb.save(path)
+    return path
+
+
+# ---------------------------------------------------------------------------
+# Legacy .xls (BIFF) fixtures — written with xlwt to exercise the converter
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture
+def simple_xls_workbook(tmp_dir) -> Path:
+    """A minimal legacy .xls workbook with text, numbers, a date, and styling.
+
+    Mirrors ``simple_workbook`` but in the BIFF8 format so the .xls → .xlsx
+    converter path is exercised end-to-end. Note .xls cannot round-trip formula
+    text, so B4 stores the *cached value* (400) rather than ``=B2-B3``.
+    """
+    import datetime
+
+    import xlwt
+
+    path = tmp_dir / "simple.xls"
+    wb = xlwt.Workbook()
+    ws = wb.add_sheet("Sheet1")
+
+    bold = xlwt.easyxf("font: bold on")
+    num_fmt = xlwt.easyxf(num_format_str="#,##0")
+    date_fmt = xlwt.easyxf(num_format_str="YYYY-MM-DD")
+
+    ws.write(0, 0, "Name", bold)
+    ws.write(0, 1, "Value", bold)
+    ws.write(1, 0, "Revenue")
+    ws.write(1, 1, 1000, num_fmt)
+    ws.write(2, 0, "Cost")
+    ws.write(2, 1, 600, num_fmt)
+    ws.write(3, 0, "Profit")
+    ws.write(3, 1, 400, num_fmt)  # cached value of =B2-B3
+    ws.write(4, 0, "As of")
+    ws.write(4, 1, datetime.date(2023, 6, 1), date_fmt)
+    ws.write(5, 0, "Active")
+    ws.write(5, 1, True)
+
+    wb.save(str(path))
+    return path
+
+
+@pytest.fixture
+def formula_xls_workbook(tmp_dir) -> Path:
+    """A legacy .xls workbook containing real formulas.
+
+    Used to verify the full-fidelity (LibreOffice) conversion path recovers
+    formula *text*, which the xlrd fallback cannot. B3 = ``=B1+B2`` (==30),
+    B4 = ``=AVERAGE(B1:B2)`` (==15).
+    """
+    import xlwt
+
+    path = tmp_dir / "formula.xls"
+    wb = xlwt.Workbook()
+    ws = wb.add_sheet("Sheet1")
+    ws.write(0, 0, "a")
+    ws.write(0, 1, 10)
+    ws.write(1, 0, "b")
+    ws.write(1, 1, 20)
+    ws.write(2, 0, "sum")
+    ws.write(2, 1, xlwt.Formula("B1+B2"))
+    ws.write(3, 0, "avg")
+    ws.write(3, 1, xlwt.Formula("AVERAGE(B1:B2)"))
+    wb.save(str(path))
+    return path
+
+
+@pytest.fixture
+def multi_sheet_xls_workbook(tmp_dir) -> Path:
+    """A legacy .xls workbook with two sheets and a merged-cell title."""
+    import xlwt
+
+    path = tmp_dir / "multi.xls"
+    wb = xlwt.Workbook()
+
+    ws1 = wb.add_sheet("Summary")
+    ws1.write_merge(0, 0, 0, 2, "Quarterly Report")  # A1:C1 merged title
+    ws1.write(1, 0, "Q1")
+    ws1.write(1, 1, 100)
+    ws1.write(2, 0, "Q2")
+    ws1.write(2, 1, 200)
+
+    ws2 = wb.add_sheet("Detail")
+    ws2.write(0, 0, "Item")
+    ws2.write(0, 1, "Qty")
+    ws2.write(1, 0, "Widget")
+    ws2.write(1, 1, 42)
+
+    wb.save(str(path))
     return path

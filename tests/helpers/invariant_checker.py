@@ -9,7 +9,7 @@ regardless of the input file. Returns a list of violation messages.
 
 import re
 
-from ks_xlsx_parser.models.common import EdgeType
+from excel_parser.models.common import EdgeType
 
 
 def check_invariants(workbook) -> list[str]:

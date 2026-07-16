@@ -15,7 +15,7 @@ from __future__ import annotations
 import openpyxl
 from openpyxl.worksheet.formula import ArrayFormula
 
-from ks_xlsx_parser.parsers.cell_parser import CellParser
+from excel_parser.parsers.cell_parser import CellParser
 
 
 def test_cell_parser_array_formula_with_cached_value_renders_value(tmp_path):
@@ -74,7 +74,7 @@ def test_cell_parser_array_formula_without_cached_value_emits_formula_source(tmp
 def test_pipeline_array_formula_does_not_leak_object_repr(tmp_path):
     """End-to-end: chunk render_text from a workbook with array formulas
     must not contain 'ArrayFormula' anywhere."""
-    from ks_xlsx_parser.api import parse_workbook
+    from excel_parser.api import parse_workbook
 
     p = tmp_path / "af_pipeline.xlsx"
     wb = openpyxl.Workbook()

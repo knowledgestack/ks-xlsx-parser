@@ -8,7 +8,7 @@ Useful for quick local baselines when test dependencies are unavailable.
 import json
 
 from scripts.generate_enterprise_fixtures import generate_all
-from xlsx_parser import parse_workbook
+from excel_parser import parse_workbook
 
 
 class EnterpriseScorecard:

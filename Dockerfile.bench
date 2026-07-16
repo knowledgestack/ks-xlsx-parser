@@ -1,4 +1,4 @@
-# Benchmark image for ks-xlsx-parser.
+# Benchmark image for excel-parser.
 #
 # Builds once, then on each run downloads SpreadsheetBench (if not cached),
 # parses the corpus, embeds chunks with a small sentence-transformer, and
@@ -6,14 +6,14 @@
 # tests/benchmarks/reports/ — mount that path as a volume to persist results.
 #
 # Usage:
-#   docker build -f Dockerfile.bench -t ks-xlsx-parser-bench .
+#   docker build -f Dockerfile.bench -t excel-parser-bench .
 #   docker run --rm \
 #       -v "$PWD/tests/benchmarks/reports:/app/tests/benchmarks/reports" \
 #       -v "$PWD/data:/app/data" \
-#       ks-xlsx-parser-bench
+#       excel-parser-bench
 #
 #   # Quick sanity run on 20 instances:
-#   docker run --rm -e BENCH_SAMPLE=20 ks-xlsx-parser-bench
+#   docker run --rm -e BENCH_SAMPLE=20 excel-parser-bench
 
 FROM python:3.12-slim
 
@@ -24,8 +24,12 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
+# libreoffice-calc-nogui gives a headless `soffice` for full-fidelity legacy
+# .xls → .xlsx conversion (preserves formula text, charts, shapes). Without it
+# the parser falls back to the pure-Python xlrd path (values only). --no-install-
+# recommends keeps the image lean (skips the X11/Java recommends).
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        curl unzip ca-certificates git \
+        curl unzip ca-certificates git libreoffice-calc-nogui \
     && rm -rf /var/lib/apt/lists/*
 
 # Install deps first to keep layers cacheable across code edits.

@@ -96,11 +96,42 @@ fetch_targz() {
   echo "✓ $name: $count xlsx files"
 }
 
+fetch_zip_verbatim() {
+  # Download a .zip and extract it into $CORPUS_DIR/<name>/ preserving the
+  # archive's directory structure (unlike fetch_zip, which flattens to *.xlsx).
+  local name="$1"
+  local url="$2"
+  local dest="$CORPUS_DIR/$name"
+
+  if [ -d "$dest" ]; then
+    echo "✓ $name already present, skipping"
+    return
+  fi
+
+  echo "→ Downloading $name ..."
+  local zip_path="$TMP_DIR/$name.zip"
+  curl -L --fail --retry 3 --connect-timeout 20 -o "$zip_path" "$url"
+
+  mkdir -p "$dest"
+  unzip -q "$zip_path" -d "$dest"
+
+  local count
+  count="$(find "$dest" -type f -name '*.xlsx' | wc -l | tr -d ' ')"
+  echo "✓ $name: $count xlsx files"
+}
+
 # SpreadsheetBench (RUC-KB 2024): 912 task instances × ~6 files each (input + answer
 # across 3 test cases) = ~5,458 real-world xlsx files curated from ExcelHome /
 # Mr.Excel / r/excel. dataset.json contains (instruction, answer_sheet,
 # answer_position) tuples we use for retrieval-recall@k evaluation.
 fetch_targz "spreadsheetbench" "https://raw.githubusercontent.com/RUCKBReasoning/SpreadsheetBench/main/data/spreadsheetbench_912_v0.1.tar.gz"
+
+# DECO (Dresden Enron COrpus, ICDAR 2019): 852 real .xlsx under completed/ with a
+# hidden `Range_Annotations_Data` sheet giving per-sheet table regions + header/
+# data/derived row ranges — the only public xlsx corpus with cell-level table +
+# header ground truth. Drives scripts/eval_deco.py (table-IoU + header-row F1 vs
+# Docling). not_applicable/ holds table-free sheets (no annotations).
+fetch_zip_verbatim "deco" "https://github.com/ddenron/deco_dataset/raw/master/annotated_files/annotated.zip"
 
 # EUSES (mostly .xls, but keep any .xlsx present)
 fetch_zip "euses" "https://zenodo.org/records/581673/files/EUSES.zip"

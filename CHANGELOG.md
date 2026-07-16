@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to **ks-xlsx-parser** are documented here.
+All notable changes to **excel-parser** are documented here.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -47,18 +47,18 @@ Template for a new release (copy this block, fill in, move Unreleased items in):
 
 ## [0.2.1] — 2026-05-19
 
-### ⚠️ BREAKING (Fixed — see also #ks-xlsx-parser channel report)
+### ⚠️ BREAKING (Fixed — see also #excel-parser channel report)
 - Repository layout flattened on `src/` was leaking 13 generic top-level
   packages (`models`, `utils`, `parsers`, …) into installed wheels and
   silently dropping `pipeline.py` and `api.py` (setuptools `packages.find`
   only finds *packages*, not top-level modules). Users hitting
-  `from ks_xlsx_parser.pipeline import ...` on 0.2.0 from PyPI got
+  `from excel_parser.pipeline import ...` on 0.2.0 from PyPI got
   `ModuleNotFoundError`. **All modules now live under
-  `src/ks_xlsx_parser/`**; the wheel's `top_level.txt` contains only
-  `ks_xlsx_parser`. Imports inside the package switched from
-  `from pipeline import` to `from ks_xlsx_parser.pipeline import`.
+  `src/excel_parser/`**; the wheel's `top_level.txt` contains only
+  `excel_parser`. Imports inside the package switched from
+  `from pipeline import` to `from excel_parser.pipeline import`.
   Downstream code that imported the leaked generics
-  (`from models import …`) MUST migrate to `from ks_xlsx_parser.models …`.
+  (`from models import …`) MUST migrate to `from excel_parser.models …`.
 
 ### Added
 - `scripts/verify_wheel.py` — builds the wheel, installs it in a fresh
@@ -89,9 +89,9 @@ Template for a new release (copy this block, fill in, move Unreleased items in):
 ### Changed
 - Dropped `PYTHONPATH=src` from Makefile benchmark targets — the
   package is now properly installable so callers don't need it.
-- `pyproject.toml`: `packages.find` constrained to `ks_xlsx_parser*`,
-  `py.typed` declared as package data, `xlsx-parser-api` console script
-  updated to `ks_xlsx_parser.api:main`.
+- `pyproject.toml`: `packages.find` constrained to `excel_parser*`,
+  `py.typed` declared as package data, `excel-parser-api` console script
+  updated to `excel_parser.api:main`.
 
 ### ⚠️ BREAKING
 - Retired the in-tree `testBench/` corpus. The 1054-workbook stress dataset
@@ -121,7 +121,7 @@ Template for a new release (copy this block, fill in, move Unreleased items in):
 **Benchmark + retrievability release.** Adds a head-to-head benchmark against
 [Docling](https://github.com/DS4SD/docling) on the [SpreadsheetBench](https://github.com/RUCKBReasoning/SpreadsheetBench)
 corpus (912 instances, 5,458 xlsx files) and fixes three rendering bugs that
-were silently torpedoing RAG retrieval. ks-xlsx-parser parses **99.945%** of
+were silently torpedoing RAG retrieval. excel-parser parses **99.945%** of
 SpreadsheetBench and **ties Docling at recall@1 / wins at recall@3 (+2.7 pp)
 and recall@5 (+1.8 pp)**, plus 36.9% citation-grade geometric recall (Docling
 0%, structurally — no A1 anchors).
@@ -190,14 +190,14 @@ and recall@5 (+1.8 pp)**, plus 36.9% citation-grade geometric recall (Docling
   text-match and geometric recall metrics.
 
 ### Performance
-- ks-xlsx-parser is now ~5% faster on average parse time on SpreadsheetBench
+- excel-parser is now ~5% faster on average parse time on SpreadsheetBench
   than Docling (251 ms vs 265 ms mean), while producing a richer output
   (formulas, dependency graph, charts, named ranges, etc.).
 
 ### Docs
 - `tests/benchmarks/README.md` — new — methodology + adapter design.
 - `tests/benchmarks/reports/COMPARISON.md` — new — head-to-head report.
-- README — new "Benchmark — ks-xlsx-parser vs Docling on SpreadsheetBench"
+- README — new "Benchmark — excel-parser vs Docling on SpreadsheetBench"
   section near the top with the headline table.
 
 ### Internal
@@ -215,8 +215,8 @@ and recall@5 (+1.8 pp)**, plus 36.9% citation-grade geometric recall (Docling
 announcement: [`docs/launch/RELEASE_NOTES_v0.1.1.md`](docs/launch/RELEASE_NOTES_v0.1.1.md).
 
 ### Added
-- Public Python package **`ks-xlsx-parser`** on PyPI; import as
-  `xlsx_parser` or the alias `ks_xlsx_parser`.
+- Public Python package **`excel-parser`** on PyPI; import as
+  `excel_parser` or the alias `excel_parser`.
 - `parse_workbook()` returning a `ParseResult` with `.workbook`,
   `.chunks`, and `.serializer` — full workbook graph (cells, formulas,
   merges, tables, charts, CF, DV, named ranges, dependency edges).
@@ -233,7 +233,7 @@ announcement: [`docs/launch/RELEASE_NOTES_v0.1.1.md`](docs/launch/RELEASE_NOTES_
   combo: 400, adversarial: 300).
 - `tests/test_testbench_roundtrip.py` — parallel round-trip gate;
   1054/1054 passing in ~70 s.
-- FastAPI web server (`xlsx-parser-api`) in the `[api]` extra.
+- FastAPI web server (`excel-parser-api`) in the `[api]` extra.
 - GitHub Actions: `ci.yml` (test matrix on py3.10/3.11/3.12 × ubuntu/macos
   + dedicated testBench job) and `release.yml` (wheel + sdist + testBench
   zip, PyPI Trusted Publishing).
@@ -278,7 +278,7 @@ announcement: [`docs/launch/RELEASE_NOTES_v0.1.1.md`](docs/launch/RELEASE_NOTES_
 - Removed internal-only tooling: Ralph loop scripts, Cursor / Serena
   agent configs, iteration logs, Knowledge-Stack-internal framing in
   DESIGN.md.
-- Rebranded from `arnav2/XLSXParser` to `knowledgestack/ks-xlsx-parser`;
+- Rebranded from `arnav2/XLSXParser` to `knowledgestack/excel-parser`;
   transferred the repo into the `knowledgestack` org and made it public.
 - `uv.lock` regenerated after dropping the `[ralph]` extra and adding
   `pytest-timeout` / `ruff` / `mypy` to `[dev]`.
@@ -289,5 +289,5 @@ Private-beta release used inside the Knowledge Stack ecosystem. Not
 published to PyPI. Superseded by 0.1.1.
 
 <!-- Compare links -->
-[Unreleased]: https://github.com/knowledgestack/ks-xlsx-parser/compare/v0.1.1...HEAD
-[0.1.1]: https://github.com/knowledgestack/ks-xlsx-parser/releases/tag/v0.1.1
+[Unreleased]: https://github.com/knowledgestack/excel-parser/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/knowledgestack/excel-parser/releases/tag/v0.1.1

@@ -8,10 +8,10 @@ across various spatial arrangements.
 
 import pytest
 
-from ks_xlsx_parser.chunking.segmenter import LayoutSegmenter
-from ks_xlsx_parser.models import BlockType
-from ks_xlsx_parser.parsers import WorkbookParser
-from ks_xlsx_parser.pipeline import parse_workbook
+from excel_parser.chunking.segmenter import LayoutSegmenter
+from excel_parser.models import BlockType
+from excel_parser.parsers import WorkbookParser
+from excel_parser.pipeline import parse_workbook
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -472,3 +472,249 @@ class TestMultiTablePipeline:
         for c1, c2 in zip(r1.chunks, r2.chunks):
             assert c1.chunk_id == c2.chunk_id
             assert c1.content_hash == c2.content_hash
+
+
+def _ranges_overlap(a, b):
+    """Two ranges overlap iff they share a row AND a column."""
+    rows = a.top_left.row <= b.bottom_right.row and b.top_left.row <= a.bottom_right.row
+    cols = a.top_left.col <= b.bottom_right.col and b.top_left.col <= a.bottom_right.col
+    return rows and cols
+
+
+class TestVerticalTableStitching:
+    """A table fragmented by single-column section rows and blank spacers must
+    be stitched back into a single block so the header stays with the body."""
+
+    def test_section_note_single_block(self, section_note_table):
+        _, _, blocks = _parse_and_segment(section_note_table)
+        assert len(blocks) == 1
+        blk = blocks[0]
+        assert blk.block_type == BlockType.TABLE
+        assert blk.cell_range.top_left.to_a1() == "A1"
+        assert blk.cell_range.bottom_right.to_a1() == "D7"
+
+    def test_section_note_formula_count_preserved(self, section_note_table):
+        """The continuation body's formula must be counted (feeds content_hash)."""
+        _, _, blocks = _parse_and_segment(section_note_table)
+        assert blocks[0].formula_count == 1
+
+    def test_section_note_one_chunk_with_full_content(self, section_note_table):
+        result = parse_workbook(path=section_note_table)
+        assert result.total_chunks == 1
+        text = result.chunks[0].render_text
+        # Header, both data fragments, and the section row all in one chunk
+        assert "Region" in text
+        assert "Widget" in text
+        assert "Gadget" in text
+        assert "Gizmo" in text
+        assert "Section: South Region" in text
+
+    def test_chained_fragments_single_block(self, chained_fragments):
+        _, _, blocks = _parse_and_segment(chained_fragments)
+        assert len(blocks) == 1
+        assert blocks[0].cell_range.bottom_right.to_a1() == "C10"
+
+    def test_terminal_footer_stays_separate(self, terminal_footer):
+        """A lone footer note with no continuation below it is not absorbed."""
+        _, _, blocks = _parse_and_segment(terminal_footer)
+        assert len(blocks) == 2
+        table = blocks[0]
+        assert table.block_type == BlockType.TABLE
+        assert table.cell_range.bottom_right.to_a1() == "B3"
+        footer = blocks[1]
+        assert footer.cell_range.top_left.to_a1() == "A5"
+
+    def test_financial_sections_single_block(self, financial_sections_table):
+        """Bold single-column section labels are bridges, not new-table headers,
+        so the whole statement stitches into one block."""
+        _, _, blocks = _parse_and_segment(financial_sections_table)
+        assert len(blocks) == 1
+        blk = blocks[0]
+        assert blk.cell_range.top_left.to_a1() == "A1"
+        assert blk.cell_range.bottom_right.to_a1() == "D14"
+
+    def test_financial_sections_content_in_one_chunk(self, financial_sections_table):
+        result = parse_workbook(path=financial_sections_table)
+        assert result.total_chunks == 1
+        text = result.chunks[0].render_text
+        for token in ("Line", "REVENUE", "EXPENSES", "OTHER", "Product", "Tax"):
+            assert token in text
+
+    def test_far_offset_note_not_merged(self, far_offset_note):
+        """A note in a far-offset column must stay out of the table range."""
+        _, _, blocks = _parse_and_segment(far_offset_note)
+        table_blocks = [b for b in blocks if b.block_type == BlockType.TABLE]
+        assert len(table_blocks) == 1
+        # Column G (7) must not be folded into the cols A-D table
+        assert table_blocks[0].cell_range.bottom_right.col < 7
+
+    def test_stitched_blocks_do_not_overlap(self, section_note_table, chained_fragments,
+                                            terminal_footer, far_offset_note):
+        for path in (section_note_table, chained_fragments, terminal_footer,
+                     far_offset_note):
+            _, _, blocks = _parse_and_segment(path)
+            for i, a in enumerate(blocks):
+                for b in blocks[i + 1:]:
+                    assert not _ranges_overlap(a.cell_range, b.cell_range), (
+                        f"{path.name}: {a.cell_range.to_a1()} overlaps "
+                        f"{b.cell_range.to_a1()}"
+                    )
+
+    def test_stitched_blocks_ordered(self, section_note_table, chained_fragments):
+        for path in (section_note_table, chained_fragments):
+            _, _, blocks = _parse_and_segment(path)
+            rows = [b.cell_range.top_left.row for b in blocks]
+            assert rows == sorted(rows)
+
+
+class TestStitchingNonRegression:
+    """Genuinely separate tables / blocks must NOT be over-merged by stitching."""
+
+    def test_two_tables_stay_separate(self, two_tables_vertical):
+        _, _, blocks = _parse_and_segment(two_tables_vertical)
+        assert len(blocks) == 2
+
+    def test_table_chart_table_stay_separate(self, table_chart_table):
+        _, _, blocks = _parse_and_segment(table_chart_table)
+        data_blocks = [
+            b for b in blocks
+            if b.block_type in (BlockType.TABLE, BlockType.MIXED)
+        ]
+        assert len(data_blocks) == 2
+
+    def test_mixed_content_text_block_survives(self, mixed_content_layout):
+        _, _, blocks = _parse_and_segment(mixed_content_layout)
+        assert any(b.block_type == BlockType.TEXT_BLOCK for b in blocks)
+
+    def test_mixed_content_assumptions_survives(self, mixed_content_layout):
+        _, _, blocks = _parse_and_segment(mixed_content_layout)
+        assert any(b.block_type == BlockType.ASSUMPTIONS_TABLE for b in blocks)
+
+
+class TestHeaderRowDetection:
+    """Header detection finds the real header row, not just a bold row 1.
+
+    Covers a non-bold title row directly above the real header (the former
+    blind spot) plus non-bold / fill-styled headers via find_header_span.
+    """
+
+    def test_sparse_title_above_header_is_table_with_real_header(
+        self, sparse_title_table
+    ):
+        result = parse_workbook(path=sparse_title_table)
+        # One contiguous region → one chunk
+        assert result.total_chunks == 1
+        chunk = result.chunks[0]
+        # Recognized as a table whose real header is row 2, so the cols: map
+        # carries the real names — and the title renders as a caption, not header.
+        assert chunk.block_type == BlockType.TABLE
+        cols_line = chunk.render_text.splitlines()[0]
+        assert "Region" in cols_line and "Q1" in cols_line
+        assert "Revenue by Region" not in cols_line
+        # The title is preserved (rendered as a title/caption line).
+        assert "Revenue by Region" in chunk.render_text
+
+    def test_nonbold_header_recognized(self, nonbold_header_table):
+        result = parse_workbook(path=nonbold_header_table)
+        assert result.total_chunks == 1
+        chunk = result.chunks[0]
+        assert chunk.block_type == BlockType.TABLE
+        cols_line = chunk.render_text.splitlines()[0]
+        assert "Region" in cols_line and "Q1" in cols_line
+
+    def test_two_nonbold_stacked_tables_stay_separate(self, two_nonbold_stacked_tables):
+        """The generalized detector must STOP at the second non-bold header,
+        so two stacked tables are not over-merged."""
+        _, _, blocks = _parse_and_segment(two_nonbold_stacked_tables)
+        data = [b for b in blocks if b.block_type in (BlockType.TABLE, BlockType.MIXED)]
+        assert len(data) == 2
+
+
+class TestPartialTableChunks:
+    """Large tables are windowed into self-describing partial chunks; small
+    tables stay whole."""
+
+    def test_small_table_is_whole_not_partial(self, two_tables_vertical):
+        result = parse_workbook(path=two_tables_vertical)
+        for c in result.chunks:
+            assert not c.metadata.get("table_part")
+
+    def test_large_table_is_windowed(self, large_numeric_table):
+        result = parse_workbook(path=large_numeric_table)
+        parts = [c for c in result.chunks if c.metadata.get("table_part")]
+        assert len(parts) >= 2
+        # Consistent shared table id, sequential parts, all flagged partial.
+        table_ids = {c.metadata["table_part"]["table_id"] for c in parts}
+        assert len(table_ids) == 1
+        assert [c.metadata["table_part"]["part"] for c in parts] == list(
+            range(1, len(parts) + 1)
+        )
+        assert all(c.metadata["table_part"]["is_partial"] for c in parts)
+        assert all(c.metadata["table_part"]["of"] == len(parts) for c in parts)
+
+    def test_each_part_repeats_header_and_has_banner(self, large_numeric_table):
+        result = parse_workbook(path=large_numeric_table)
+        parts = [c for c in result.chunks if c.metadata.get("table_part")]
+        for c in parts:
+            assert c.render_text.startswith("[PART ")
+            cols_line = next(ln for ln in c.render_text.splitlines() if "cols:" in ln)
+            assert "Item" in cols_line and "ColB" in cols_line
+
+    def test_part_ranges_are_data_slices_and_disjoint(self, large_numeric_table):
+        """Window cell_range is the data slice only (header is render-only), so
+        parts never overlap and never include the header row twice."""
+        result = parse_workbook(path=large_numeric_table)
+        parts = [c for c in result.chunks if c.metadata.get("table_part")]
+        # No part includes the header row (row 1); ranges are contiguous & disjoint.
+        rows = []
+        for c in parts:
+            assert c.cell_range.top_left.row >= 2
+            rows.append((c.cell_range.top_left.row, c.cell_range.bottom_right.row))
+        rows.sort()
+        for (_, end), (nxt_start, _) in zip(rows, rows[1:], strict=False):
+            assert nxt_start == end + 1  # contiguous, no overlap, no gap
+        # Full coverage: every data row (2..401) belongs to exactly one part.
+        assert rows[0][0] == 2 and rows[-1][1] == 401
+
+    def test_windowing_deterministic(self, large_numeric_table):
+        r1 = parse_workbook(path=large_numeric_table)
+        r2 = parse_workbook(path=large_numeric_table)
+        assert [c.chunk_id for c in r1.chunks] == [c.chunk_id for c in r2.chunks]
+
+    def test_windowing_can_be_disabled(self, large_numeric_table):
+        result = parse_workbook(path=large_numeric_table, max_chunk_tokens=None)
+        parts = [c for c in result.chunks if c.metadata.get("table_part")]
+        assert not parts  # single whole chunk when budget disabled
+
+    def test_parts_approximately_fit_budget(self, large_numeric_table):
+        """Each part targets the budget (approximate — see _WINDOW_BUDGET_MARGIN);
+        allow a small overage but never a runaway."""
+        budget = 600
+        result = parse_workbook(path=large_numeric_table, max_chunk_tokens=budget)
+        parts = [c for c in result.chunks if c.metadata.get("table_part")]
+        assert len(parts) >= 2
+        assert all(c.token_count <= budget * 1.15 for c in parts)
+
+    def test_title_kept_on_first_part(self, large_titled_table):
+        result = parse_workbook(path=large_titled_table)
+        parts = [c for c in result.chunks if c.metadata.get("table_part")]
+        assert len(parts) >= 2
+        # Title survives on part 1; the real header (row 2) drives the cols map.
+        assert "Annual Report 2024" in parts[0].render_text
+        cols_line = next(ln for ln in parts[0].render_text.splitlines() if "cols:" in ln)
+        assert "Item" in cols_line and "Annual Report 2024" not in cols_line
+
+    def test_windowed_result_json_roundtrips(self, large_numeric_table):
+        """to_json() must serialize a windowed table without error; structured
+        `cells` for a part cover its data slice (header is render-only)."""
+        result = parse_workbook(path=large_numeric_table)
+        payload = result.to_json()
+        part_chunks = [
+            c for c in payload["chunks"]
+            if c["metadata"].get("table_part")
+        ]
+        assert len(part_chunks) >= 2
+        # A part's structured cells are within its data slice (>= row 2, no header).
+        first = part_chunks[0]
+        rows = [int(cell["address"][1:]) for cell in first["cells"] if cell["address"][1:].isdigit()]
+        assert rows and min(rows) >= 2

@@ -4,7 +4,7 @@
 This is the regression guard for the v0.2.0 packaging bug: ``pipeline.py``
 and ``api.py`` were top-level modules under ``src/`` and ``setuptools``
 ``packages.find`` only picks up *packages*, so they were silently dropped
-from the wheel — ``from ks_xlsx_parser.pipeline import ...`` failed for
+from the wheel — ``from excel_parser.pipeline import ...`` failed for
 every installed user. The flat layout also leaked 13 generic top-level
 packages (``models``, ``utils``, ``parsers`` ...) into ``site-packages``.
 
@@ -23,13 +23,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 
 # Imports a real downstream consumer relies on. Keep in sync with the
-# public surface in ks_xlsx_parser/__init__.py.
+# public surface in excel_parser/__init__.py.
 SMOKE_IMPORTS = [
-    "from ks_xlsx_parser import parse_workbook, ParseResult",
-    "from ks_xlsx_parser.pipeline import parse_workbook",
-    "from ks_xlsx_parser.verification import StageVerifier",
-    "from ks_xlsx_parser.analysis.table_assembler import TableAssembler",
-    "from ks_xlsx_parser.models.workbook import WorkbookDTO",
+    "from excel_parser import parse_workbook, ParseResult",
+    "from excel_parser.pipeline import parse_workbook",
+    "from excel_parser.verification import StageVerifier",
+    "from excel_parser.analysis.table_assembler import TableAssembler",
+    "from excel_parser.models.workbook import WorkbookDTO",
 ]
 
 
@@ -47,16 +47,16 @@ def check_wheel_contents(wheel: Path) -> None:
         top_level = next((n for n in names if n.endswith("top_level.txt")), None)
         if top_level:
             packages = zf.read(top_level).decode().split()
-            if packages != ["ks_xlsx_parser"]:
+            if packages != ["excel_parser"]:
                 sys.exit(
                     f"ERROR: wheel exposes top-level packages {packages}; "
-                    "expected only ['ks_xlsx_parser']. The flat src/ layout leaked."
+                    "expected only ['excel_parser']. The flat src/ layout leaked."
                 )
-    required = ["ks_xlsx_parser/pipeline.py", "ks_xlsx_parser/api.py"]
+    required = ["excel_parser/pipeline.py", "excel_parser/api.py"]
     for req in required:
         if not any(n == req for n in names):
             sys.exit(f"ERROR: wheel is missing {req}")
-    print(f"wheel contents OK ({len(names)} entries, top-level: ks_xlsx_parser)")
+    print(f"wheel contents OK ({len(names)} entries, top-level: excel_parser)")
 
 
 def check_install_and_import(wheel: Path) -> None:

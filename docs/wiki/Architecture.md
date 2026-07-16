@@ -1,6 +1,6 @@
 # Architecture
 
-`ks-xlsx-parser` runs an 8-stage pipeline: **parse → analyse → annotate → segment → render → serialise → verify → compare/export**. The whole graph is deterministic and side-effect-free — you can run the same workbook through it 1,000 times and get the same chunk IDs and hashes.
+`excel-parser` runs an 8-stage pipeline: **parse → analyse → annotate → segment → render → serialise → verify → compare/export**. The whole graph is deterministic and side-effect-free — you can run the same workbook through it 1,000 times and get the same chunk IDs and hashes.
 
 ```mermaid
 %%{init: {'theme':'base', 'themeVariables': {
@@ -55,7 +55,7 @@ flowchart TD
     class VER,CMP,EXP aux
 ```
 
-> The importable module is `xlsx_parser`; `ks_xlsx_parser` is a re-export matching the PyPI package name. The package is fully type-annotated (`py.typed` is shipped).
+> The importable module is `excel_parser`; `excel_parser` is a re-export matching the PyPI package name. The package is fully type-annotated (`py.typed` is shipped).
 
 ## The 8 stages
 

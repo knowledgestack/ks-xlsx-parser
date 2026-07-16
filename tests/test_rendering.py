@@ -6,10 +6,10 @@ headers, and coordinate annotations.
 """
 
 
-from ks_xlsx_parser.chunking.segmenter import LayoutSegmenter
-from ks_xlsx_parser.parsers import WorkbookParser
-from ks_xlsx_parser.rendering.html_renderer import HtmlRenderer
-from ks_xlsx_parser.rendering.text_renderer import TextRenderer
+from excel_parser.chunking.segmenter import LayoutSegmenter
+from excel_parser.parsers import WorkbookParser
+from excel_parser.rendering.html_renderer import HtmlRenderer
+from excel_parser.rendering.text_renderer import TextRenderer
 
 
 class TestHtmlRendering:
@@ -64,7 +64,7 @@ class TestHtmlRendering:
     def test_hidden_cells_included_and_flagged(self, hidden_rows_cols_workbook):
         """Hidden rows/columns are emitted in the HTML (flagged
         `data-hidden`) rather than dropped — matching the text renderer."""
-        from ks_xlsx_parser.pipeline import parse_workbook
+        from excel_parser.pipeline import parse_workbook
 
         html = "\n".join(
             c.render_html for c in parse_workbook(str(hidden_rows_cols_workbook)).chunks
@@ -75,7 +75,7 @@ class TestHtmlRendering:
 
     def test_hidden_sheet_flagged_on_table(self, multi_sheet_workbook):
         """Tables from a hidden worksheet carry `data-sheet-hidden`."""
-        from ks_xlsx_parser.pipeline import parse_workbook
+        from excel_parser.pipeline import parse_workbook
 
         chunks = parse_workbook(str(multi_sheet_workbook)).chunks
         hidden_html = [c.render_html for c in chunks if c.sheet_name == "Hidden"]
@@ -132,10 +132,10 @@ class TestTextRendering:
         sci-notation fallback (``1.272000e+03``) once the ``[=]`` formula
         marker pushed the rendered string past col_width — this test
         guards against that regression."""
-        from ks_xlsx_parser.models.block import BlockDTO
-        from ks_xlsx_parser.models.cell import CellDTO
-        from ks_xlsx_parser.models.common import BlockType, CellCoord, CellRange
-        from ks_xlsx_parser.models.sheet import SheetDTO
+        from excel_parser.models.block import BlockDTO
+        from excel_parser.models.cell import CellDTO
+        from excel_parser.models.common import BlockType, CellCoord, CellRange
+        from excel_parser.models.sheet import SheetDTO
 
         coord = CellCoord(row=1, col=1)
         cell = CellDTO(
@@ -177,7 +177,7 @@ class TestTextRendering:
         Excel column letters move to a `cols:` map on the bracket line, with a
         leading `row` gutter — so downstream 'find the real header' logic sees
         'Product', not 'A'."""
-        from ks_xlsx_parser.pipeline import parse_workbook
+        from excel_parser.pipeline import parse_workbook
 
         chunks = parse_workbook(str(table_workbook)).chunks
         text = next(c.render_text for c in chunks if "Product" in c.render_text)
@@ -195,7 +195,7 @@ class TestTextRendering:
     ):
         """Hidden rows/columns are rendered (not dropped) and flagged
         `[hidden]` — in the `cols:` map for columns, the gutter for rows."""
-        from ks_xlsx_parser.pipeline import parse_workbook
+        from excel_parser.pipeline import parse_workbook
 
         text = "\n".join(
             c.render_text for c in parse_workbook(str(hidden_rows_cols_workbook)).chunks
@@ -209,7 +209,7 @@ class TestTextRendering:
     ):
         """Hidden rows/columns are stored as structured chunk metadata
         (scoped to the chunk's range), not just inline text markers."""
-        from ks_xlsx_parser.pipeline import parse_workbook
+        from excel_parser.pipeline import parse_workbook
 
         chunks = parse_workbook(str(hidden_rows_cols_workbook)).chunks
         hidden_rows = {r for c in chunks for r in c.metadata.get("hidden_rows", [])}
@@ -221,7 +221,7 @@ class TestTextRendering:
         """A hidden worksheet is still parsed and chunked, and every chunk
         from it carries `sheet_hidden` metadata and a `[hidden sheet]` render
         marker; visible-sheet chunks carry neither."""
-        from ks_xlsx_parser.pipeline import parse_workbook
+        from excel_parser.pipeline import parse_workbook
 
         chunks = parse_workbook(str(multi_sheet_workbook)).chunks
         hidden = [c for c in chunks if c.sheet_name == "Hidden"]

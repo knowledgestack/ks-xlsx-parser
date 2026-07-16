@@ -165,20 +165,20 @@ That's how "is recall improving?" gets answered. Goal: `recall_text@5 > 0.90`.
 When you want to make sure local results aren't drifting from CI:
 
 ```bash
-docker build -f Dockerfile.bench -t ks-xlsx-parser-bench .
+docker build -f Dockerfile.bench -t excel-parser-bench .
 
 # Quick sanity (60 instances, ~3 min after image load):
 docker run --rm \
   -e BENCH_SAMPLE=60 \
   -v "$PWD/tests/benchmarks/reports:/app/tests/benchmarks/reports" \
   -v "$PWD/data:/app/data" \
-  ks-xlsx-parser-bench
+  excel-parser-bench
 
 # Full corpus:
 docker run --rm \
   -v "$PWD/tests/benchmarks/reports:/app/tests/benchmarks/reports" \
   -v "$PWD/data:/app/data" \
-  ks-xlsx-parser-bench
+  excel-parser-bench
 ```
 
 The image pre-warms the embedding model at build time so the first

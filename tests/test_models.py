@@ -4,7 +4,7 @@ Tests for DTOs and model utilities.
 Covers CellCoord, CellRange, hashing, and serialization.
 """
 
-from ks_xlsx_parser.models import (
+from excel_parser.models import (
     CellCoord,
     CellRange,
     col_letter_to_number,

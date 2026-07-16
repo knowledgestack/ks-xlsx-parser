@@ -35,6 +35,16 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      # Headless LibreOffice powers the full-fidelity legacy .xls → .xlsx path
+      # (formula text, charts). On Linux it's a cheap apt install, so the
+      # full-fidelity tests run here instead of being skipped. macOS runners
+      # skip it (the cask install is heavyweight); those tests self-skip.
+      - name: Install LibreOffice (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libreoffice-calc-nogui
+
       - name: Install
         run: uv pip install --system -e ".[dev,api]"
 

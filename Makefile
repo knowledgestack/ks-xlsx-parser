@@ -5,7 +5,7 @@ PYTHON ?= python
 PKG_VERSION := $(shell $(PYTHON) -c "import tomllib, pathlib; print(tomllib.loads(pathlib.Path('pyproject.toml').read_text())['project']['version'])")
 
 help:
-	@echo "ks-xlsx-parser — common targets"
+	@echo "excel-parser — common targets"
 	@echo ""
 	@echo "  make install         Install package and dev deps (editable)"
 	@echo "  make install-dev     Alias for install (matches ks-backend)"
@@ -44,7 +44,7 @@ format:
 	$(PYTHON) -m ruff format src/ tests/ scripts/
 
 typecheck:
-	$(PYTHON) -m mypy src/ks_xlsx_parser
+	$(PYTHON) -m mypy src/excel_parser
 
 # Build the wheel and prove it imports outside the editable source tree.
 # This is the regression guard for the v0.2.0 packaging bug (pipeline.py
@@ -84,5 +84,5 @@ bench-track:
 	$(PYTHON) scripts/triage_recall.py tests/benchmarks/reports/retrieval
 
 docker-bench:
-	docker build -f Dockerfile.bench -t ks-xlsx-parser-bench .
-	docker run --rm -v "$(PWD)/tests/benchmarks/reports:/app/tests/benchmarks/reports" ks-xlsx-parser-bench
+	docker build -f Dockerfile.bench -t excel-parser-bench .
+	docker run --rm -v "$(PWD)/tests/benchmarks/reports:/app/tests/benchmarks/reports" excel-parser-bench

@@ -197,3 +197,46 @@ def test_aggregate_without_exec_map_in_scope_equals_all():
     assert m["recall_text@5"] == m["recall_text@5_in_scope"] == 1.0
     assert m["out_of_scope_instances"] == 0
     assert m["in_scope_instances"] == 1
+
+
+# ── harness accuracy fixes (geometric sheet-None + text unscoreable) ────────
+
+
+def test_overlaps_unspecified_sheet_matches_geometry_only():
+    """When the ground-truth sheet is unspecified, geometric overlap must match
+    on geometry alone — a real chunk's sheet name can never equal "" and the
+    dataset omits the sheet for ~62% of (single-sheet) instances."""
+    from scripts.eval_retrieval import Chunk
+
+    c = Chunk(parser="ks", sheet="Sheet2", top_left=(1, 1), bottom_right=(11, 3),
+              text="")
+    # Unspecified GT sheet ("" or None) → match purely on geometry.
+    assert c.overlaps("", (2, 3, 11, 3))      # C2:C11 ⊂ A1:C11
+    assert c.overlaps(None, (2, 3, 11, 3))
+    # Specified-and-different sheet → no match.
+    assert not c.overlaps("Other", (2, 3, 11, 3))
+    # Wildcard sheet but disjoint geometry → no match.
+    assert not c.overlaps("", (20, 20, 21, 21))
+
+
+def test_text_recall_excludes_unscoreable_instances():
+    """Instances whose answer region has no scoreable values must not count as
+    text-match misses (they're excluded from the bucket histogram already)."""
+    def mk(iid, rank_text, had_values):
+        return InstanceResult(
+            instance_id=iid, parser="p", n_chunks=5, parse_ms=1.0,
+            data_position="", answer_position="", data_regions=1,
+            chunks_overlapping_data=1, rank_of_first_overlap=1,
+            rank_of_text_match=rank_text,
+            extra={"had_answer_values": had_values},
+        )
+    recs = [
+        mk("a", 1, True),       # scoreable hit
+        mk("b", None, True),    # scoreable miss
+        mk("c", None, False),   # unscoreable — must be excluded, not a miss
+    ]
+    m = aggregate(recs)["p"]
+    # Text recall excludes "c": 1 hit / 2 scoreable = 0.5 (not 1/3 = 0.33).
+    assert m["recall_text@5"] == 0.5
+    # Geometric still counts all three (geometry needs no answer values).
+    assert m["recall_geometric@5"] == 1.0

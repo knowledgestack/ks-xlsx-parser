@@ -12,11 +12,11 @@
 
 ## TL;DR
 
-- We open-sourced [**`ks-xlsx-parser`**](https://github.com/knowledgestack/ks-xlsx-parser), an MIT-licensed library that turns `.xlsx` workbooks into **citation-ready JSON** for LLM agents and RAG pipelines.
+- We open-sourced [**`excel-parser`**](https://github.com/knowledgestack/excel-parser), an MIT-licensed library that turns `.xlsx` workbooks into **citation-ready JSON** for LLM agents and RAG pipelines.
 - Every output chunk carries a `source_uri` like `file.xlsx#Sheet!A1:F18`, a token count, an HTML + pipe-text rendering, and a deterministic content hash.
 - It preserves what every other parser drops on the floor: **formulas, merges, charts, conditional formatting, data validation, and a directed dependency graph** with cycle detection.
 - Ships with a **1054-workbook stress corpus** that runs in CI on every commit (**1054/1054 passing, ~70 s**).
-- `pip install ks-xlsx-parser`.
+- `pip install excel-parser`.
 
 ---
 
@@ -36,7 +36,7 @@ And your options collapse:
 
 None of those give the LLM a **graph it can cite**. And citation is the load-bearing requirement: once compliance/finance/legal is in the loop, "the answer is somewhere in `Q4_forecast.xlsx`" is not an acceptable output.
 
-That's the gap we built `ks-xlsx-parser` to fill.
+That's the gap we built `excel-parser` to fill.
 
 ---
 
@@ -178,7 +178,7 @@ Here's what parsing a financial model looks like in practice.
 **Input:** `q4_forecast.xlsx`, 13 sheets, 21k cells, multiple tables per sheet, charts, conditional formatting, named ranges.
 
 ```python
-from ks_xlsx_parser import parse_workbook
+from excel_parser import parse_workbook
 
 result = parse_workbook(path="q4_forecast.xlsx")
 
@@ -211,7 +211,7 @@ COGS Margin         | 45.0% | % | % of revenue
 **Walk the dependency graph:**
 
 ```python
-from ks_xlsx_parser.models import CellCoord
+from excel_parser.models import CellCoord
 
 upstream = result.workbook.dependency_graph.get_upstream(
     "Revenue", CellCoord(row=10, col=3), max_depth=3
@@ -241,16 +241,16 @@ Spreadsheets are a great attack surface. We're explicit:
 - **ZIP-bomb protection.** Incoming bytes are size-checked before openpyxl sees them.
 - **Cell-count ceiling.** Per-sheet `max_cells_per_sheet` (default 2M) truncates rather than OOMs.
 
-You can safely point `ks-xlsx-parser` at untrusted uploads. We do.
+You can safely point `excel-parser` at untrusted uploads. We do.
 
 ---
 
 ## 8. Where this fits in the ecosystem
 
-`ks-xlsx-parser` is the first library in the [**Knowledge Stack**](https://github.com/knowledgestack) open-source family — document intelligence for agents, so engineering teams can focus on agents and we handle the messy parts of enterprise data.
+`excel-parser` is the first library in the [**Knowledge Stack**](https://github.com/knowledgestack) open-source family — document intelligence for agents, so engineering teams can focus on agents and we handle the messy parts of enterprise data.
 
 - [**ks-cookbook**](https://github.com/knowledgestack/ks-cookbook) — 32 production-style flagship agents + recipes for LangChain, LangGraph, CrewAI, Temporal, and the OpenAI Agents SDK.
-- [**ks-xlsx-parser**](https://github.com/knowledgestack/ks-xlsx-parser) — this library.
+- [**excel-parser**](https://github.com/knowledgestack/excel-parser) — this library.
 - Next up: PDF, DOCX, PPTX parsers with the same citation model, plus an MCP server so Claude Desktop / Cursor / Windsurf / Zed can call the parsers without glue code.
 
 ---
@@ -259,9 +259,9 @@ You can safely point `ks-xlsx-parser` at untrusted uploads. We do.
 
 If you got this far, please:
 
-1. ⭐ **[Star the repo](https://github.com/knowledgestack/ks-xlsx-parser).** It's the single biggest signal that keeps maintainers paid.
+1. ⭐ **[Star the repo](https://github.com/knowledgestack/excel-parser).** It's the single biggest signal that keeps maintainers paid.
 2. 💬 **[Join the Discord](https://discord.gg/4uaGhJcx).** We hang out there. Ask questions, float ideas, show off what you built.
-3. 🧪 **Run `make testbench` and send us a workbook that breaks it.** Every edge-case report becomes a fixture in the next release. There's even a [Parser edge case issue template](https://github.com/knowledgestack/ks-xlsx-parser/issues/new?template=parser_edge_case.yml) specifically for this.
+3. 🧪 **Run `make testbench` and send us a workbook that breaks it.** Every edge-case report becomes a fixture in the next release. There's even a [Parser edge case issue template](https://github.com/knowledgestack/excel-parser/issues/new?template=parser_edge_case.yml) specifically for this.
 
 We'll ship more parsers. We'll ship an MCP server. We'll ship a native agent runtime that knows how to ground its citations. But none of that matters if nobody's telling us which `.xlsx` files break the parser first.
 
@@ -269,6 +269,6 @@ Drop by Discord. Tell us what you're building.
 
 ---
 
-*`ks-xlsx-parser` is MIT-licensed. Use it, fork it, ship it. If you build something on top of it, we'd love a [Show & Tell](https://github.com/knowledgestack/ks-xlsx-parser/discussions/new?category=show-and-tell) — or a shoutout in Discord.*
+*`excel-parser` is MIT-licensed. Use it, fork it, ship it. If you build something on top of it, we'd love a [Show & Tell](https://github.com/knowledgestack/excel-parser/discussions/new?category=show-and-tell) — or a shoutout in Discord.*
 
-**`pip install ks-xlsx-parser`** · [GitHub](https://github.com/knowledgestack/ks-xlsx-parser) · [Discord](https://discord.gg/4uaGhJcx) · [Knowledge Stack](https://github.com/knowledgestack)
+**`pip install excel-parser`** · [GitHub](https://github.com/knowledgestack/excel-parser) · [Discord](https://discord.gg/4uaGhJcx) · [Knowledge Stack](https://github.com/knowledgestack)

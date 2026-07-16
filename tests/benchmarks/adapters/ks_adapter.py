@@ -1,12 +1,12 @@
 """
-ks-xlsx-parser worker: long-running process that receives file paths on stdin
+excel-parser worker: long-running process that receives file paths on stdin
 (one NDJSON line per file: {"path": "...", "request_id": "..."}) and emits
 benchmark records on stdout (one NDJSON line per file).
 
 Run directly: `python -m tests.benchmarks.adapters.ks_adapter`.
 
 Handshake:
-  out → `{"event":"ready","parser":"ks-xlsx-parser","version":"..."}`
+  out → `{"event":"ready","parser":"excel-parser","version":"..."}`
   in  → one `{"path": ..., "request_id": ...}` per line
   out → one record per line (see _schema.BenchmarkRecord)
   in  → EOF
@@ -28,8 +28,8 @@ _HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(_HERE.parent.parent.parent))  # repo root
 sys.path.insert(0, str(_HERE.parent.parent.parent / "src"))  # src layout
 
-from ks_xlsx_parser import __version__ as KS_VERSION  # noqa: E402
-from ks_xlsx_parser import parse_workbook  # noqa: E402
+from excel_parser import __version__ as KS_VERSION  # noqa: E402
+from excel_parser import parse_workbook  # noqa: E402
 from tests.benchmarks._mem import peak_rss_mb  # noqa: E402
 from tests.benchmarks._schema import SCHEMA_VERSION, BenchmarkRecord  # noqa: E402
 
@@ -42,7 +42,7 @@ MAX_ERR_LEN = 500
 _PARSE_MODE = os.environ.get("KS_PARSE_MODE", "full")
 if _PARSE_MODE not in {"full", "fast"}:
     _PARSE_MODE = "full"
-PARSER_NAME = "ks-xlsx-parser" if _PARSE_MODE == "full" else "ks-xlsx-parser-fast"
+PARSER_NAME = "excel-parser" if _PARSE_MODE == "full" else "excel-parser-fast"
 
 
 def _write(obj: dict[str, Any]) -> None:
@@ -98,7 +98,7 @@ def _count_features(result: Any, file_size: int, path: str, parse_time_ms: float
         hyperlinks=hyperlinks,
         images=images,
         comments=comments,
-        sparklines=None,  # not modelled by ks-xlsx-parser
+        sparklines=None,  # not modelled by excel-parser
         chunks=len(chunks),
         token_count=token_count,
         schema_version=SCHEMA_VERSION,

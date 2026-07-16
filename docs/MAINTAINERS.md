@@ -62,7 +62,7 @@ Create categories (click *New Category* for each):
 
 - **📣 Announcements** (maintainer-posts only) — releases and project news
 - **💡 Ideas** (open) — before-it-becomes-an-issue feature brainstorms
-- **🎯 Show and tell** (open) — projects built with ks-xlsx-parser
+- **🎯 Show and tell** (open) — projects built with excel-parser
   - Attach the template in `.github/DISCUSSION_TEMPLATE/show-and-tell.yml`
 - **🙏 Q&A** (open, answerable) — usage and "does it handle X" questions
 - **🧪 Benchmark findings** (open) — edge cases that shouldn't be issues yet
@@ -79,7 +79,7 @@ One-time PyPI setup: go to PyPI → *your project* → *Publishing* → *Add a n
 pending publisher* with:
 
 - Owner: `knowledgestack`
-- Repository name: `ks-xlsx-parser`
+- Repository name: `excel-parser`
 - Workflow name: `release.yml`
 - Environment name: `pypi`
 
@@ -89,7 +89,7 @@ without a human click.
 
 ## Release checklist
 
-1. Bump `version` in `pyproject.toml` and `src/xlsx_parser/__init__.py` (keep in sync).
+1. Bump `version` in `pyproject.toml` and `src/excel_parser/__init__.py` (keep in sync).
 2. Promote every entry from `## [Unreleased]` in [`../CHANGELOG.md`](../CHANGELOG.md)
    into a new `## [X.Y.Z] — YYYY-MM-DD` section; reset Unreleased to a stub
    line; update the compare-link footer at the bottom.
@@ -131,9 +131,9 @@ Put a `.github/CODEOWNERS` with:
 *                             @knowledgestack/maintainers
 
 # Parser internals
-/src/xlsx_parser/parsers/     @knowledgestack/maintainers
-/src/xlsx_parser/formula/     @knowledgestack/maintainers
-/src/xlsx_parser/analysis/    @knowledgestack/maintainers
+/src/excel_parser/parsers/     @knowledgestack/maintainers
+/src/excel_parser/formula/     @knowledgestack/maintainers
+/src/excel_parser/analysis/    @knowledgestack/maintainers
 
 # Docs
 /docs/                        @knowledgestack/maintainers

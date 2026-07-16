@@ -19,7 +19,7 @@ def test_uncached_formula_renders_formula_source(tmp_path):
     The chunk's render_text must contain the formula source verbatim so
     an LLM / embedding-search hit can find the cell at all.
     """
-    from ks_xlsx_parser.api import parse_workbook
+    from excel_parser.api import parse_workbook
 
     p = tmp_path / "uncached.xlsx"
     wb = openpyxl.Workbook()
@@ -54,7 +54,7 @@ def test_uncached_formula_renders_formula_source(tmp_path):
 def test_multiple_uncached_formulas_all_surface(tmp_path):
     """Cluster-03's named instances were dropping rows of formula cells.
     Verify a column of formulas all show up in render_text."""
-    from ks_xlsx_parser.api import parse_workbook
+    from excel_parser.api import parse_workbook
 
     p = tmp_path / "multi_uncached.xlsx"
     wb = openpyxl.Workbook()

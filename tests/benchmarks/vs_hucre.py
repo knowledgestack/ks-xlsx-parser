@@ -1,5 +1,5 @@
 """
-Entry point: head-to-head benchmark of ks-xlsx-parser vs hucre (TypeScript).
+Entry point: head-to-head benchmark of excel-parser vs hucre (TypeScript).
 
 Usage (from repo root, with venv active):
 
@@ -69,7 +69,7 @@ def main(argv: list[str] | None = None) -> int:
     if "ks" in selected:
         r = ks_runner(python_bin=args.ks_python, timeout_s=args.per_file_timeout)
         r.cfg.batch_size = args.batch_size
-        runners["ks-xlsx-parser"] = r
+        runners["excel-parser"] = r
     if "hucre" in selected:
         r = hucre_runner(timeout_s=args.per_file_timeout)
         r.cfg.batch_size = args.batch_size

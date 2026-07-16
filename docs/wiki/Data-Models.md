@@ -5,7 +5,7 @@ JSON-serialisable, validated on construction, shipping with `py.typed` so
 your editor gives you autocomplete and type errors.
 
 For the canonical machine-readable spec, see
-[`docs/WORKBOOK_GRAPH_SPEC.md`](https://github.com/knowledgestack/ks-xlsx-parser/blob/main/docs/WORKBOOK_GRAPH_SPEC.md).
+[`docs/WORKBOOK_GRAPH_SPEC.md`](https://github.com/knowledgestack/excel-parser/blob/main/docs/WORKBOOK_GRAPH_SPEC.md).
 
 ## High-level map
 
@@ -183,4 +183,4 @@ Full shape is recursive but roughly:
 ```
 
 For the exact field-by-field breakdown including every optional field,
-see [`docs/WORKBOOK_GRAPH_SPEC.md`](https://github.com/knowledgestack/ks-xlsx-parser/blob/main/docs/WORKBOOK_GRAPH_SPEC.md).
+see [`docs/WORKBOOK_GRAPH_SPEC.md`](https://github.com/knowledgestack/excel-parser/blob/main/docs/WORKBOOK_GRAPH_SPEC.md).

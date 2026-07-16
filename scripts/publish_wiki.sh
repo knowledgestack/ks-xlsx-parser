@@ -16,7 +16,7 @@
 
 set -euo pipefail
 
-REPO="${REPO:-knowledgestack/ks-xlsx-parser}"
+REPO="${REPO:-knowledgestack/excel-parser}"
 SRC_DIR="$(cd "$(dirname "$0")/.." && pwd)/docs/wiki"
 TMP_DIR="$(mktemp -d)"
 DRY_RUN=0

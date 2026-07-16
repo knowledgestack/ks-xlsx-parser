@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Generate example Excel workbooks for demonstrating the ks_xlsx_parser.
+Generate example Excel workbooks for demonstrating the excel_parser.
 
 Creates several representative workbooks in the examples/ folder
 that showcase the parser's capabilities across different Excel features.
