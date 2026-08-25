@@ -41,6 +41,7 @@ PROGRAMMATIC_FIXTURE_NAMES = [
     "freeze_panes_workbook",
     "wide_workbook",
     "styled_workbook",
+    "strikethrough_workbook",
     "assumptions_workbook",
     "hyperlink_workbook",
     "two_tables_vertical",
@@ -450,6 +451,26 @@ def wide_workbook(tmp_dir) -> Path:
         ws.cell(row=1, column=col).font = Font(bold=True)
         for row in range(2, 6):
             ws.cell(row=row, column=col, value=col * row)
+
+    wb.save(path)
+    return path
+
+
+@pytest.fixture
+def strikethrough_workbook(tmp_dir) -> Path:
+    """Workbook whose only formatting on some cells is strikethrough/underline."""
+    path = tmp_dir / "strikethrough.xlsx"
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Sheet1"
+
+    ws["A1"] = "Normal"
+    ws["B1"] = "Strike"
+    ws["B1"].font = Font(strike=True)
+    ws["C1"] = "BoldStrike"
+    ws["C1"].font = Font(bold=True, strike=True, color="FF0000")
+    ws["D1"] = "Underline"
+    ws["D1"].font = Font(underline="single")
 
     wb.save(path)
     return path

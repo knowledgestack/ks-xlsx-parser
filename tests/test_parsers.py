@@ -289,6 +289,35 @@ class TestStyledWorkbook:
         assert a1.style.border is not None
 
 
+class TestStrikethroughOnlyStyles:
+    """Cells whose only non-default font attribute must keep their style."""
+
+    def test_strikethrough_only_cell_keeps_style(self, strikethrough_workbook):
+        result = WorkbookParser(path=strikethrough_workbook).parse()
+        b1 = result.sheets[0].get_cell(1, 2)
+        assert b1.style is not None
+        assert b1.style.font is not None
+        assert b1.style.font.strikethrough is True
+
+    def test_underline_only_cell_keeps_style(self, strikethrough_workbook):
+        result = WorkbookParser(path=strikethrough_workbook).parse()
+        d1 = result.sheets[0].get_cell(1, 4)
+        assert d1.style is not None
+        assert d1.style.font is not None
+        assert d1.style.font.underline == "single"
+
+    def test_strikethrough_with_other_attributes(self, strikethrough_workbook):
+        result = WorkbookParser(path=strikethrough_workbook).parse()
+        c1 = result.sheets[0].get_cell(1, 3)
+        assert c1.style.font.strikethrough is True
+        assert c1.style.font.bold is True
+
+    def test_unstruck_cell_reports_false(self, strikethrough_workbook):
+        result = WorkbookParser(path=strikethrough_workbook).parse()
+        a1 = result.sheets[0].get_cell(1, 1)
+        assert a1.style.font.strikethrough is False
+
+
 class TestWideSheet:
     """Test wide sheets with many columns."""
 

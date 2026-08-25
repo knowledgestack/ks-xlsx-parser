@@ -108,6 +108,31 @@ class TestEndToEndPipeline:
             assert "metadata" in entry
 
 
+class TestChunkCellStrikethrough:
+    """Strikethrough is exposed on chunk cells in to_json output."""
+
+    @staticmethod
+    def _cells_by_address(result):
+        data = result.to_json()
+        return {
+            cell["address"]: cell
+            for chunk in data["chunks"]
+            for cell in chunk.get("cells", [])
+        }
+
+    def test_struck_cell_flagged(self, strikethrough_workbook):
+        result = parse_workbook(path=strikethrough_workbook)
+        cells = self._cells_by_address(result)
+        assert cells["B1"]["font_strikethrough"] is True
+        assert cells["C1"]["font_strikethrough"] is True
+
+    def test_unstruck_cell_not_flagged(self, strikethrough_workbook):
+        result = parse_workbook(path=strikethrough_workbook)
+        cells = self._cells_by_address(result)
+        assert cells["A1"]["font_strikethrough"] is False
+        assert cells["D1"]["font_strikethrough"] is False
+
+
 class TestAssumptionsPipeline:
     """Test the pipeline on an assumptions/results workbook."""
 

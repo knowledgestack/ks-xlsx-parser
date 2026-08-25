@@ -106,9 +106,13 @@ def _chunk_cells(chunk: ChunkDTO, workbook: WorkbookDTO) -> list[dict[str, Any]]
             # colors: font and fill from style
             font_color = None
             fill_color = None
+            # strikethrough commonly marks deprecated/void rows, so downstream
+            # consumers need it alongside the colors.
+            font_strikethrough = False
             if cell.style:
-                if cell.style.font and cell.style.font.color:
+                if cell.style.font:
                     font_color = cell.style.font.color
+                    font_strikethrough = cell.style.font.strikethrough
                 if cell.style.fill and cell.style.fill.fg_color:
                     fill_color = cell.style.fill.fg_color
             cells.append({
@@ -117,6 +121,7 @@ def _chunk_cells(chunk: ChunkDTO, workbook: WorkbookDTO) -> list[dict[str, Any]]
                 "formula": formula,
                 "font_color": font_color,
                 "fill_color": fill_color,
+                "font_strikethrough": font_strikethrough,
             })
     return cells
 
