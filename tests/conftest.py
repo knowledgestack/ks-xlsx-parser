@@ -43,6 +43,7 @@ PROGRAMMATIC_FIXTURE_NAMES = [
     "styled_workbook",
     "strikethrough_workbook",
     "overlapping_merges_workbook",
+    "styled_empty_cells_workbook",
     "assumptions_workbook",
     "hyperlink_workbook",
     "two_tables_vertical",
@@ -472,6 +473,35 @@ def strikethrough_workbook(tmp_dir) -> Path:
     ws["C1"].font = Font(bold=True, strike=True, color="FF0000")
     ws["D1"] = "Underline"
     ws["D1"].font = Font(underline="single")
+
+    wb.save(path)
+    return path
+
+
+@pytest.fixture
+def styled_empty_cells_workbook(tmp_dir) -> Path:
+    """
+    Workbook whose formatting lives on cells that hold no value.
+
+    One cell per style aspect, so a predicate that enumerates attributes
+    instead of asking openpyxl fails on whichever aspect it forgot. A6 is the
+    control: touched by nothing, and must stay out of the parse output.
+    """
+    path = tmp_dir / "styled_empty.xlsx"
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Sheet1"
+
+    ws["A1"] = "anchor"  # keeps the sheet's used range honest
+    ws["B1"].font = Font(strike=True)
+    ws["B2"].font = Font(underline="single")
+    ws["B3"].font = Font(bold=True)
+    ws["B4"].font = Font(size=20)
+    ws["B5"].font = Font(name="Courier New")
+    ws["C1"].number_format = "0.00%"
+    ws["C2"].alignment = Alignment(horizontal="center")
+    ws["C3"].fill = PatternFill("solid", fgColor="FFFF00")
+    ws["C4"].border = Border(left=Side(style="thin"))
 
     wb.save(path)
     return path

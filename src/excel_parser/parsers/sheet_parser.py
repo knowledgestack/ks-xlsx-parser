@@ -38,6 +38,11 @@ from .cell_parser import CellParser
 
 logger = logging.getLogger(__name__)
 
+# openpyxl style-array slots that hold a non-zero id when the cell's format
+# differs from the workbook default. These are the five aspects the parser
+# turns into a CellStyle; see SheetParser._has_meaningful_style.
+_STYLED_STYLE_SLOTS = ("fontId", "fillId", "borderId", "numFmtId", "alignmentId")
+
 
 class SheetParser:
     """
@@ -175,10 +180,14 @@ class SheetParser:
 
             # Skip truly empty cells (no value, no formula, no style worth capturing)
             if cell.value is None and cell.data_type != "f" and not self._has_meaningful_style(cell):
-                # But still capture merged slaves
+                # But never drop a cell taking part in a merge. Slaves arrive as
+                # openpyxl MergedCell instances; the master is an ordinary Cell
+                # and can be empty, so it has to be recognised via the merge
+                # lookup. Dropping it strands every slave in the region with a
+                # merge_master that does not exist.
                 from openpyxl.cell.cell import MergedCell as MergedCellType
 
-                if not isinstance(cell, MergedCellType):
+                if not isinstance(cell, MergedCellType) and (cell.row, cell.column) not in merge_masters:
                     continue
 
             # Get computed value. Prefer the calamine-provided dict (populated
@@ -221,7 +230,18 @@ class SheetParser:
                 cell_dto.is_merged_slave = False
                 cell_dto.merge_master = None
 
-            if not cell_dto.is_empty or cell_dto.is_merged_slave or cell_dto.is_merged_master:
+            # Keep a valueless cell when it carries formatting. Without this
+            # the _has_meaningful_style skip above was inert: it spared the
+            # cell from the early `continue` only for this gate to drop it,
+            # so styling on empty cells was parsed and then thrown away.
+            # Strikethrough or a fill on an otherwise blank row is exactly the
+            # "this is deprecated" marker downstream consumers need to see.
+            if (
+                not cell_dto.is_empty
+                or cell_dto.is_merged_slave
+                or cell_dto.is_merged_master
+                or cell_dto.style is not None
+            ):
                 sheet.set_cell(cell_dto)
                 cell_count += 1
 
@@ -761,17 +781,28 @@ class SheetParser:
 
     @staticmethod
     def _has_meaningful_style(cell) -> bool:
-        """Check if a cell has non-default styling worth preserving."""
-        try:
-            if cell.font and (cell.font.bold or cell.font.italic or cell.font.color):
-                return True
-            if cell.fill and cell.fill.patternType and cell.fill.patternType != "none":
-                return True
-            if cell.border:
-                for side in ("left", "right", "top", "bottom"):
-                    s = getattr(cell.border, side, None)
-                    if s and s.style:
-                        return True
-        except Exception:
-            pass
-        return False
+        """
+        Whether a valueless cell carries formatting worth keeping.
+
+        This gates the skip for empty cells, so a false negative discards
+        formatting outright. The previous implementation enumerated three font
+        attributes (bold/italic/color) and was wrong in both directions: it
+        dropped cells whose only formatting was strikethrough, underline, a
+        font size or a font name, and it kept every *untouched* cell, because
+        an explicitly-built partial ``Font`` leaves ``color`` as None while the
+        inherited default font has one.
+
+        openpyxl already records which aspects of a cell's format differ from
+        the workbook default, as non-zero style ids, so read that instead of
+        re-deriving it attribute by attribute — the enumeration is what grew
+        the blind spot. The slots checked are exactly the five aspects
+        ``_extract_style`` can turn into a CellStyle; protection and
+        quotePrefix are excluded because they carry nothing for an empty cell.
+        """
+        # openpyxl exposes ``has_style`` but not the ids behind it, hence
+        # ``_style``; guarded so a future rename degrades to "not styled"
+        # rather than raising mid-parse.
+        style = getattr(cell, "_style", None)
+        if style is None:
+            return False
+        return any(getattr(style, slot, 0) for slot in _STYLED_STYLE_SLOTS)
