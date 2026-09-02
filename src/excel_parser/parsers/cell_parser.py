@@ -30,6 +30,9 @@ from excel_parser.models.common import CellCoord, RichTextRun
 
 logger = logging.getLogger(__name__)
 
+# Sentinel used to detect fonts with no non-default attributes.
+_DEFAULT_FONT = FontStyle()
+
 # Regex to extract cell and range references from formulas
 # Matches: A1, $A$1, Sheet1!A1, Sheet1!$A$1:$B$10, 'Sheet Name'!A1
 _REF_RE = re.compile(
@@ -279,12 +282,16 @@ class CellParser:
         alignment = self._extract_alignment(cell)
         number_format = cell.number_format if cell.number_format != "General" else None
 
-        # Check if any style is non-default
+        # Check if any style is non-default. Compare against the default DTO
+        # instead of enumerating attributes: an attribute-by-attribute check
+        # silently drops cells whose only formatting is an unlisted attribute
+        # (e.g. strikethrough-only or underline-only cells). The _extract_*
+        # helpers already return None when nothing is set.
         has_style = any([
-            font and (font.bold or font.italic or font.name or font.size or font.color),
-            fill and fill.fg_color,
-            border and any([border.left, border.right, border.top, border.bottom]),
-            alignment and (alignment.horizontal or alignment.vertical or alignment.wrap_text),
+            font is not None and font != _DEFAULT_FONT,
+            fill is not None,
+            border is not None,
+            alignment is not None,
             number_format,
         ])
 

@@ -7,7 +7,15 @@ tables, comments, data validations, and sheet properties.
 """
 
 
+import openpyxl
+import pytest
+from openpyxl import Workbook
+from openpyxl.styles import Font
+
+from excel_parser.models.common import Severity
 from excel_parser.parsers import WorkbookParser
+from excel_parser.parsers.sheet_parser import SheetParser
+from tests.helpers.invariant_checker import check_invariants
 
 
 class TestSimpleWorkbook:
@@ -85,6 +93,174 @@ class TestMergedCells:
         b1 = sheet.get_cell(1, 2)  # Slave in A1:D1 merge
         assert b1 is not None
         assert b1.is_merged_slave is True
+
+
+class TestStyledEmptyCells:
+    """
+    Formatting on a valueless cell must survive the parse.
+
+    Two bugs met here. ``_has_meaningful_style`` enumerated three font
+    attributes and so missed strikethrough, underline, size and name, while
+    reporting *untouched* cells as styled (a partial ``Font`` leaves ``color``
+    None; the inherited default font has one). And the gate that stores cells
+    dropped anything empty regardless, which made the predicate inert — the
+    styling was parsed and then discarded.
+    """
+
+    @pytest.mark.parametrize(
+        ("coord", "attr", "expected"),
+        [
+            ((1, 2), "strikethrough", True),
+            ((2, 2), "underline", "single"),
+            ((3, 2), "bold", True),
+            ((4, 2), "size", 20.0),
+            ((5, 2), "name", "Courier New"),
+        ],
+    )
+    def test_font_only_empty_cell_kept(
+        self, styled_empty_cells_workbook, coord, attr, expected
+    ):
+        result = WorkbookParser(path=styled_empty_cells_workbook).parse()
+        cell = result.sheets[0].get_cell(*coord)
+        assert cell is not None, f"empty cell with {attr} was discarded"
+        assert cell.style is not None and cell.style.font is not None
+        assert getattr(cell.style.font, attr) == expected
+
+    @pytest.mark.parametrize(
+        ("coord", "attr"),
+        [
+            ((1, 3), "number_format"),
+            ((2, 3), "alignment"),
+            ((3, 3), "fill"),
+            ((4, 3), "border"),
+        ],
+    )
+    def test_non_font_only_empty_cell_kept(self, styled_empty_cells_workbook, coord, attr):
+        result = WorkbookParser(path=styled_empty_cells_workbook).parse()
+        cell = result.sheets[0].get_cell(*coord)
+        assert cell is not None, f"empty cell with {attr} was discarded"
+        assert cell.style is not None
+        assert getattr(cell.style, attr) is not None
+
+    def test_untouched_empty_cell_still_dropped(self, styled_empty_cells_workbook):
+        """The fix must not start hoarding genuinely blank cells."""
+        result = WorkbookParser(path=styled_empty_cells_workbook).parse()
+        sheet = result.sheets[0]
+        assert sheet.get_cell(6, 1) is None
+        assert sheet.get_cell(20, 20) is None
+
+    def test_styled_empty_cells_are_still_empty(self, styled_empty_cells_workbook):
+        """Kept for their style, not misreported as carrying data."""
+        result = WorkbookParser(path=styled_empty_cells_workbook).parse()
+        cell = result.sheets[0].get_cell(1, 2)
+        assert cell.is_empty is True
+        assert cell.raw_value is None
+
+    def test_unstyled_empty_merge_master_is_kept(self, tmp_dir):
+        """
+        A merge master that is empty *and* unstyled must survive the skip.
+
+        It arrives as an ordinary Cell, not a MergedCell, so the empty-cell
+        skip only spares it via the merge lookup. Dropping it strands every
+        slave in the region with a merge_master that does not exist — which
+        the old predicate hid by calling every untouched cell styled.
+        """
+        path = tmp_dir / "empty_unstyled_master.xlsx"
+        wb = Workbook()
+        ws = wb.active
+        ws["A1"] = "anchor"
+        ws.merge_cells("B2:D2")  # master B2 left empty and unformatted
+        wb.save(path)
+
+        result = WorkbookParser(path=path).parse()
+        sheet = result.sheets[0]
+        master = sheet.get_cell(2, 2)
+        assert master is not None, "empty unstyled merge master was discarded"
+        assert master.is_merged_master is True
+        assert check_invariants(result) == []
+
+    def test_predicate_rejects_unstyled_cell(self, tmp_dir):
+        """_has_meaningful_style must not call every default cell styled."""
+        path = tmp_dir / "one_styled.xlsx"
+        wb = Workbook()
+        ws = wb.active
+        ws["A1"] = "anchor"
+        ws["B1"].font = Font(strike=True)
+        wb.save(path)
+
+        loaded = openpyxl.load_workbook(path).active
+        assert SheetParser._has_meaningful_style(loaded["B1"]) is True
+        # A1 carries a value but no styling; C1 was never touched at all.
+        assert SheetParser._has_meaningful_style(loaded["A1"]) is False
+        assert SheetParser._has_meaningful_style(loaded["C1"]) is False
+
+
+class TestOverlappingMerges:
+    """
+    Overlapping merged regions must not corrupt the merge invariants.
+
+    A flat (row, col) -> master lookup let a later region overwrite an
+    earlier one, so a cell in the intersection came out flagged both master
+    and slave, or a slave pointing at a master that was never flagged.
+    """
+
+    def test_invariants_hold(self, overlapping_merges_workbook):
+        result = WorkbookParser(path=overlapping_merges_workbook).parse()
+        assert check_invariants(result) == []
+
+    def test_no_cell_is_both_master_and_slave(self, overlapping_merges_workbook):
+        result = WorkbookParser(path=overlapping_merges_workbook).parse()
+        for sheet in result.sheets:
+            for cell in sheet.cells.values():
+                assert not (cell.is_merged_master and cell.is_merged_slave), (
+                    f"{cell.a1_ref} is both master and slave"
+                )
+
+    def test_every_slave_points_at_a_flagged_master(self, overlapping_merges_workbook):
+        result = WorkbookParser(path=overlapping_merges_workbook).parse()
+        for sheet in result.sheets:
+            for cell in sheet.cells.values():
+                if not cell.is_merged_slave:
+                    continue
+                assert cell.merge_master is not None, f"{cell.a1_ref} slave with no master"
+                master = sheet.get_cell(cell.merge_master.row, cell.merge_master.col)
+                assert master is not None and master.is_merged_master
+
+    def test_overlaps_are_dropped_not_silently_kept(self, overlapping_merges_workbook):
+        result = WorkbookParser(path=overlapping_merges_workbook).parse()
+        sheet = result.sheets[0]
+        # Four regions declared, two of them overlapping an earlier one.
+        assert len(sheet.merged_regions) == 2
+        kept = {r.range.to_a1() for r in sheet.merged_regions}
+        assert kept == {"B2:C5", "H2:J5"}
+
+    def test_dropped_overlaps_are_reported(self, overlapping_merges_workbook):
+        result = WorkbookParser(path=overlapping_merges_workbook).parse()
+        sheet = result.sheets[0]
+        warnings = [e for e in sheet.errors if "Overlapping merged regions" in e.message]
+        assert len(warnings) == 2
+        assert all(w.severity == Severity.WARNING for w in warnings)
+
+    def test_resolution_is_reading_order_not_file_order(self, tmp_dir):
+        """The surviving region is the upper-left one regardless of declaration order."""
+        path = tmp_dir / "reversed_overlap.xlsx"
+        wb = Workbook()
+        ws = wb.active
+        # Declared bottom-right first; B2:C5 must still be the survivor.
+        for rng in ("C5:E8", "B2:C5"):
+            ws.merge_cells(rng)
+        wb.save(path)
+
+        result = WorkbookParser(path=path).parse()
+        kept = {r.range.to_a1() for r in result.sheets[0].merged_regions}
+        assert kept == {"B2:C5"}
+
+    def test_non_overlapping_merges_are_untouched(self, merged_cells_workbook):
+        """The overlap pass must not perturb well-formed workbooks."""
+        result = WorkbookParser(path=merged_cells_workbook).parse()
+        sheet = result.sheets[0]
+        assert not [e for e in sheet.errors if "Overlapping" in e.message]
+        assert len(sheet.merged_regions) >= 2
 
 
 class TestEmptyMasterRecovery:
@@ -287,6 +463,35 @@ class TestStyledWorkbook:
         sheet = result.sheets[0]
         a1 = sheet.get_cell(1, 1)
         assert a1.style.border is not None
+
+
+class TestStrikethroughOnlyStyles:
+    """Cells whose only non-default font attribute must keep their style."""
+
+    def test_strikethrough_only_cell_keeps_style(self, strikethrough_workbook):
+        result = WorkbookParser(path=strikethrough_workbook).parse()
+        b1 = result.sheets[0].get_cell(1, 2)
+        assert b1.style is not None
+        assert b1.style.font is not None
+        assert b1.style.font.strikethrough is True
+
+    def test_underline_only_cell_keeps_style(self, strikethrough_workbook):
+        result = WorkbookParser(path=strikethrough_workbook).parse()
+        d1 = result.sheets[0].get_cell(1, 4)
+        assert d1.style is not None
+        assert d1.style.font is not None
+        assert d1.style.font.underline == "single"
+
+    def test_strikethrough_with_other_attributes(self, strikethrough_workbook):
+        result = WorkbookParser(path=strikethrough_workbook).parse()
+        c1 = result.sheets[0].get_cell(1, 3)
+        assert c1.style.font.strikethrough is True
+        assert c1.style.font.bold is True
+
+    def test_unstruck_cell_reports_false(self, strikethrough_workbook):
+        result = WorkbookParser(path=strikethrough_workbook).parse()
+        a1 = result.sheets[0].get_cell(1, 1)
+        assert a1.style.font.strikethrough is False
 
 
 class TestWideSheet:

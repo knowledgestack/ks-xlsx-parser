@@ -41,6 +41,9 @@ PROGRAMMATIC_FIXTURE_NAMES = [
     "freeze_panes_workbook",
     "wide_workbook",
     "styled_workbook",
+    "strikethrough_workbook",
+    "overlapping_merges_workbook",
+    "styled_empty_cells_workbook",
     "assumptions_workbook",
     "hyperlink_workbook",
     "two_tables_vertical",
@@ -450,6 +453,87 @@ def wide_workbook(tmp_dir) -> Path:
         ws.cell(row=1, column=col).font = Font(bold=True)
         for row in range(2, 6):
             ws.cell(row=row, column=col, value=col * row)
+
+    wb.save(path)
+    return path
+
+
+@pytest.fixture
+def strikethrough_workbook(tmp_dir) -> Path:
+    """Workbook whose only formatting on some cells is strikethrough/underline."""
+    path = tmp_dir / "strikethrough.xlsx"
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Sheet1"
+
+    ws["A1"] = "Normal"
+    ws["B1"] = "Strike"
+    ws["B1"].font = Font(strike=True)
+    ws["C1"] = "BoldStrike"
+    ws["C1"].font = Font(bold=True, strike=True, color="FF0000")
+    ws["D1"] = "Underline"
+    ws["D1"].font = Font(underline="single")
+
+    wb.save(path)
+    return path
+
+
+@pytest.fixture
+def styled_empty_cells_workbook(tmp_dir) -> Path:
+    """
+    Workbook whose formatting lives on cells that hold no value.
+
+    One cell per style aspect, so a predicate that enumerates attributes
+    instead of asking openpyxl fails on whichever aspect it forgot. A6 is the
+    control: touched by nothing, and must stay out of the parse output.
+    """
+    path = tmp_dir / "styled_empty.xlsx"
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Sheet1"
+
+    ws["A1"] = "anchor"  # keeps the sheet's used range honest
+    ws["B1"].font = Font(strike=True)
+    ws["B2"].font = Font(underline="single")
+    ws["B3"].font = Font(bold=True)
+    ws["B4"].font = Font(size=20)
+    ws["B5"].font = Font(name="Courier New")
+    ws["C1"].number_format = "0.00%"
+    ws["C2"].alignment = Alignment(horizontal="center")
+    ws["C3"].fill = PatternFill("solid", fgColor="FFFF00")
+    ws["C4"].border = Border(left=Side(style="thin"))
+
+    wb.save(path)
+    return path
+
+
+@pytest.fixture
+def overlapping_merges_workbook(tmp_dir) -> Path:
+    """
+    Workbook with merged regions that overlap each other.
+
+    Excel forbids this, but machine-generated files contain it. Both shapes
+    that broke the merge invariants are represented:
+
+    * ``B2:C5`` / ``C5:E8`` — C5 is the master of one region and a slave of
+      the other, so the region that lost the race left C5 flagged as a slave
+      whose master was never flagged (``M2``).
+    * ``H2:J5`` / ``I4:L7`` — I4 is a master and a slave simultaneously,
+      leaving it flagged both (``M4``) and slave-with-no-master (``M1``).
+    """
+    path = tmp_dir / "overlapping_merges.xlsx"
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Sheet1"
+
+    ws["A1"] = "Overlapping merge regions"
+    ws["B2"] = "first"
+    ws["C5"] = "second"
+    ws["H2"] = "third"
+    ws["I4"] = "fourth"
+
+    for rng in ("B2:C5", "C5:E8", "H2:J5", "I4:L7"):
+        ws.merge_cells(rng)
 
     wb.save(path)
     return path

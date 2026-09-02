@@ -38,6 +38,11 @@ from .cell_parser import CellParser
 
 logger = logging.getLogger(__name__)
 
+# openpyxl style-array slots that hold a non-zero id when the cell's format
+# differs from the workbook default. These are the five aspects the parser
+# turns into a CellStyle; see SheetParser._has_meaningful_style.
+_STYLED_STYLE_SLOTS = ("fontId", "fillId", "borderId", "numFmtId", "alignmentId")
+
 
 class SheetParser:
     """
@@ -97,8 +102,10 @@ class SheetParser:
         # Extract properties first
         sheet.properties = self._extract_properties()
 
-        # Extract merged regions
-        sheet.merged_regions = self._extract_merges()
+        # Extract merged regions. Overlapping regions cannot be represented
+        # consistently (a cell would be master of one and slave of another),
+        # so drop the losers before anything downstream sees them.
+        sheet.merged_regions = self._resolve_overlapping_merges(sheet, self._extract_merges())
 
         # Build merge lookup for cell parsing
         merge_masters = self._build_merge_lookup(sheet.merged_regions)
@@ -173,10 +180,14 @@ class SheetParser:
 
             # Skip truly empty cells (no value, no formula, no style worth capturing)
             if cell.value is None and cell.data_type != "f" and not self._has_meaningful_style(cell):
-                # But still capture merged slaves
+                # But never drop a cell taking part in a merge. Slaves arrive as
+                # openpyxl MergedCell instances; the master is an ordinary Cell
+                # and can be empty, so it has to be recognised via the merge
+                # lookup. Dropping it strands every slave in the region with a
+                # merge_master that does not exist.
                 from openpyxl.cell.cell import MergedCell as MergedCellType
 
-                if not isinstance(cell, MergedCellType):
+                if not isinstance(cell, MergedCellType) and (cell.row, cell.column) not in merge_masters:
                     continue
 
             # Get computed value. Prefer the calamine-provided dict (populated
@@ -195,19 +206,42 @@ class SheetParser:
 
             cell_dto = self._cell_parser.parse(cell, computed_value)
 
-            # Annotate merge info
+            # Annotate merge info. CellParser pre-flags any openpyxl MergedCell
+            # as a slave without knowing its master, so the lookup is the single
+            # authority here: it must set master/slave exclusively and clear the
+            # provisional flag for merges we ended up not tracking.
             key = (cell.row, cell.column)
-            if key in merge_masters:
-                master_coord, row_span, col_span = merge_masters[key]
+            merge_info = merge_masters.get(key)
+            if merge_info is not None:
+                master_coord, row_span, col_span = merge_info
                 if master_coord.row == cell.row and master_coord.col == cell.column:
                     cell_dto.is_merged_master = True
+                    cell_dto.is_merged_slave = False
+                    cell_dto.merge_master = None
                     cell_dto.merge_extent = row_span
                     cell_dto.merge_col_extent = col_span
                 else:
                     cell_dto.is_merged_slave = True
+                    cell_dto.is_merged_master = False
                     cell_dto.merge_master = master_coord
+            elif cell_dto.is_merged_slave:
+                # openpyxl reported a MergedCell for a region we do not track
+                # (a dropped overlap, or a stale range): not a slave of anything.
+                cell_dto.is_merged_slave = False
+                cell_dto.merge_master = None
 
-            if not cell_dto.is_empty or cell_dto.is_merged_slave or cell_dto.is_merged_master:
+            # Keep a valueless cell when it carries formatting. Without this
+            # the _has_meaningful_style skip above was inert: it spared the
+            # cell from the early `continue` only for this gate to drop it,
+            # so styling on empty cells was parsed and then thrown away.
+            # Strikethrough or a fill on an otherwise blank row is exactly the
+            # "this is deprecated" marker downstream consumers need to see.
+            if (
+                not cell_dto.is_empty
+                or cell_dto.is_merged_slave
+                or cell_dto.is_merged_master
+                or cell_dto.style is not None
+            ):
                 sheet.set_cell(cell_dto)
                 cell_count += 1
 
@@ -224,6 +258,85 @@ class SheetParser:
             master = CellCoord(row=min_row, col=min_col)
             regions.append(MergedRegion(range=cell_range, master=master))
         return regions
+
+    @staticmethod
+    def _ranges_overlap(a: CellRange, b: CellRange) -> bool:
+        """True when two rectangular ranges share at least one cell."""
+        return not (
+            a.bottom_right.row < b.top_left.row
+            or b.bottom_right.row < a.top_left.row
+            or a.bottom_right.col < b.top_left.col
+            or b.bottom_right.col < a.top_left.col
+        )
+
+    def _resolve_overlapping_merges(
+        self, sheet: SheetDTO, regions: list[MergedRegion]
+    ) -> list[MergedRegion]:
+        """
+        Drop merged regions that overlap an already-accepted region.
+
+        Excel forbids overlapping merges, but malformed and machine-generated
+        files contain them. They cannot be represented consistently: a cell in
+        the intersection would be the master of one region and a slave of
+        another, so ``_build_merge_lookup``'s flat dict silently kept whichever
+        region came last and left the cell flagged both master and slave (or a
+        slave whose master was never flagged).
+
+        Resolution is first-come in reading order (top-left row, then column),
+        which is deterministic regardless of the order the file lists them in.
+        Dropped regions are reported as warnings rather than dropped silently.
+        """
+        if len(regions) < 2:
+            return regions
+
+        ordered = sorted(
+            range(len(regions)),
+            key=lambda i: (
+                regions[i].range.top_left.row,
+                regions[i].range.top_left.col,
+                regions[i].range.bottom_right.row,
+                regions[i].range.bottom_right.col,
+            ),
+        )
+
+        kept: list[int] = []
+        dropped: list[tuple[MergedRegion, MergedRegion]] = []
+        for i in ordered:
+            clash = next(
+                (k for k in kept if self._ranges_overlap(regions[i].range, regions[k].range)),
+                None,
+            )
+            if clash is None:
+                kept.append(i)
+            else:
+                dropped.append((regions[i], regions[clash]))
+
+        if not dropped:
+            return regions
+
+        for loser, winner in dropped:
+            sheet.errors.append(
+                ParseError(
+                    severity=Severity.WARNING,
+                    stage="parse",
+                    message=(
+                        f"Overlapping merged regions: {loser.range.to_a1()} overlaps "
+                        f"{winner.range.to_a1()}; {loser.range.to_a1()} was dropped"
+                    ),
+                    sheet_name=self._sheet_name,
+                )
+            )
+        logger.warning(
+            "Sheet %s: dropped %d of %d merged regions for overlapping",
+            self._sheet_name,
+            len(dropped),
+            len(regions),
+        )
+
+        # Preserve the file's original ordering among the surviving regions so
+        # non-overlapping workbooks are completely unaffected by this pass.
+        survivors = set(kept)
+        return [r for i, r in enumerate(regions) if i in survivors]
 
     def _build_merge_lookup(
         self, regions: list[MergedRegion]
@@ -668,17 +781,28 @@ class SheetParser:
 
     @staticmethod
     def _has_meaningful_style(cell) -> bool:
-        """Check if a cell has non-default styling worth preserving."""
-        try:
-            if cell.font and (cell.font.bold or cell.font.italic or cell.font.color):
-                return True
-            if cell.fill and cell.fill.patternType and cell.fill.patternType != "none":
-                return True
-            if cell.border:
-                for side in ("left", "right", "top", "bottom"):
-                    s = getattr(cell.border, side, None)
-                    if s and s.style:
-                        return True
-        except Exception:
-            pass
-        return False
+        """
+        Whether a valueless cell carries formatting worth keeping.
+
+        This gates the skip for empty cells, so a false negative discards
+        formatting outright. The previous implementation enumerated three font
+        attributes (bold/italic/color) and was wrong in both directions: it
+        dropped cells whose only formatting was strikethrough, underline, a
+        font size or a font name, and it kept every *untouched* cell, because
+        an explicitly-built partial ``Font`` leaves ``color`` as None while the
+        inherited default font has one.
+
+        openpyxl already records which aspects of a cell's format differ from
+        the workbook default, as non-zero style ids, so read that instead of
+        re-deriving it attribute by attribute — the enumeration is what grew
+        the blind spot. The slots checked are exactly the five aspects
+        ``_extract_style`` can turn into a CellStyle; protection and
+        quotePrefix are excluded because they carry nothing for an empty cell.
+        """
+        # openpyxl exposes ``has_style`` but not the ids behind it, hence
+        # ``_style``; guarded so a future rename degrades to "not styled"
+        # rather than raising mid-parse.
+        style = getattr(cell, "_style", None)
+        if style is None:
+            return False
+        return any(getattr(style, slot, 0) for slot in _STYLED_STYLE_SLOTS)
