@@ -97,8 +97,10 @@ class SheetParser:
         # Extract properties first
         sheet.properties = self._extract_properties()
 
-        # Extract merged regions
-        sheet.merged_regions = self._extract_merges()
+        # Extract merged regions. Overlapping regions cannot be represented
+        # consistently (a cell would be master of one and slave of another),
+        # so drop the losers before anything downstream sees them.
+        sheet.merged_regions = self._resolve_overlapping_merges(sheet, self._extract_merges())
 
         # Build merge lookup for cell parsing
         merge_masters = self._build_merge_lookup(sheet.merged_regions)
@@ -195,17 +197,29 @@ class SheetParser:
 
             cell_dto = self._cell_parser.parse(cell, computed_value)
 
-            # Annotate merge info
+            # Annotate merge info. CellParser pre-flags any openpyxl MergedCell
+            # as a slave without knowing its master, so the lookup is the single
+            # authority here: it must set master/slave exclusively and clear the
+            # provisional flag for merges we ended up not tracking.
             key = (cell.row, cell.column)
-            if key in merge_masters:
-                master_coord, row_span, col_span = merge_masters[key]
+            merge_info = merge_masters.get(key)
+            if merge_info is not None:
+                master_coord, row_span, col_span = merge_info
                 if master_coord.row == cell.row and master_coord.col == cell.column:
                     cell_dto.is_merged_master = True
+                    cell_dto.is_merged_slave = False
+                    cell_dto.merge_master = None
                     cell_dto.merge_extent = row_span
                     cell_dto.merge_col_extent = col_span
                 else:
                     cell_dto.is_merged_slave = True
+                    cell_dto.is_merged_master = False
                     cell_dto.merge_master = master_coord
+            elif cell_dto.is_merged_slave:
+                # openpyxl reported a MergedCell for a region we do not track
+                # (a dropped overlap, or a stale range): not a slave of anything.
+                cell_dto.is_merged_slave = False
+                cell_dto.merge_master = None
 
             if not cell_dto.is_empty or cell_dto.is_merged_slave or cell_dto.is_merged_master:
                 sheet.set_cell(cell_dto)
@@ -224,6 +238,85 @@ class SheetParser:
             master = CellCoord(row=min_row, col=min_col)
             regions.append(MergedRegion(range=cell_range, master=master))
         return regions
+
+    @staticmethod
+    def _ranges_overlap(a: CellRange, b: CellRange) -> bool:
+        """True when two rectangular ranges share at least one cell."""
+        return not (
+            a.bottom_right.row < b.top_left.row
+            or b.bottom_right.row < a.top_left.row
+            or a.bottom_right.col < b.top_left.col
+            or b.bottom_right.col < a.top_left.col
+        )
+
+    def _resolve_overlapping_merges(
+        self, sheet: SheetDTO, regions: list[MergedRegion]
+    ) -> list[MergedRegion]:
+        """
+        Drop merged regions that overlap an already-accepted region.
+
+        Excel forbids overlapping merges, but malformed and machine-generated
+        files contain them. They cannot be represented consistently: a cell in
+        the intersection would be the master of one region and a slave of
+        another, so ``_build_merge_lookup``'s flat dict silently kept whichever
+        region came last and left the cell flagged both master and slave (or a
+        slave whose master was never flagged).
+
+        Resolution is first-come in reading order (top-left row, then column),
+        which is deterministic regardless of the order the file lists them in.
+        Dropped regions are reported as warnings rather than dropped silently.
+        """
+        if len(regions) < 2:
+            return regions
+
+        ordered = sorted(
+            range(len(regions)),
+            key=lambda i: (
+                regions[i].range.top_left.row,
+                regions[i].range.top_left.col,
+                regions[i].range.bottom_right.row,
+                regions[i].range.bottom_right.col,
+            ),
+        )
+
+        kept: list[int] = []
+        dropped: list[tuple[MergedRegion, MergedRegion]] = []
+        for i in ordered:
+            clash = next(
+                (k for k in kept if self._ranges_overlap(regions[i].range, regions[k].range)),
+                None,
+            )
+            if clash is None:
+                kept.append(i)
+            else:
+                dropped.append((regions[i], regions[clash]))
+
+        if not dropped:
+            return regions
+
+        for loser, winner in dropped:
+            sheet.errors.append(
+                ParseError(
+                    severity=Severity.WARNING,
+                    stage="parse",
+                    message=(
+                        f"Overlapping merged regions: {loser.range.to_a1()} overlaps "
+                        f"{winner.range.to_a1()}; {loser.range.to_a1()} was dropped"
+                    ),
+                    sheet_name=self._sheet_name,
+                )
+            )
+        logger.warning(
+            "Sheet %s: dropped %d of %d merged regions for overlapping",
+            self._sheet_name,
+            len(dropped),
+            len(regions),
+        )
+
+        # Preserve the file's original ordering among the surviving regions so
+        # non-overlapping workbooks are completely unaffected by this pass.
+        survivors = set(kept)
+        return [r for i, r in enumerate(regions) if i in survivors]
 
     def _build_merge_lookup(
         self, regions: list[MergedRegion]

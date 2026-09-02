@@ -42,6 +42,7 @@ PROGRAMMATIC_FIXTURE_NAMES = [
     "wide_workbook",
     "styled_workbook",
     "strikethrough_workbook",
+    "overlapping_merges_workbook",
     "assumptions_workbook",
     "hyperlink_workbook",
     "two_tables_vertical",
@@ -471,6 +472,38 @@ def strikethrough_workbook(tmp_dir) -> Path:
     ws["C1"].font = Font(bold=True, strike=True, color="FF0000")
     ws["D1"] = "Underline"
     ws["D1"].font = Font(underline="single")
+
+    wb.save(path)
+    return path
+
+
+@pytest.fixture
+def overlapping_merges_workbook(tmp_dir) -> Path:
+    """
+    Workbook with merged regions that overlap each other.
+
+    Excel forbids this, but machine-generated files contain it. Both shapes
+    that broke the merge invariants are represented:
+
+    * ``B2:C5`` / ``C5:E8`` — C5 is the master of one region and a slave of
+      the other, so the region that lost the race left C5 flagged as a slave
+      whose master was never flagged (``M2``).
+    * ``H2:J5`` / ``I4:L7`` — I4 is a master and a slave simultaneously,
+      leaving it flagged both (``M4``) and slave-with-no-master (``M1``).
+    """
+    path = tmp_dir / "overlapping_merges.xlsx"
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Sheet1"
+
+    ws["A1"] = "Overlapping merge regions"
+    ws["B2"] = "first"
+    ws["C5"] = "second"
+    ws["H2"] = "third"
+    ws["I4"] = "fourth"
+
+    for rng in ("B2:C5", "C5:E8", "H2:J5", "I4:L7"):
+        ws.merge_cells(rng)
 
     wb.save(path)
     return path

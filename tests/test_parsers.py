@@ -7,7 +7,11 @@ tables, comments, data validations, and sheet properties.
 """
 
 
+from openpyxl import Workbook
+
+from excel_parser.models.common import Severity
 from excel_parser.parsers import WorkbookParser
+from tests.helpers.invariant_checker import check_invariants
 
 
 class TestSimpleWorkbook:
@@ -85,6 +89,74 @@ class TestMergedCells:
         b1 = sheet.get_cell(1, 2)  # Slave in A1:D1 merge
         assert b1 is not None
         assert b1.is_merged_slave is True
+
+
+class TestOverlappingMerges:
+    """
+    Overlapping merged regions must not corrupt the merge invariants.
+
+    A flat (row, col) -> master lookup let a later region overwrite an
+    earlier one, so a cell in the intersection came out flagged both master
+    and slave, or a slave pointing at a master that was never flagged.
+    """
+
+    def test_invariants_hold(self, overlapping_merges_workbook):
+        result = WorkbookParser(path=overlapping_merges_workbook).parse()
+        assert check_invariants(result) == []
+
+    def test_no_cell_is_both_master_and_slave(self, overlapping_merges_workbook):
+        result = WorkbookParser(path=overlapping_merges_workbook).parse()
+        for sheet in result.sheets:
+            for cell in sheet.cells.values():
+                assert not (cell.is_merged_master and cell.is_merged_slave), (
+                    f"{cell.a1_ref} is both master and slave"
+                )
+
+    def test_every_slave_points_at_a_flagged_master(self, overlapping_merges_workbook):
+        result = WorkbookParser(path=overlapping_merges_workbook).parse()
+        for sheet in result.sheets:
+            for cell in sheet.cells.values():
+                if not cell.is_merged_slave:
+                    continue
+                assert cell.merge_master is not None, f"{cell.a1_ref} slave with no master"
+                master = sheet.get_cell(cell.merge_master.row, cell.merge_master.col)
+                assert master is not None and master.is_merged_master
+
+    def test_overlaps_are_dropped_not_silently_kept(self, overlapping_merges_workbook):
+        result = WorkbookParser(path=overlapping_merges_workbook).parse()
+        sheet = result.sheets[0]
+        # Four regions declared, two of them overlapping an earlier one.
+        assert len(sheet.merged_regions) == 2
+        kept = {r.range.to_a1() for r in sheet.merged_regions}
+        assert kept == {"B2:C5", "H2:J5"}
+
+    def test_dropped_overlaps_are_reported(self, overlapping_merges_workbook):
+        result = WorkbookParser(path=overlapping_merges_workbook).parse()
+        sheet = result.sheets[0]
+        warnings = [e for e in sheet.errors if "Overlapping merged regions" in e.message]
+        assert len(warnings) == 2
+        assert all(w.severity == Severity.WARNING for w in warnings)
+
+    def test_resolution_is_reading_order_not_file_order(self, tmp_dir):
+        """The surviving region is the upper-left one regardless of declaration order."""
+        path = tmp_dir / "reversed_overlap.xlsx"
+        wb = Workbook()
+        ws = wb.active
+        # Declared bottom-right first; B2:C5 must still be the survivor.
+        for rng in ("C5:E8", "B2:C5"):
+            ws.merge_cells(rng)
+        wb.save(path)
+
+        result = WorkbookParser(path=path).parse()
+        kept = {r.range.to_a1() for r in result.sheets[0].merged_regions}
+        assert kept == {"B2:C5"}
+
+    def test_non_overlapping_merges_are_untouched(self, merged_cells_workbook):
+        """The overlap pass must not perturb well-formed workbooks."""
+        result = WorkbookParser(path=merged_cells_workbook).parse()
+        sheet = result.sheets[0]
+        assert not [e for e in sheet.errors if "Overlapping" in e.message]
+        assert len(sheet.merged_regions) >= 2
 
 
 class TestEmptyMasterRecovery:
